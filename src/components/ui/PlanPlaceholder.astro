@@ -1,0 +1,86 @@
+---
+/** PLACEHOLDER floor plan drawing — shown until the real plan image exists. */
+interface Props {
+  variant: 'plan-single' | 'plan-duplex';
+  label?: string;
+  alt: string;
+  quiet?: boolean;
+}
+const { variant, label, alt, quiet = false } = Astro.props;
+
+type Room = [number, number, number, number, string, string?];
+const single: Room[] = [
+  [0, 0, 150, 120, 'Terrace', 'deck'],
+  [150, 0, 110, 70, 'Bedroom 2'],
+  [260, 0, 60, 70, 'Bath'],
+  [320, 0, 130, 70, 'Bedroom 1'],
+  [150, 70, 220, 110, 'Living / dining', 'tile'],
+  [370, 70, 80, 55, 'Kitchen'],
+  [370, 125, 80, 55, 'Entry'],
+];
+const lower: Room[] = [
+  [40, 0, 110, 110, 'Patio', 'deck'],
+  [150, 0, 150, 60, 'Room 3'],
+  [300, 0, 150, 60, 'Storage'],
+  [150, 60, 220, 70, 'Family room', 'tile'],
+  [370, 60, 80, 70, 'Bath'],
+];
+const plans = variant === 'plan-duplex' ? [single, lower] : [single];
+const w = 480;
+const h = variant === 'plan-duplex' ? 420 : 220;
+---
+
+<div class="plan-ph" role="img" aria-label={alt}>
+  <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <pattern id="deck" width="6" height="6" patternUnits="userSpaceOnUse">
+        <rect width="6" height="6" fill="#e8d7c4" /><path d="M0 0H6" stroke="#cdb59b" stroke-width=".6" />
+      </pattern>
+      <pattern id="tile" width="10" height="10" patternUnits="userSpaceOnUse">
+        <rect width="10" height="10" fill="#dcdcd8" /><path d="M10 0V10M0 10H10" stroke="#c6c6c1" stroke-width=".5" />
+      </pattern>
+    </defs>
+    {
+      plans.map((rooms, p) => (
+        <g transform={`translate(15 ${10 + p * 215})`}>
+          {rooms.map(([x, y, rw, rh, name, fill]) => (
+            <g>
+              <rect x={x} y={y} width={rw} height={rh} fill={fill ? `url(#${fill})` : '#ecebe6'} stroke="#1d2a36" stroke-width="1.2" />
+              <text x={x + rw / 2} y={y + rh / 2} text-anchor="middle" dominant-baseline="middle" font-size="7" fill="#1d2a36" opacity=".7" font-family="sans-serif">{name}</text>
+            </g>
+          ))}
+          <rect x="150" y="0" width="300" height={p === 0 ? 180 : 130} fill="none" stroke="#1d2a36" stroke-width="5" />
+          <text x="0" y={p === 0 ? 196 : 146} font-size="7" fill="#1d2a36" font-family="sans-serif" letter-spacing="1">
+            {p === 0 ? 'GROUND FLOOR' : 'LOWER LEVEL'}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+  {!quiet && <span class="plan-ph__label">Placeholder{label ? ` · ${label}` : ''}</span>}
+</div>
+
+<style>
+  .plan-ph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+  .plan-ph svg {
+    width: 100%;
+    height: 100%;
+  }
+  .plan-ph__label {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    font-family: var(--font-body);
+    font-stretch: 125%;
+    font-weight: 600;
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.45;
+  }
+</style>

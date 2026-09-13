@@ -1,0 +1,26 @@
+---
+import Mark from '../brand/Mark.astro';
+---
+
+<div class="curtain t-deep" data-curtain aria-hidden="true">
+  <Mark class="curtain__mark" />
+</div>
+
+<style>
+  .curtain {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-curtain);
+    display: grid;
+    place-items: center;
+    transform: translateY(100%);
+    pointer-events: none;
+  }
+  :global(.is-transitioning) .curtain {
+    transform: none;
+  }
+  .curtain :global(.curtain__mark) {
+    width: max(calc(46 * var(--u)), 36px);
+    opacity: 0.9;
+  }
+</style>

@@ -1,0 +1,176 @@
+---
+/**
+ * Fixed left rail: scroll percentage travelling along a hairline, plus a
+ * scroll/"to top" control. Inner pages pass breadcrumbs instead.
+ */
+interface Crumb {
+  label: string;
+  href?: string;
+}
+interface Props {
+  crumbs?: Crumb[];
+}
+const { crumbs } = Astro.props;
+---
+
+<div class="rail" data-rail>
+  <div class="rail__track" aria-hidden="true">
+    <span class="rail__seg rail__seg--done" data-rail-done></span>
+    <span class="rail__num l2" data-rail-num>00</span>
+    <span class="rail__seg rail__seg--rest" data-rail-rest></span>
+  </div>
+
+  {
+    crumbs ? (
+      <nav class="rail__crumbs l2" aria-label="Breadcrumb">
+        <ol>
+          {crumbs.map((c, i) => (
+            <li>
+              {c.href ? (
+                <a href={c.href} data-roll data-cursor="link" class="muted">
+                  {c.label}
+                </a>
+              ) : (
+                <span aria-current="page">{c.label}</span>
+              )}
+              {i < crumbs.length - 1 && <span class="rail__sep" aria-hidden="true">/</span>}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    ) : (
+      <button type="button" class="rail__scroll l2" data-rail-scroll data-cursor="link" aria-label="Scroll down">
+        <span class="rail__labels">
+          <span class="rail__label rail__label--down">Scroll</span>
+          <span class="rail__label rail__label--top">To top</span>
+        </span>
+        <svg class="rail__arrow" viewBox="0 0 9 48" fill="none" stroke="currentColor" aria-hidden="true">
+          <path d="M4.5 0v47M1 43.5l3.5 3.5L8 43.5" />
+        </svg>
+      </button>
+    )
+  }
+</div>
+
+<style>
+  .rail {
+    position: fixed;
+    left: var(--rail-x);
+    top: 0;
+    bottom: 0;
+    z-index: calc(var(--z-header) - 1);
+    width: 0;
+    color: var(--header-fg, var(--c-white));
+    transition: color 0.6s var(--ease-out), opacity 0.6s;
+    pointer-events: none;
+  }
+  :global(:root[data-rail='ink']) .rail {
+    --header-fg: var(--c-ink);
+  }
+  :global(:root[data-rail='light']) .rail {
+    --header-fg: var(--c-ivory);
+  }
+  :global(:root.menu-open) .rail {
+    opacity: 0;
+  }
+  @media (max-width: 767px) {
+    .rail {
+      display: none;
+    }
+  }
+
+  .rail__track {
+    position: absolute;
+    left: 0;
+    top: calc(356 * var(--u));
+    height: calc(300 * var(--u));
+    width: 1px;
+    --p: 0;
+  }
+  .rail__seg {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    background: currentColor;
+  }
+  .rail__seg--done {
+    top: 0;
+    height: calc(var(--p) * (100% - 3.2em));
+    opacity: 0.9;
+  }
+  .rail__seg--rest {
+    bottom: 0;
+    height: calc((1 - var(--p)) * (100% - 3.2em));
+    opacity: 0.25;
+  }
+  .rail__num {
+    position: absolute;
+    left: 0;
+    top: calc(var(--p) * (100% - 3.2em));
+    height: 3.2em;
+    display: grid;
+    place-items: center;
+    translate: -50% 0;
+    letter-spacing: 0.08em;
+  }
+
+  .rail__scroll,
+  .rail__crumbs {
+    position: absolute;
+    left: 0;
+    bottom: calc(46 * var(--u));
+    translate: -50% 0;
+    pointer-events: auto;
+  }
+  .rail__scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(22 * var(--u));
+    padding: 8px;
+  }
+  .rail__labels {
+    display: grid;
+    overflow: hidden;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+  .rail__label {
+    grid-area: 1 / 1;
+    transition: transform 0.7s var(--ease-out);
+  }
+  .rail__label--top {
+    transform: translateX(-120%);
+  }
+  :global(.rail-end) .rail__label--down {
+    transform: translateX(120%);
+  }
+  :global(.rail-end) .rail__label--top {
+    transform: none;
+  }
+  .rail__arrow {
+    width: calc(9 * var(--u));
+    min-width: 7px;
+    height: calc(48 * var(--u));
+    transition: rotate 0.7s var(--ease-in-out);
+  }
+  :global(.rail-end) .rail__arrow {
+    rotate: 180deg;
+  }
+
+  .rail__crumbs ol {
+    display: flex;
+    flex-direction: row;
+    gap: 0.9em;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    white-space: nowrap;
+  }
+  .rail__crumbs li {
+    display: flex;
+    gap: 0.9em;
+  }
+  .rail__sep {
+    opacity: 0.4;
+  }
+</style>

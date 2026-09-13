@@ -1,0 +1,119 @@
+---
+import { typeById, type Residence } from '@/data/residences';
+import Media from '../ui/Media.astro';
+
+interface Props {
+  residence: Residence;
+  class?: string;
+}
+const { residence: r, class: cls } = Astro.props;
+const type = typeById(r.typeId);
+const extra = r.solarium
+  ? `+ ${r.terrace ?? 0} m² terrace · ${r.solarium} m² solarium`
+  : r.garden
+    ? `+ ${r.terrace ?? 0} m² terrace · ${r.garden} m² garden`
+    : r.terrace
+      ? `+ ${r.terrace} m² terrace`
+      : '';
+---
+
+<a
+  class:list={['rcard', cls]}
+  href={`/residences/${r.slug}`}
+  data-card
+  data-type={r.typeId}
+  data-beds={r.bedrooms}
+  data-area={r.interior}
+  data-number={r.number}
+  data-status={r.status}
+  data-cursor="view"
+>
+  <div class="rcard__top l2">
+    <p>{type.name}</p>
+    <p class="muted">Completion: {r.completion}</p>
+  </div>
+  <div class="rcard__plan">
+    <Media media={r.floorplans[0]} fill fit="contain" sizes="(max-width: 767px) 90vw, 28vw" quiet />
+  </div>
+  <p class="rcard__meta l2">
+    <span>Nº{r.number}</span><span>Block {r.block}</span><span>Floor {r.floor}</span>
+  </p>
+  <p class="rcard__title h5">{r.bedrooms} bed / {r.interior} m²</p>
+  {extra && <p class="rcard__extra l2">{extra}</p>}
+  {r.status !== 'available' && <span class="rcard__status l2">{r.status}</span>}
+</a>
+
+<style is:global>
+  .rcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: calc(40 * var(--u)) calc(28 * var(--u)) calc(36 * var(--u));
+    border: 1px solid var(--ink-10);
+    border-radius: calc(22 * var(--u));
+    background: rgb(255 255 255 / 0.28);
+    transition: background-color 0.6s var(--ease-out), border-color 0.6s var(--ease-out);
+    isolation: isolate;
+  }
+  .rcard__top {
+    display: grid;
+    gap: calc(6 * var(--u));
+  }
+  .rcard__plan {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    margin: calc(26 * var(--u)) 0 calc(24 * var(--u));
+    transition: transform 0.9s var(--ease-out);
+  }
+  .rcard__meta {
+    display: flex;
+    gap: 1.6em;
+    opacity: 0.6;
+  }
+  .rcard__title {
+    margin-top: calc(26 * var(--u));
+  }
+  .rcard__extra {
+    margin-top: calc(18 * var(--u));
+  }
+  .rcard__status {
+    position: absolute;
+    right: calc(18 * var(--u));
+    top: calc(18 * var(--u));
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 8px;
+  }
+  .rcard[data-status='sold'] .rcard__plan,
+  .rcard[data-status='sold'] .rcard__title {
+    opacity: 0.45;
+  }
+  @media (hover: hover) {
+    .rcard:hover {
+      background: rgb(255 255 255 / 0.7);
+      border-color: var(--ink-30);
+    }
+    .rcard:hover .rcard__plan {
+      transform: scale(1.04);
+    }
+  }
+  @media (max-width: 767px) {
+    .rcard {
+      padding: 28px 18px 26px;
+      border-radius: 16px;
+    }
+    .rcard__plan {
+      margin: 18px 0;
+    }
+    .rcard__title {
+      margin-top: 16px;
+    }
+    .rcard__extra {
+      margin-top: 10px;
+    }
+  }
+</style>

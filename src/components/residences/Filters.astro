@@ -1,0 +1,117 @@
+---
+import { residenceTypes, residences } from '@/data/residences';
+
+const beds = [...new Set(residences.map((r) => r.bedrooms))].sort();
+const filters = [
+  { key: 'type', label: 'Typology', options: [{ value: '', label: 'All' }, ...residenceTypes.map((t) => ({ value: t.id, label: t.name }))] },
+  { key: 'beds', label: 'Bedrooms', options: [{ value: '', label: 'All' }, ...beds.map((b) => ({ value: String(b), label: `${b} bedrooms` }))] },
+  {
+    key: 'sort',
+    label: 'Sort by',
+    options: [
+      { value: '', label: 'Relevant' },
+      { value: 'area-asc', label: 'Area ↑' },
+      { value: 'area-desc', label: 'Area ↓' },
+      { value: 'number', label: 'Number' },
+    ],
+  },
+];
+---
+
+<div class="filters" data-filters role="group" aria-label="Filter residences">
+  {
+    filters.map((f) => (
+      <div class="filter" data-filter={f.key}>
+        <button type="button" class="filter__btn l2" aria-haspopup="listbox" aria-expanded="false" aria-controls={`filter-${f.key}`} data-filter-btn data-cursor="link">
+          <span class="muted">{f.label}</span>
+          <b data-filter-value>{f.options[0].label}</b>
+          <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" aria-hidden="true"><path d="m1 1 4 4 4-4" /></svg>
+        </button>
+        <ul class="filter__list t-light l2" id={`filter-${f.key}`} role="listbox" aria-label={f.label} tabindex="-1" hidden data-filter-list>
+          {f.options.map((o, i) => (
+            <li role="option" tabindex="-1" data-value={o.value} aria-selected={i === 0 ? 'true' : 'false'} data-cursor="link">
+              {o.label}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+  <button type="button" class="filters__reset l2" data-filters-reset data-cursor="link">Reset</button>
+</div>
+
+<style is:global>
+  .filters {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    align-items: center;
+    height: max(calc(76 * var(--u)), 56px);
+    padding: 0 calc(30 * var(--u));
+    border: 1px solid var(--ink-10);
+    border-radius: calc(22 * var(--u));
+  }
+  .filter {
+    position: relative;
+  }
+  .filter__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9em;
+    min-height: 44px;
+  }
+  .filter__btn b {
+    font-weight: 700;
+  }
+  .filter__btn svg {
+    width: 8px;
+    transition: rotate 0.5s var(--ease-out);
+  }
+  .filter__btn[aria-expanded='true'] svg {
+    rotate: 180deg;
+  }
+  .filter__list {
+    position: absolute;
+    left: calc(-16 * var(--u));
+    top: calc(100% + 10px);
+    min-width: 220px;
+    padding: 10px;
+    border: 1px solid var(--ink-10);
+    border-radius: calc(14 * var(--u));
+    box-shadow: 0 20px 40px -24px rgb(24 34 58 / 0.25);
+    outline: none;
+  }
+  .filter__list li {
+    padding: 11px 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+  }
+  .filter__list li:is(:hover, :focus, [aria-selected='true']) {
+    background: var(--ink-10);
+    outline: none;
+  }
+  .filters__reset {
+    opacity: 0.4;
+    min-height: 44px;
+    transition: opacity 0.3s;
+  }
+  .filters__reset.is-on {
+    opacity: 1;
+  }
+  @media (max-width: 767px) {
+    .filters {
+      grid-template-columns: 1fr 1fr;
+      height: auto;
+      padding: 8px 16px;
+      row-gap: 0;
+    }
+    .filters__reset {
+      justify-self: end;
+    }
+    .filter:nth-child(2) .filter__list {
+      left: auto;
+      right: 0;
+    }
+  }
+</style>

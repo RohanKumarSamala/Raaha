@@ -1,0 +1,122 @@
+/* ==========================================================================
+   DESIGN TOKENS
+   Fluid unit system: every size is authored in "design px" on a 1600px canvas
+   (desktop), 1024px (tablet) and 416px (mobile) and multiplied by --u, which
+   scales with the viewport — the same proportional system as the reference.
+   Replace palette + font stacks here when RAHA brand guidelines arrive.
+   ========================================================================== */
+
+:root {
+  /* ---- Palette (PLACEHOLDER brand colours) ---- */
+  --c-ivory: #f3f2eb;
+  --c-ink: #18223a;
+  --c-deep: #33122a;
+  --c-mist: #b7cdd8;
+  --c-blush: #f3c0cb;
+  --c-white: #ffffff;
+  --c-error: #c2453f;
+  --c-success: #2f8a55;
+
+  --ink-60: rgb(24 34 58 / 0.6);
+  --ink-30: rgb(24 34 58 / 0.3);
+  --ink-10: rgb(24 34 58 / 0.12);
+  --ivory-60: rgb(243 242 235 / 0.62);
+  --ivory-30: rgb(243 242 235 / 0.3);
+  --ivory-10: rgb(243 242 235 / 0.14);
+
+  /* ---- Type families (swap for RAHA brand fonts) ---- */
+  --font-display: 'Noto Serif Display Variable', 'Bodoni 72', 'Didot', 'Times New Roman', serif;
+  --display-stretch: 62.5%;
+  --display-weight: 400;
+  --font-script: 'Pinyon Script', 'Snell Roundhand', cursive;
+  --font-body: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
+
+  /* ---- Fluid unit ---- */
+  --canvas: 1600;
+  --u: calc(100vw / var(--canvas));
+
+  /* ---- Layout ---- */
+  --offset: calc(48 * var(--u));
+  --gap: calc(16 * var(--u));
+  --cell-h: calc(136 * var(--u));
+  --cell-v: calc(96 * var(--u));
+  --radius: calc(16 * var(--u));
+  --rail-x: calc(113 * var(--u));
+
+  /* ---- Type scale (size / line-height / tracking) ---- */
+  --h1: calc(192 * var(--u));
+  --h2: calc(136 * var(--u));
+  --h3: calc(96 * var(--u));
+  --h4: calc(63 * var(--u));
+  --h5: calc(40 * var(--u));
+  --h6: calc(28 * var(--u));
+  --a1: calc(192 * var(--u));
+  --a2: calc(120 * var(--u));
+  --c1: calc(25 * var(--u));
+  --p1: max(calc(13 * var(--u)), 12px);
+  --p2: max(calc(11 * var(--u)), 11px);
+  --l1: max(calc(11 * var(--u)), 10px);
+  --l2: max(calc(9 * var(--u)), 9px);
+
+  /* Optical size compensation when swapping display fonts (1 = matched cap height). */
+  --display-optical: 1;
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --t-fast: 0.35s;
+  --t-base: 0.7s;
+  --t-slow: 1.2s;
+
+  --z-header: 60;
+  --z-menu: 50;
+  --z-modal: 80;
+  --z-cursor: 100;
+  --z-curtain: 90;
+  --z-preloader: 95;
+}
+
+@media (max-width: 1199px) and (min-width: 768px) {
+  :root {
+    --canvas: 1024;
+    --offset: calc(40 * var(--u));
+    --h1: calc(140 * var(--u));
+    --h2: calc(104 * var(--u));
+    --h3: calc(76 * var(--u));
+    --h4: calc(50 * var(--u));
+    --h5: calc(34 * var(--u));
+    --h6: calc(24 * var(--u));
+    --a1: calc(140 * var(--u));
+    --a2: calc(92 * var(--u));
+    --c1: calc(20 * var(--u));
+    --p1: max(calc(14 * var(--u)), 13px);
+    --p2: max(calc(12 * var(--u)), 11px);
+    --l1: max(calc(11 * var(--u)), 10px);
+    --l2: max(calc(9.5 * var(--u)), 9px);
+    --rail-x: calc(72 * var(--u));
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --canvas: 416;
+    --offset: calc(24 * var(--u));
+    --gap: calc(12 * var(--u));
+    --cell-v: calc(80 * var(--u));
+    --radius: calc(14 * var(--u));
+    --h1: calc(96 * var(--u));
+    --h2: calc(73 * var(--u));
+    --h3: calc(56 * var(--u));
+    --h4: calc(34 * var(--u));
+    --h5: calc(28 * var(--u));
+    --h6: calc(22 * var(--u));
+    --a1: calc(96 * var(--u));
+    --a2: calc(72 * var(--u));
+    --c1: calc(17 * var(--u));
+    --p1: 13px;
+    --p2: 12px;
+    --l1: 11px;
+    --l2: 9.5px;
+  }
+}

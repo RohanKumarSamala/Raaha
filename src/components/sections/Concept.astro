@@ -1,0 +1,308 @@
+---
+import { home } from '@/data/home';
+import Mark from '../brand/Mark.astro';
+import Media from '../ui/Media.astro';
+import CircleButton from '../ui/CircleButton.astro';
+
+const c = home.concept;
+const pts = c.map.points;
+// Smooth route through the map points (Catmull-Rom → cubic Bézier), in a 1000×600 box.
+const P = pts.map((p) => [p.x * 10, p.y * 6] as const);
+let d = `M ${P[0][0]} ${P[0][1]}`;
+for (let i = 0; i < P.length - 1; i++) {
+  const p0 = P[i - 1] ?? P[i];
+  const p1 = P[i];
+  const p2 = P[i + 1];
+  const p3 = P[i + 2] ?? p2;
+  const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+  const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+  d += ` C ${c1[0].toFixed(1)} ${c1[1].toFixed(1)}, ${c2[0].toFixed(1)} ${c2[1].toFixed(1)}, ${p2[0]} ${p2[1]}`;
+}
+---
+
+<section class="concept t-light" id="concept" data-header="ink" data-concept aria-labelledby="concept-label">
+  <div class="concept__track" data-concept-track>
+    <!-- Panel 1 — statement -->
+    <div class="cpanel cpanel--intro">
+      <p class="cpanel__label l1" id="concept-label" data-reveal="fade" data-reveal-horizontal>{c.label}</p>
+      <h2 class="cpanel__statement h4" data-reveal="lines" data-reveal-horizontal>{c.statement}</h2>
+      <p class="cpanel__text p1" data-reveal="lines" data-reveal-horizontal>{c.text}</p>
+      <Mark class="cpanel__mark" />
+    </div>
+
+    <!-- Panel 2 — place name -->
+    <div class="cpanel cpanel--place">
+      <p class="cpanel__country c1" data-reveal="fade" data-reveal-horizontal>{c.location.country}</p>
+      <h3 class="cpanel__place h1" aria-label={c.location.lines.join(' ')}>
+        {c.location.lines.map((l, i) => <span class={`cpanel__place-line cpanel__place-line--${i}`} data-place-line aria-hidden="true">{l}</span>)}
+      </h3>
+    </div>
+
+    <!-- Panel 3 — portrait + copy -->
+    <div class="cpanel cpanel--image">
+      <div class="cpanel__portrait" data-reveal="image-side" data-reveal-horizontal>
+        <Media media={c.location.image} fill sizes="(max-width: 767px) 100vw, 40vw" />
+      </div>
+      <div class="cpanel__copy">
+        <h3 class="cpanel__title h5" data-reveal="lines" data-reveal-horizontal>{c.location.title}</h3>
+        <p class="cpanel__body p2" data-reveal="lines" data-reveal-horizontal>{c.location.text}</p>
+      </div>
+      <div class="cpanel__cta">
+        <CircleButton label={c.location.cta.label} href={c.location.cta.href} />
+      </div>
+    </div>
+
+    <!-- Panel 4 — route map -->
+    <div class="cpanel cpanel--map" data-concept-map>
+      <svg class="cmap" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+        <path class="cmap__route" d={d} data-map-path pathLength="1" />
+      </svg>
+      <ul class="cmap__points" aria-label="Travel times">
+        {
+          pts.map((p) => (
+            <li class:list={['cmap__point', p.home && 'cmap__point--home']} style={`left:${p.x}%;top:${p.y}%`} data-map-point>
+              <span class="cmap__dot" aria-hidden="true" />
+              <span class="cmap__label">
+                <span class="cmap__name l1">{p.name}</span>
+                {p.time && <span class="cmap__time l2">{p.time}</span>}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .concept {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .concept__track {
+    display: flex;
+    height: 100svh;
+    min-height: calc(780 * var(--u));
+    width: max-content;
+    will-change: transform;
+  }
+  .cpanel {
+    position: relative;
+    flex: none;
+    height: 100%;
+  }
+
+  /* Panel 1 */
+  .cpanel--intro {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: calc(40 * var(--u));
+  }
+  .cpanel__statement {
+    max-width: calc(880 * var(--u));
+    margin-top: calc(32 * var(--u));
+  }
+  .cpanel__text {
+    max-width: calc(300 * var(--u));
+    margin-top: calc(170 * var(--u));
+  }
+  .cpanel__mark {
+    width: calc(44 * var(--u));
+    min-width: 30px;
+    margin-top: calc(40 * var(--u));
+  }
+
+  /* Panel 2 */
+  .cpanel--place {
+    width: calc(1080 * var(--u));
+    display: flex;
+    align-items: center;
+  }
+  .cpanel__country {
+    position: absolute;
+    left: calc(120 * var(--u));
+    top: calc(488 * var(--u));
+  }
+  .cpanel__place {
+    position: absolute;
+    left: calc(340 * var(--u));
+    top: calc(236 * var(--u));
+    display: flex;
+    flex-direction: column;
+  }
+  .cpanel__place-line {
+    display: block;
+    white-space: nowrap;
+  }
+  .cpanel__place-line--1 {
+    margin-left: calc(126 * var(--u));
+  }
+  .cpanel__place-line--2 {
+    margin-left: calc(-54 * var(--u));
+  }
+
+  /* Panel 3 */
+  .cpanel--image {
+    width: calc(1500 * var(--u));
+  }
+  .cpanel__portrait {
+    position: absolute;
+    left: 0;
+    top: calc(48 * var(--u));
+    bottom: calc(48 * var(--u));
+    width: calc(592 * var(--u));
+    overflow: hidden;
+  }
+  .cpanel__copy {
+    position: absolute;
+    left: calc(612 * var(--u));
+    bottom: calc(48 * var(--u));
+    width: calc(450 * var(--u));
+  }
+  .cpanel__body {
+    margin-top: calc(14 * var(--u));
+  }
+  .cpanel__cta {
+    position: absolute;
+    left: calc(955 * var(--u));
+    top: calc(395 * var(--u));
+  }
+
+  /* Panel 4 */
+  .cpanel--map {
+    width: calc(1500 * var(--u));
+  }
+  .cmap {
+    position: absolute;
+    left: 0;
+    right: calc(200 * var(--u));
+    top: calc(210 * var(--u));
+    height: calc(420 * var(--u));
+    width: calc(100% - 200 * var(--u));
+    overflow: visible;
+  }
+  .cmap__route {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+  .cmap__points {
+    position: absolute;
+    left: 0;
+    top: calc(210 * var(--u));
+    height: calc(420 * var(--u));
+    width: calc(100% - 200 * var(--u));
+  }
+  .cmap__point {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  .cmap__dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 7px;
+    height: 7px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .cmap__label {
+    position: absolute;
+    left: 0;
+    bottom: calc(20 * var(--u));
+    translate: -50% 0;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .cmap__time {
+    opacity: 0.6;
+  }
+  .cmap__point--home .cmap__dot {
+    width: 15px;
+    height: 15px;
+    background: var(--c-deep);
+    box-shadow: 0 0 0 6px rgb(51 18 42 / 0.15);
+  }
+
+  @media (max-width: 767px) {
+    .concept__track {
+      flex-direction: column;
+      height: auto;
+      width: 100%;
+      min-height: 0;
+    }
+    .cpanel {
+      width: 100% !important;
+      height: auto;
+    }
+    .cpanel--intro {
+      padding: 120px var(--offset) 80px;
+    }
+    .cpanel__statement {
+      font-size: calc(30 * var(--u));
+    }
+    .cpanel__text {
+      max-width: calc(300 * var(--u));
+      margin-top: 48px;
+    }
+    .cpanel--place {
+      padding: 40px var(--offset) 24px;
+      display: block;
+    }
+    .cpanel__country,
+    .cpanel__place {
+      position: static;
+    }
+    .cpanel__place {
+      margin-top: 16px;
+    }
+    .cpanel__place-line--1 {
+      margin-left: calc(60 * var(--u));
+    }
+    .cpanel__place-line--2 {
+      margin-left: 0;
+    }
+    .cpanel--image {
+      padding: 0 var(--offset) 40px;
+    }
+    .cpanel__portrait {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+    }
+    .cpanel__copy {
+      position: static;
+      width: auto;
+      margin-top: 24px;
+    }
+    .cpanel__cta {
+      position: static;
+      margin-top: 32px;
+    }
+    .cpanel--map {
+      height: 360px;
+      margin: 20px 0 60px;
+    }
+    .cmap,
+    .cmap__points {
+      top: 60px;
+      height: 240px;
+      left: var(--offset);
+      width: calc(100% - 2 * var(--offset));
+    }
+  }
+</style>

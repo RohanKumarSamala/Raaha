@@ -1,0 +1,28 @@
+---
+import RollText from './RollText.astro';
+
+interface Props {
+  label: string;
+  href?: string;
+  action?: 'booking';
+  type?: 'button' | 'submit';
+  class?: string;
+  context?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+const { label, href, action, type = 'button', class: cls, context, ...attrs } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class:list={['btn-pill l2', cls]}
+  href={href}
+  type={href ? undefined : type}
+  data-action={action}
+  data-context={context}
+  data-roll
+  data-cursor="link"
+  {...attrs}
+>
+  <span class="btn-pill__label"><RollText text={label} /></span>
+</Tag>

@@ -1,0 +1,19 @@
+---
+/**
+ * Duplicated text that rolls up character-by-character when the closest
+ * [data-roll] ancestor is hovered or focused. Screen readers get plain text.
+ */
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: cls } = Astro.props;
+const chars = [...text];
+const row = chars.map((c, i) => ({ c: c === ' ' ? ' ' : c, i }));
+---
+
+<span class:list={['roll', cls]} aria-hidden="true"
+  ><span class="roll__row">{row.map(({ c, i }) => <span class="roll__c" style={`--i:${i}`}>{c}</span>)}</span
+  ><span class="roll__row">{row.map(({ c, i }) => <span class="roll__c" style={`--i:${i}`}>{c}</span>)}</span
+  ></span
+><span class="sr-only">{text}</span>

@@ -1,0 +1,169 @@
+---
+import { site } from '@/data/site';
+import Mark from '../brand/Mark.astro';
+import RollText from '../ui/RollText.astro';
+
+const cols = [
+  {
+    title: 'Navigate',
+    links: site.nav.menu.slice(1, 6).map((m) => ({ label: m.label, href: m.href })),
+  },
+  {
+    title: 'Contact',
+    links: [
+      { label: site.contact.phone, href: site.contact.phoneHref },
+      { label: site.contact.email, href: `mailto:${site.contact.email}` },
+    ],
+  },
+  { title: 'Follow', links: site.socials.map((s) => ({ label: s.label, href: s.href, external: true })) },
+];
+---
+
+<footer class="footer t-deep" data-header="light" id="footer">
+  <div class="footer__main">
+    <Mark class="footer__mark" />
+    <a class="footer__phone h2" href={site.contact.phoneHref} data-cursor="link" data-reveal="chars">{site.contact.phone}</a>
+    <p class="footer__office l2 muted">{site.contact.officeLabel}</p>
+    <a class="footer__address l2" href={site.contact.mapUrl} target="_blank" rel="noopener" data-roll data-cursor="link">
+      {site.contact.address.map((line) => <span class="footer__address-line"><RollText text={line} /></span>)}
+    </a>
+  </div>
+
+  <div class="footer__grid">
+    {
+      cols.map((col) => (
+        <div class="footer__col">
+          <p class="l2 muted">{col.title}</p>
+          <ul class="l2">
+            {col.links.map((l) => (
+              <li>
+                <a href={l.href} data-roll data-cursor="link" {...('external' in l ? { target: '_blank', rel: 'noopener' } : {})}>
+                  <RollText text={l.label} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+    <div class="footer__col">
+      <p class="l2 muted">Project</p>
+      <ul class="l2">
+        {site.project.map((p) => <li><span class="muted">{p.label}:</span> {p.value}</li>)}
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__bottom l2">
+    <div class="footer__legal">
+      <p>{site.brand.legalName}.<br />{site.legal.copyright}</p>
+      <ul class="footer__legal-links">
+        {site.legal.links.map((l) => <li><a href={l.href} data-roll data-cursor="link"><RollText text={l.label} /></a></li>)}
+      </ul>
+    </div>
+    <p class="footer__disclaimer muted">{site.legal.disclaimer}</p>
+    <p class="footer__credit">
+      <span class="muted">{site.credits.label}</span><br />
+      <a href={site.credits.href} data-roll data-cursor="link"><RollText text={site.credits.value} /></a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    padding: calc(150 * var(--u)) 0 calc(56 * var(--u));
+  }
+  .footer__main {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+  .footer :global(.footer__mark) {
+    width: calc(56 * var(--u));
+    min-width: 36px;
+    margin-bottom: calc(24 * var(--u));
+  }
+  .footer__phone {
+    display: block;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+  .footer__office {
+    margin-top: calc(34 * var(--u));
+  }
+  .footer__address {
+    display: grid;
+    justify-items: center;
+    margin-top: calc(10 * var(--u));
+    line-height: 1.6;
+  }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: calc(32 * var(--u));
+    margin: calc(170 * var(--u)) calc(350 * var(--u)) 0;
+    padding-top: calc(28 * var(--u));
+    border-top: 1px solid var(--line);
+  }
+  .footer__col ul {
+    display: grid;
+    gap: calc(8 * var(--u));
+    margin-top: calc(16 * var(--u));
+  }
+  .footer__bottom {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    align-items: end;
+    gap: calc(32 * var(--u));
+    margin: calc(90 * var(--u)) calc(350 * var(--u)) 0;
+    line-height: 1.7;
+  }
+  .footer__legal-links {
+    display: flex;
+    gap: 1.2em;
+    margin-top: calc(18 * var(--u));
+  }
+  .footer__disclaimer {
+    letter-spacing: 0.14em;
+    text-align: center;
+  }
+  .footer__credit {
+    text-align: right;
+  }
+  @media (max-width: 1199px) {
+    .footer__grid,
+    .footer__bottom {
+      margin-inline: calc(120 * var(--u));
+    }
+  }
+  @media (max-width: 767px) {
+    .footer {
+      padding: 96px 0 40px;
+    }
+    .footer__phone {
+      font-size: calc(46 * var(--u));
+    }
+    .footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 36px;
+      margin: 80px var(--offset) 0;
+    }
+    .footer__col:nth-child(2) {
+      grid-column: 1 / -1;
+      order: -1;
+    }
+    .footer__col ul {
+      letter-spacing: 0.18em;
+    }
+    .footer__bottom {
+      grid-template-columns: 1fr;
+      margin: 56px var(--offset) 0;
+      text-align: left;
+    }
+    .footer__disclaimer,
+    .footer__credit {
+      text-align: left;
+    }
+  }
+</style>

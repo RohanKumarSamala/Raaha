@@ -1,0 +1,60 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+interface Props {
+  doc: { title: string; updated: string; sections: { heading: string; body: string }[] };
+}
+const { doc } = Astro.props;
+---
+
+<BaseLayout title={doc.title} header="ink" page="legal" crumbs={[{ label: 'Home', href: '/' }, { label: doc.title }]}>
+  <article class="legal t-light" data-header="ink">
+    <header class="legal__head">
+      <h1 class="h2" data-reveal="chars-blur">{doc.title}</h1>
+      <p class="l2 muted" data-reveal="fade" data-delay="0.4">{doc.updated}</p>
+    </header>
+    <div class="legal__body">
+      {
+        doc.sections.map((s, i) => (
+          <section class="legal__section" data-reveal="fade">
+            <p class="l2 muted">{String(i + 1).padStart(2, '0')}</p>
+            <h2 class="h6">{s.heading}</h2>
+            <p class="p1">{s.body}</p>
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .legal {
+    padding: calc(300 * var(--u)) calc(222 * var(--u)) calc(200 * var(--u));
+  }
+  .legal__head {
+    display: grid;
+    gap: calc(24 * var(--u));
+  }
+  .legal__body {
+    display: grid;
+    gap: calc(56 * var(--u));
+    max-width: calc(640 * var(--u));
+    margin: calc(120 * var(--u)) 0 0 calc(578 * var(--u));
+  }
+  .legal__section {
+    display: grid;
+    gap: calc(14 * var(--u));
+    padding-top: calc(24 * var(--u));
+    border-top: 1px solid var(--ink-10);
+  }
+  @media (max-width: 767px) {
+    .legal {
+      padding: 150px var(--offset) 96px;
+    }
+    .legal__body {
+      max-width: none;
+      margin: 56px 0 0;
+      gap: 36px;
+    }
+  }
+</style>

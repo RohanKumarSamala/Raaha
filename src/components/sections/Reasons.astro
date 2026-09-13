@@ -1,0 +1,162 @@
+---
+import { home } from '@/data/home';
+import Mark from '../brand/Mark.astro';
+import Slider from '../ui/Slider.astro';
+
+const r = home.reasons;
+---
+
+<section class="reasons t-mist" id="location" data-header="ink" data-arch aria-labelledby="reasons-title">
+  <svg class="arch-text" viewBox="0 0 1600 800" aria-hidden="true" data-arch-text>
+    <path id="reasons-arc" d="M 110 800 A 690 690 0 0 1 1490 800" fill="none" />
+    <text class="arch-text__text">
+      <textPath href="#reasons-arc" startOffset="50%" text-anchor="middle" data-arch-offset>{r.arcText}</textPath>
+    </text>
+  </svg>
+
+  <h2 class="sr-only" id="reasons-title">{r.arcText}</h2>
+
+  <div class="reasons__head">
+    <p class="reasons__region l2" data-reveal="fade">
+      <span>{r.region[0]}</span>
+      <Mark class="reasons__mark" />
+      <span>{r.region[1]}</span>
+    </p>
+    <span class="reasons__rule" data-reveal="line-y"></span>
+    <p class="reasons__caption l2" data-reveal="lines">{r.caption[0]}<br />{r.caption[1]}</p>
+  </div>
+
+  {
+    r.items.map((item, i) => (
+      <article class="reason" aria-labelledby={`reason-${i}`}>
+        <p class="reason__index l2" data-reveal="fade">
+          {String(i + 1).padStart(2, '0')} / {String(r.items.length).padStart(2, '0')}
+        </p>
+        <h3 class="reason__title h1" id={`reason-${i}`} data-reveal="lines" data-fit="0.92">
+          {item.title.map((t) => <span class="reason__title-line">{t}</span>)}
+        </h3>
+        <div class="reason__media" data-reveal="fade">
+          <Slider items={item.images} ratio="2 / 1" sizes="(max-width: 767px) 90vw, 30vw" label={`${item.title.join(' ')} images`} />
+        </div>
+        <p class="reason__text p1" data-reveal="lines">{item.text}</p>
+        <p class="reason__statement l1" data-reveal="lines">
+          {item.statement[0]}
+          <br />
+          {item.statement[1]}
+        </p>
+      </article>
+    ))
+  }
+</section>
+
+<style is:global>
+  .reasons {
+    position: relative;
+    z-index: 1;
+    padding-bottom: calc(220 * var(--u));
+    margin-bottom: -1px;
+    clip-path: inset(0% 0% 0% 0% round 50vw 50vw 0 0);
+    text-align: center;
+  }
+  .arch-text {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .arch-text__text {
+    fill: currentColor;
+    font-family: var(--font-display);
+    font-stretch: var(--display-stretch);
+    font-size: 66px;
+    text-transform: uppercase;
+    word-spacing: 1.1em;
+    letter-spacing: -0.01em;
+  }
+  .reasons__head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: calc(318 * var(--u));
+  }
+  .reasons__region {
+    display: flex;
+    align-items: center;
+    gap: calc(34 * var(--u));
+  }
+  .reasons__region .reasons__mark {
+    width: calc(46 * var(--u));
+    min-width: 30px;
+  }
+  .reasons__rule {
+    display: block;
+    width: 1px;
+    height: calc(210 * var(--u));
+    margin: calc(38 * var(--u)) 0;
+    background: currentColor;
+    opacity: 0.6;
+  }
+  .reason {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: calc(200 * var(--u));
+  }
+  .reason:first-of-type {
+    padding-top: calc(160 * var(--u));
+  }
+  .reason__index {
+    margin-bottom: calc(28 * var(--u));
+    opacity: 0.6;
+  }
+  .reason__title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .reason__media {
+    width: calc(416 * var(--u));
+    margin-top: calc(96 * var(--u));
+  }
+  .reason__text {
+    max-width: calc(590 * var(--u));
+    margin-top: calc(110 * var(--u));
+  }
+  .reason__statement {
+    margin-top: calc(34 * var(--u));
+  }
+
+  @media (max-width: 767px) {
+    .reasons {
+      clip-path: inset(0% 0% 0% 0% round 50vw 50vw 0 0);
+      padding-bottom: 120px;
+    }
+    .arch-text__text {
+      font-size: 90px;
+      word-spacing: 0.5em;
+    }
+    .reasons__head {
+      padding-top: calc(170 * var(--u));
+    }
+    .reasons__rule {
+      height: calc(160 * var(--u));
+    }
+    .reason__title {
+      white-space: normal;
+    }
+    .reason__media {
+      width: 100%;
+      padding-inline: var(--offset);
+      margin-top: 40px;
+    }
+    .reason__text {
+      max-width: none;
+      padding-inline: calc(40 * var(--u));
+      margin-top: 40px;
+    }
+  }
+</style>

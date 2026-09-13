@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PillButton from '@/components/ui/PillButton.astro';
+---
+
+<BaseLayout title="Page not found" header="light" page="404" noindex>
+  <section class="notfound t-deep" data-header="light">
+    <p class="notfound__script a1" data-reveal="script">Lost</p>
+    <h1 class="h1" data-reveal="chars-blur">404</h1>
+    <p class="l2" data-reveal="fade" data-delay="0.6">This page has moved or never existed.</p>
+    <div data-reveal="fade" data-delay="0.8"><PillButton label="Return home" href="/" /></div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .notfound {
+    min-height: 100svh;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: calc(28 * var(--u));
+    text-align: center;
+  }
+  .notfound__script {
+    rotate: -8deg;
+    margin-bottom: calc(-110 * var(--u));
+    position: relative;
+    z-index: 1;
+  }
+</style>

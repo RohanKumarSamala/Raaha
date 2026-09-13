@@ -1,0 +1,123 @@
+---
+import '@fontsource/pinyon-script/400.css';
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/noto-serif-display/wdth.css';
+import '@/styles/tokens.css';
+import '@/styles/base.css';
+
+import { site } from '@/data/site';
+import Header from '@/components/chrome/Header.astro';
+import ScrollRail from '@/components/chrome/ScrollRail.astro';
+import Menu from '@/components/chrome/Menu.astro';
+import Preloader from '@/components/chrome/Preloader.astro';
+import Cursor from '@/components/chrome/Cursor.astro';
+import Curtain from '@/components/chrome/Curtain.astro';
+import BookingModal from '@/components/chrome/BookingModal.astro';
+import Footer from '@/components/chrome/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  /** Header colour at first paint — matches the first section's surface. */
+  header?: 'light' | 'ink';
+  crumbs?: { label: string; href?: string }[];
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  page?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = site.seo.description,
+  image = site.seo.ogImage,
+  header = 'light',
+  crumbs,
+  jsonLd,
+  page = 'default',
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title ? site.seo.titleTemplate.replace('%s', title) : site.seo.defaultTitle;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: site.brand.legalName,
+  url: Astro.site?.toString(),
+  telephone: site.contact.phone,
+  email: site.contact.email,
+  address: site.contact.address.join(', '),
+  sameAs: site.socials.map((s) => s.href).filter((h) => h.startsWith('http')),
+};
+const ld = [orgLd, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
+---
+
+<!doctype html>
+<html lang="en" class="no-js" data-header={header} data-rail={header} data-page={page}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content={site.seo.themeColor} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.brand.legalName} />
+    <meta property="og:locale" content={site.seo.locale} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.remove('no-js');
+        d.classList.add('js');
+        try {
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('is-reduced');
+          if (sessionStorage.getItem('raha-transition')) {
+            d.classList.add('is-transitioning');
+            sessionStorage.removeItem('raha-transition');
+          } else if (!sessionStorage.getItem('raha-visited') && !d.classList.contains('is-reduced')) {
+            d.classList.add('has-preloader');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Preloader />
+    <Header />
+    <ScrollRail crumbs={crumbs} />
+    <Menu />
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <slot name="before-footer" />
+    <Footer />
+
+    <BookingModal />
+    <Curtain />
+    <Cursor />
+
+    <script>
+      import '@/scripts/main';
+    </script>
+  </body>
+</html>

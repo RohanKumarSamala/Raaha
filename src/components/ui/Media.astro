@@ -1,0 +1,196 @@
+---
+/**
+ * Media — single entry point for every image/video on the site.
+ *
+ * • Real asset present in /src/assets/images → responsive <picture> with AVIF + WebP.
+ * • Video path supplied → muted inline autoplay video (poster from image when present).
+ * • Asset missing → a placeholder with the SAME aspect ratio, tone and caption,
+ *   so layout, crops and animations are final before photography arrives.
+ *
+ * Structure (.media > .media__inner > img) lets animations clip the outer box
+ * and scale/parallax the inner layer independently.
+ */
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import type { MediaRef } from '@/data/types';
+import PlanPlaceholder from './PlanPlaceholder.astro';
+
+interface Props {
+  media: MediaRef;
+  /** CSS aspect-ratio, e.g. "4 / 5". Omit together with `fill` for absolute fill. */
+  ratio?: string;
+  fill?: boolean;
+  fit?: 'cover' | 'contain';
+  sizes?: string;
+  priority?: boolean;
+  class?: string;
+  /** Hide the placeholder caption (e.g. in tiny thumbnails). */
+  quiet?: boolean;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const {
+  media,
+  ratio,
+  fill = false,
+  fit = 'cover',
+  sizes = '100vw',
+  priority = false,
+  class: cls,
+  quiet = false,
+  ...attrs
+} = Astro.props;
+
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/images/**/*.{jpg,jpeg,png,webp,avif,tiff}',
+  { eager: true },
+);
+
+const asset = media.src ? images[`/src/assets/images/${media.src}`]?.default : undefined;
+const isPlaceholder = !asset && !media.video;
+const widths = asset
+  ? [480, 768, 1080, 1440, 1920, 2560].filter((w) => w <= asset.width).concat(asset.width < 480 ? [asset.width] : [])
+  : [];
+const style = [ratio && !fill ? `aspect-ratio:${ratio}` : '', media.position ? `--pos:${media.position}` : '']
+  .filter(Boolean)
+  .join(';');
+---
+
+<div
+  class:list={['media', fill && 'media--fill', fit === 'contain' && 'media--contain', isPlaceholder && 'media--ph', cls]}
+  style={style || undefined}
+  data-tone={isPlaceholder ? media.tone ?? 'stone' : undefined}
+  {...attrs}
+>
+  <div class="media__inner" data-media-inner>
+    {
+      media.video ? (
+        <video
+          class="media__el"
+          src={media.video}
+          poster={asset?.src}
+          autoplay
+          muted
+          loop
+          playsinline
+          preload={priority ? 'auto' : 'metadata'}
+          aria-label={media.alt || undefined}
+        />
+      ) : asset ? (
+        <Picture
+          src={asset}
+          formats={['avif', 'webp']}
+          widths={widths}
+          sizes={sizes}
+          quality={84}
+          alt={media.alt}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding={priority ? 'sync' : 'async'}
+          fetchpriority={priority ? 'high' : 'auto'}
+          class="media__el"
+          pictureAttributes={{ class: 'media__picture' }}
+        />
+      ) : media.placeholder ? (
+        <PlanPlaceholder variant={media.placeholder} label={quiet ? undefined : media.label} alt={media.alt} quiet={quiet} />
+      ) : (
+        <div class="media__ph" role="img" aria-label={media.alt || 'Image placeholder'}>
+          <span class="media__ph-grid" />
+          {!quiet && (
+            <span class="media__ph-label">
+              <span>Placeholder</span>
+              {media.label && <span>{media.label}</span>}
+              {ratio && <span>{ratio.replace(/\s/g, '')}</span>}
+            </span>
+          )}
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style is:global>
+  .media {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    background: var(--c-mist);
+    transform: translateZ(0);
+  }
+  .media--fill {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+  .media--contain {
+    background: transparent;
+  }
+  .media__inner {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .media__picture,
+  .media__el {
+    width: 100%;
+    height: 100%;
+  }
+  .media__el {
+    object-fit: cover;
+    object-position: var(--pos, 50% 50%);
+  }
+  .media--contain .media__el {
+    object-fit: contain;
+  }
+
+  /* ---- Placeholder surfaces ---- */
+  .media--ph {
+    --ph-a: #cfc6b6;
+    --ph-b: #e9e4da;
+    --ph-c: #a9a092;
+    --ph-ink: rgb(24 34 58 / 0.55);
+  }
+  .media--ph[data-tone='sky'] { --ph-a: #5a82c2; --ph-b: #a9c2e2; --ph-c: #e9dfcf; --ph-ink: rgb(255 255 255 / 0.8); }
+  .media--ph[data-tone='dusk'] { --ph-a: #3d4b78; --ph-b: #b48f8c; --ph-c: #ead0ab; --ph-ink: rgb(255 255 255 / 0.8); }
+  .media--ph[data-tone='night'] { --ph-a: #0e1932; --ph-b: #2b3d69; --ph-c: #6c5a5d; --ph-ink: rgb(255 255 255 / 0.7); }
+  .media--ph[data-tone='interior'] { --ph-a: #cdbda6; --ph-b: #efe8dc; --ph-c: #a88f72; }
+  .media--ph[data-tone='stone'] { --ph-a: #cbc3b3; --ph-b: #ebe6dc; --ph-c: #9f9687; }
+  .media--ph[data-tone='garden'] { --ph-a: #93a784; --ph-b: #dadcc2; --ph-c: #62775c; --ph-ink: rgb(255 255 255 / 0.85); }
+  .media--ph[data-tone='sea'] { --ph-a: #5f9dc0; --ph-b: #bfe0e6; --ph-c: #e6d9c1; --ph-ink: rgb(255 255 255 / 0.85); }
+  .media--ph[data-tone='aerial'] { --ph-a: #7d99bb; --ph-b: #c9b99f; --ph-c: #879374; --ph-ink: rgb(255 255 255 / 0.85); }
+  .media--ph[data-tone='deep'] { --ph-a: #4d1d3e; --ph-b: #33122a; --ph-c: #2a0f22; --ph-ink: rgb(243 242 235 / 0.5); }
+
+  .media__ph {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 70% at 70% 105%, var(--ph-c) 0%, transparent 60%),
+      linear-gradient(180deg, var(--ph-a) 0%, var(--ph-b) 62%, var(--ph-c) 100%);
+  }
+  .media__ph-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background-image:
+      linear-gradient(to right, var(--ph-ink) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ph-ink) 1px, transparent 1px);
+    background-size: 33.333% 33.333%;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(closest-side, #000 30%, transparent 100%);
+  }
+  .media__ph-label {
+    position: absolute;
+    left: max(calc(16 * var(--u)), 10px);
+    bottom: max(calc(14 * var(--u)), 10px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 1.2em;
+    color: var(--ph-ink);
+    font-family: var(--font-body);
+    font-stretch: 125%;
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+</style>

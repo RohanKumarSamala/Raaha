@@ -1,0 +1,32 @@
+---
+/**
+ * PLACEHOLDER BRAND MARK — four arches forming a rosette.
+ * Replace the <svg> contents with the supplied RAHA symbol (keep viewBox square
+ * and fill/stroke on currentColor so theming continues to work).
+ */
+interface Props {
+  class?: string;
+  title?: string;
+}
+const { class: cls, title } = Astro.props;
+---
+
+<svg
+  class:list={['mark', cls]}
+  viewBox="0 0 100 100"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.4"
+  stroke-linecap="round"
+  role={title ? 'img' : undefined}
+  aria-hidden={title ? undefined : 'true'}
+>
+  {title && <title>{title}</title>}
+  {[0, 90, 180, 270].map((r) => (
+    <g transform={`rotate(${r} 50 50)`}>
+      <path d="M41 46 V25 A9 9 0 0 1 59 25 V46" />
+      <path d="M46 40 V29 A4 4 0 0 1 54 29 V40" stroke-width="1.6" />
+    </g>
+  ))}
+  <circle cx="50" cy="50" r="3.2" fill="currentColor" stroke="none" />
+</svg>

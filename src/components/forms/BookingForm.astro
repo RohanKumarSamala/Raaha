@@ -1,0 +1,244 @@
+---
+/**
+ * Booking / contact form. Validation, submission and the success / error
+ * states are handled in scripts/modules/form.ts. Endpoint: site.forms.endpoint.
+ */
+import { site } from '@/data/site';
+import PillButton from '../ui/PillButton.astro';
+
+interface Props {
+  id: string;
+  class?: string;
+}
+const { id, class: cls } = Astro.props;
+
+const fields = [
+  { name: 'name', label: 'Name', type: 'text', autocomplete: 'name', required: true, error: 'Please enter your name' },
+  { name: 'email', label: 'Email', type: 'email', autocomplete: 'email', required: true, error: 'Please enter a valid email' },
+  { name: 'phone', label: 'Phone', type: 'tel', autocomplete: 'tel', required: true, error: 'Please enter a valid phone number' },
+] as const;
+---
+
+<form
+  class:list={['bform', cls]}
+  data-form
+  novalidate
+  method="post"
+  action={site.forms.endpoint || undefined}
+  data-endpoint={site.forms.endpoint}
+  aria-describedby={`${id}-status`}
+>
+  <input type="hidden" name="context" value="" data-form-context />
+  <div class="bform__hp" aria-hidden="true">
+    <label>Leave this field empty <input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <div class="bform__body" data-form-body>
+    <div class="bform__fields">
+      {
+        fields.map((f) => (
+          <div class="field" data-field>
+            <label class="field__label l2" for={`${id}-${f.name}`}>
+              {f.label}:
+            </label>
+            <input
+              class="field__input"
+              id={`${id}-${f.name}`}
+              name={f.name}
+              type={f.type}
+              autocomplete={f.autocomplete}
+              required={f.required}
+              inputmode={f.type === 'tel' ? 'tel' : undefined}
+              aria-describedby={`${id}-${f.name}-error`}
+              data-error={f.error}
+              data-cursor="text"
+            />
+            <span class="field__line" aria-hidden="true" />
+            <span class="field__error l2" id={`${id}-${f.name}-error`} />
+          </div>
+        ))
+      }
+      <div class="field field--area" data-field>
+        <label class="field__label l2" for={`${id}-message`}>Message:</label>
+        <textarea class="field__input" id={`${id}-message`} name="message" rows="4" data-cursor="text" aria-describedby={`${id}-message-error`} data-lenis-prevent></textarea>
+        <span class="field__line" aria-hidden="true"></span>
+        <span class="field__error l2" id={`${id}-message-error`}></span>
+      </div>
+    </div>
+
+    <div class="bform__foot">
+      <p class="bform__consent p2">
+        By submitting, you agree to our <a class="u-link" href="/privacy" data-cursor="link">Privacy policy</a>
+      </p>
+      <PillButton label="Submit" type="submit" class="bform__submit" data-form-submit />
+    </div>
+  </div>
+
+  <div class="bform__state bform__state--success" data-form-success hidden tabindex="-1">
+    <p class="a2 bform__state-script">Thank you</p>
+    <p class="p1">Your request has been received. A member of our team will contact you within 24 hours.</p>
+    <PillButton label="Send another request" data-form-reset />
+  </div>
+
+  <div class="bform__state bform__state--error" data-form-error hidden tabindex="-1">
+    <p class="h5">Something went wrong</p>
+    <p class="p1">We couldn't send your request. Please try again, or call us directly on <a class="u-link" href={site.contact.phoneHref}>{site.contact.phone}</a>.</p>
+    <PillButton label="Try again" data-form-retry />
+  </div>
+
+  <p class="sr-only" id={`${id}-status`} role="status" aria-live="polite" data-form-live></p>
+</form>
+
+<style is:global>
+  .bform {
+    position: relative;
+    width: 100%;
+  }
+  .bform__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .bform__body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    gap: calc(48 * var(--u));
+  }
+  .bform__fields {
+    display: grid;
+    gap: max(calc(24 * var(--u)), 18px);
+  }
+  .field {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    padding-top: calc(6 * var(--u));
+  }
+  .field--area {
+    flex-direction: column;
+    gap: calc(8 * var(--u));
+  }
+  .field__label {
+    flex: none;
+    transition: opacity 0.3s;
+  }
+  .field__input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    min-height: max(calc(26 * var(--u)), 32px);
+    padding: 0 0 calc(4 * var(--u));
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font-family: var(--font-body);
+    font-stretch: 112%;
+    font-size: max(var(--p1), 16px);
+    line-height: 1.3;
+    outline: none;
+    appearance: none;
+  }
+  @media (min-width: 768px) {
+    .field__input {
+      font-size: var(--p1);
+    }
+  }
+  textarea.field__input {
+    resize: vertical;
+    min-height: calc(76 * var(--u));
+  }
+  .field__line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--line);
+  }
+  .field__line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease-out), background-color 0.3s;
+  }
+  .field:focus-within .field__line::after {
+    transform: scaleX(1);
+  }
+  .field.is-invalid .field__line::after {
+    transform: scaleX(1);
+    background: var(--c-error);
+  }
+  .field__error {
+    position: absolute;
+    right: 0;
+    bottom: calc(-16 * var(--u));
+    color: var(--c-error);
+    letter-spacing: 0.14em;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.3s, transform 0.4s var(--ease-out);
+    pointer-events: none;
+  }
+  .t-deep .field__error {
+    color: #f19a93;
+  }
+  .t-deep .field.is-invalid .field__line::after {
+    background: #f19a93;
+  }
+  .field.is-invalid .field__error {
+    opacity: 1;
+    transform: none;
+  }
+  .bform__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(24 * var(--u));
+  }
+  .bform__consent {
+    max-width: 22em;
+  }
+  .bform.is-sending .bform__submit {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .bform__state {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: calc(20 * var(--u));
+    min-height: 100%;
+    outline: none;
+  }
+  .bform__state[hidden] {
+    display: none;
+  }
+  .bform__state-script {
+    margin-bottom: calc(-8 * var(--u));
+    font-size: calc(var(--a2) * 0.72);
+    white-space: nowrap;
+    padding-right: 0.2em;
+  }
+  .bform__state .p1 {
+    max-width: 30em;
+  }
+  @media (max-width: 767px) {
+    .field__error {
+      bottom: -14px;
+    }
+    .bform__foot {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+  }
+</style>

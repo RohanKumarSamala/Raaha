@@ -1,0 +1,63 @@
+---
+import { site } from '@/data/site';
+import Mark from '../brand/Mark.astro';
+---
+
+<div class="preloader t-deep" data-preloader aria-hidden="true">
+  <span class="preloader__frame"></span>
+  <span class="preloader__watermark a1">{site.brand.name.charAt(0) + site.brand.name.slice(1).toLowerCase()}</span>
+  <div class="preloader__center">
+    <Mark class="preloader__mark" />
+    <span class="preloader__count l2" data-preloader-count>00</span>
+  </div>
+</div>
+
+<style>
+  .preloader {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-preloader);
+    display: none;
+    overflow: hidden;
+  }
+  :global(.has-preloader) .preloader {
+    display: block;
+  }
+  .preloader__frame {
+    position: absolute;
+    inset: calc(14 * var(--u));
+    border: 1px solid var(--ivory-10);
+    border-radius: calc(18 * var(--u));
+  }
+  .preloader__watermark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -55%;
+    font-size: calc(560 * var(--u));
+    white-space: nowrap;
+    opacity: 0.06;
+    rotate: -8deg;
+  }
+  .preloader__center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    display: grid;
+    justify-items: center;
+    gap: calc(22 * var(--u));
+  }
+  .preloader :global(.preloader__mark) {
+    width: max(calc(46 * var(--u)), 36px);
+  }
+  .preloader__count {
+    letter-spacing: 0.2em;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 767px) {
+    .preloader__watermark {
+      font-size: calc(300 * var(--u));
+    }
+  }
+</style>

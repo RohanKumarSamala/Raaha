@@ -1,0 +1,72 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/sections/Hero.astro';
+import Reasons from '@/components/sections/Reasons.astro';
+import Quote from '@/components/sections/Quote.astro';
+import Concept from '@/components/sections/Concept.astro';
+import Location from '@/components/sections/Location.astro';
+import ResidenceTypes from '@/components/sections/ResidenceTypes.astro';
+import Amenities from '@/components/sections/Amenities.astro';
+import Space from '@/components/sections/Space.astro';
+import Architecture from '@/components/sections/Architecture.astro';
+import Credentials from '@/components/sections/Credentials.astro';
+import Cta from '@/components/sections/Cta.astro';
+import Contact from '@/components/sections/Contact.astro';
+import { home } from '@/data/home';
+---
+
+<BaseLayout title={undefined} description={home.seo.description} header="light" page="home">
+  <!-- 1–3 · Hero held in place while the arch rises over it -->
+  <div class="hero-stack">
+    <Hero />
+    <div class="hero-stack__hold" aria-hidden="true"></div>
+    <Reasons />
+  </div>
+
+  <!-- 4 · Community statement -->
+  <Quote text={home.quote.text} author={home.quote.author} image={home.quote.image} />
+
+  <!-- 5–6 · Concept, place, route (horizontal) -->
+  <Concept />
+
+  <!-- 7 · Aerial location -->
+  <Location />
+
+  <!-- 8 · Residence types -->
+  <ResidenceTypes />
+
+  <!-- 9–10 · Amenities (sticky) with the lifestyle arch rising over them -->
+  <div class="amen-stack">
+    <Amenities />
+    <Space />
+  </div>
+
+  <!-- 11 · Architecture -->
+  <Architecture />
+  <Quote
+    text={home.architecture.quote}
+    author={home.architecture.author}
+    image={home.architecture.image}
+    align="left"
+    cta={{ label: 'Book a call now', action: 'booking' }}
+  />
+
+  <!-- 12 · Developer & licences -->
+  <Credentials />
+
+  <!-- 13–14 · Call to action + booking -->
+  <Cta />
+  <Contact />
+</BaseLayout>
+
+<style is:global>
+  .hero-stack {
+    position: relative;
+  }
+  .hero-stack__hold {
+    height: 55svh;
+  }
+  .amen-stack {
+    position: relative;
+  }
+</style>

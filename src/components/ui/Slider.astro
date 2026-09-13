@@ -1,0 +1,102 @@
+---
+/**
+ * Editorial image slider: clip-path wipe between slides, progress bar,
+ * keyboard + swipe support. Behaviour lives in scripts/modules/slider.ts.
+ */
+import type { MediaRef } from '@/data/types';
+import Media from './Media.astro';
+
+interface Props {
+  items: MediaRef[];
+  ratio: string;
+  sizes?: string;
+  class?: string;
+  label?: string;
+  controls?: 'center' | 'start';
+}
+const { items, ratio, sizes = '50vw', class: cls, label = 'Image gallery', controls = 'center' } = Astro.props;
+---
+
+<div class:list={['slider', `slider--${controls}`, cls]} data-slider role="region" aria-roledescription="carousel" aria-label={label}>
+  <div class="slider__viewport" style={`aspect-ratio:${ratio}`} data-slider-viewport data-cursor="drag">
+    {
+      items.map((m, i) => (
+        <div
+          class:list={['slider__slide', i === 0 && 'is-active']}
+          data-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} of ${items.length}`}
+          aria-hidden={i === 0 ? 'false' : 'true'}
+        >
+          <Media media={m} fill sizes={sizes} />
+        </div>
+      ))
+    }
+  </div>
+  {
+    items.length > 1 && (
+      <div class="slider__controls l2">
+        <button class="icon-btn" data-dir="prev" data-slider-prev aria-label="Previous image" data-cursor="link">
+          <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="M7 1 1 7l6 6" /></svg>
+        </button>
+        <span class="slider__index" data-slider-current aria-live="polite">1</span>
+        <span class="slider__bar" aria-hidden="true">
+          <span class="slider__bar-fill" data-slider-bar style={`transform:scaleX(${1 / items.length})`} />
+        </span>
+        <span class="slider__index">{items.length}</span>
+        <button class="icon-btn" data-dir="next" data-slider-next aria-label="Next image" data-cursor="link">
+          <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="m1 1 6 6-6 6" /></svg>
+        </button>
+      </div>
+    )
+  }
+</div>
+
+<style is:global>
+  .slider__viewport {
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .slider__slide {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+  }
+  .slider__slide.is-active {
+    visibility: visible;
+  }
+  .slider__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: max(calc(12 * var(--u)), 8px);
+    margin-top: max(calc(20 * var(--u)), 14px);
+  }
+  .slider--start .slider__controls {
+    justify-content: flex-start;
+    margin-left: calc(-8 * var(--u));
+  }
+  .slider__index {
+    min-width: 1.5em;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+  .slider__bar {
+    position: relative;
+    width: calc(160 * var(--u));
+    min-width: 90px;
+    height: 1px;
+    background: var(--line, currentColor);
+    overflow: hidden;
+  }
+  .slider__bar-fill {
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    transform-origin: left;
+    transition: transform 0.9s var(--ease-in-out);
+  }
+</style>

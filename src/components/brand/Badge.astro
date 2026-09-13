@@ -1,0 +1,59 @@
+---
+/**
+ * Circular badge: brand copy set on a circle around the mark.
+ * The ring rotates with scroll velocity (see scripts/modules/badge.ts).
+ */
+import { site } from '@/data/site';
+import Mark from './Mark.astro';
+
+interface Props {
+  class?: string;
+  text?: string;
+  id?: string;
+}
+const { class: cls, text = site.brand.badgeText, id = 'badge' } = Astro.props;
+const r = 78;
+const circumference = 2 * Math.PI * r;
+---
+
+<span class:list={['badge', cls]} aria-hidden="true">
+  <svg class="badge__ring" viewBox="0 0 200 200" data-badge-ring>
+    <defs>
+      <path id={`${id}-circle`} d={`M100,100 m-${r},0 a${r},${r} 0 1,1 ${r * 2},0 a${r},${r} 0 1,1 -${r * 2},0`} />
+    </defs>
+    <text class="badge__text">
+      <textPath href={`#${id}-circle`} textLength={circumference.toFixed(2)} lengthAdjust="spacing">{text}</textPath>
+    </text>
+  </svg>
+  <Mark class="badge__mark" />
+</span>
+
+<style>
+  .badge {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+  }
+  .badge__ring {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    will-change: transform;
+  }
+  .badge__text {
+    fill: currentColor;
+    font-family: var(--font-body);
+    font-stretch: 125%;
+    font-weight: 600;
+    font-size: 17px;
+    text-transform: uppercase;
+  }
+  .badge :global(.badge__mark) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34%;
+    height: 34%;
+    translate: -50% -50%;
+  }
+</style>

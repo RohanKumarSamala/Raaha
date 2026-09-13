@@ -1,0 +1,86 @@
+---
+/** Split booking layout (script title · badge divider · form) shared by the modal and the contact section. */
+import { home } from '@/data/home';
+import Badge from '../brand/Badge.astro';
+import BookingForm from './BookingForm.astro';
+
+interface Props {
+  id: string;
+  headingId?: string;
+  class?: string;
+}
+const { id, headingId = `${id}-title`, class: cls } = Astro.props;
+---
+
+<div class:list={['bpanel', cls]}>
+  <div class="bpanel__intro">
+    <h2 class="bpanel__script a2" id={headingId} data-reveal="script">{home.contact.script}</h2>
+    <p class="bpanel__note l1">{home.contact.note}</p>
+  </div>
+  <div class="bpanel__divider" aria-hidden="true">
+    <span class="bpanel__rule"></span>
+    <Badge id={`${id}-badge`} class="bpanel__badge" />
+    <span class="bpanel__rule"></span>
+  </div>
+  <div class="bpanel__form">
+    <BookingForm id={id} />
+  </div>
+</div>
+
+<style is:global>
+  .bpanel {
+    display: grid;
+    grid-template-columns: 1fr calc(130 * var(--u)) 1fr;
+    gap: calc(56 * var(--u));
+    min-height: calc(460 * var(--u));
+  }
+  .bpanel__intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .bpanel__script {
+    rotate: -8deg;
+    transform-origin: left bottom;
+    margin-top: calc(20 * var(--u));
+    white-space: nowrap;
+  }
+  .bpanel__note {
+    max-width: 19em;
+  }
+  .bpanel__divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(24 * var(--u));
+  }
+  .bpanel__rule {
+    flex: 1;
+    width: 1px;
+    background: currentColor;
+    opacity: 0.35;
+  }
+  .bpanel__badge {
+    width: calc(104 * var(--u));
+  }
+  .bpanel__form {
+    display: flex;
+    padding-top: calc(52 * var(--u));
+  }
+  @media (max-width: 767px) {
+    .bpanel {
+      grid-template-columns: 1fr;
+      gap: 32px;
+      min-height: 0;
+    }
+    .bpanel__intro {
+      gap: 20px;
+    }
+    .bpanel__divider {
+      display: none;
+    }
+    .bpanel__form {
+      padding-top: 0;
+    }
+  }
+</style>

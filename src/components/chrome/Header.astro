@@ -1,0 +1,184 @@
+---
+import { site } from '@/data/site';
+import Badge from '../brand/Badge.astro';
+import RollText from '../ui/RollText.astro';
+
+const { primary, secondary } = site.nav;
+---
+
+<header class="header" data-header-root>
+  <a class="header__logo" href="/" aria-label={`${site.brand.name} — home`} data-cursor="link">
+    <Badge id="header-badge" class="header__badge" />
+  </a>
+
+  <nav class="header__nav" aria-label="Primary">
+    <a class="header__primary h6" href={primary.href} data-roll data-cursor="link">
+      <span class="header__primary-line"><RollText text={primary.label[0]} /></span>
+      <span class="header__primary-line u-link"><RollText text={primary.label[1]} /></span>
+    </a>
+    <ul class="header__links l2">
+      {
+        secondary.map((item) => (
+          <li>
+            {'action' in item ? (
+              <button type="button" data-action={item.action} data-roll data-cursor="link">
+                <RollText text={item.label} />
+              </button>
+            ) : (
+              <a href={item.href} data-roll data-cursor="link">
+                <RollText text={item.label} />
+              </a>
+            )}
+          </li>
+        ))
+      }
+      <li>
+        <button type="button" class="header__menu-desk" data-menu-toggle aria-controls="menu" aria-expanded="false" data-roll data-cursor="link">
+          <span class="header__desk-open"><RollText text="Menu" /></span>
+          <span class="header__desk-close"><RollText text="Close" /></span>
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <button type="button" class="header__menu l2" data-menu-toggle aria-controls="menu" aria-expanded="false" data-cursor="link">
+    <span class="header__menu-labels">
+      <span class="header__menu-open">Menu</span>
+      <span class="header__menu-close">Close</span>
+    </span>
+    <span class="header__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: var(--z-header);
+    height: 0;
+    color: var(--header-fg, var(--c-white));
+    transition: color 0.6s var(--ease-out);
+  }
+  :global(:root[data-header='ink']) .header {
+    --header-fg: var(--c-ink);
+  }
+  :global(:root[data-header='light']) .header,
+  :global(:root.menu-open) .header {
+    --header-fg: var(--c-ivory);
+  }
+
+  .header__logo {
+    position: absolute;
+    left: calc(52 * var(--u));
+    top: calc(52 * var(--u));
+    width: calc(122 * var(--u));
+  }
+
+  .header__nav {
+    position: absolute;
+    right: calc(66 * var(--u));
+    top: calc(48 * var(--u));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+  }
+  .header__primary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 0.95;
+    transition: opacity 0.5s var(--ease-out);
+  }
+  .header__primary-line.u-link::after {
+    bottom: -0.1em;
+  }
+  .header__links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: calc(6 * var(--u));
+    margin-top: calc(22 * var(--u));
+  }
+  .header__links li {
+    transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-out);
+  }
+  .header__links :is(a, button) {
+    display: inline-block;
+    padding: 2px 0;
+    letter-spacing: 0.32em;
+    margin-right: -0.32em;
+  }
+  :global(:root.menu-open) .header__primary,
+  :global(:root.menu-open) .header__links li:not(:last-child) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .header__desk-close,
+  :global(:root.menu-open) .header__desk-open {
+    display: none;
+  }
+  :global(:root.menu-open) .header__desk-close {
+    display: inline;
+  }
+
+  .header__menu {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .header__logo {
+      left: calc(22 * var(--u));
+      top: calc(22 * var(--u));
+      width: calc(84 * var(--u));
+    }
+    .header__nav {
+      display: none;
+    }
+    .header__menu {
+      position: absolute;
+      right: calc(18 * var(--u));
+      top: calc(40 * var(--u));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 0 6px;
+    }
+  }
+
+  .header__menu-labels {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+  }
+  .header__menu-labels > span {
+    grid-area: 1 / 1;
+    text-align: right;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .header__menu-close {
+    transform: translateY(100%);
+  }
+  :global(:root.menu-open) .header__menu-open {
+    transform: translateY(-100%);
+  }
+  :global(:root.menu-open) .header__menu-close {
+    transform: none;
+  }
+  .header__dots {
+    display: grid;
+    gap: 2.5px;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .header__dots i {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  :global(:root.menu-open) .header__dots {
+    transform: rotate(90deg);
+  }
+</style>

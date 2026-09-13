@@ -1,0 +1,94 @@
+---
+import BookingPanel from '../forms/BookingPanel.astro';
+import Mark from '../brand/Mark.astro';
+---
+
+<div class="modal" id="booking" role="dialog" aria-modal="true" aria-labelledby="booking-title" data-modal data-reveal-manual hidden>
+  <div class="modal__overlay" data-modal-close></div>
+  <div class="modal__stage">
+    <div class="modal__panel t-mist" data-modal-panel data-lenis-prevent>
+      <button type="button" class="modal__close" data-modal-close aria-label="Close booking form" data-cursor="link">
+        <svg viewBox="0 0 12 12" stroke="currentColor" fill="none" aria-hidden="true"><path d="m1 1 10 10M11 1 1 11" /></svg>
+      </button>
+      <BookingPanel id="booking" headingId="booking-title" />
+    </div>
+    <Mark class="modal__mark" />
+  </div>
+</div>
+
+<style>
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: grid;
+    place-items: center;
+  }
+  .modal[hidden] {
+    display: none;
+  }
+  .modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgb(24 34 58 / 0.62);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+  }
+  .modal__stage {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: calc(24 * var(--u));
+  }
+  .modal__panel {
+    position: relative;
+    width: calc(1150 * var(--u));
+    max-height: calc(100svh - 120px);
+    overflow-y: auto;
+    padding: calc(56 * var(--u)) calc(56 * var(--u)) calc(56 * var(--u)) calc(56 * var(--u));
+    clip-path: inset(100% 0 0 0);
+  }
+  .modal__close {
+    position: absolute;
+    right: calc(22 * var(--u));
+    top: calc(22 * var(--u));
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: max(calc(38 * var(--u)), 40px);
+    height: max(calc(38 * var(--u)), 40px);
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .modal__close svg {
+    width: 30%;
+  }
+  @media (hover: hover) {
+    .modal__close:hover {
+      transform: rotate(90deg);
+    }
+  }
+  .modal :global(.modal__mark) {
+    width: calc(44 * var(--u));
+    color: var(--c-ivory);
+    opacity: 0;
+  }
+  @media (max-width: 767px) {
+    .modal {
+      place-items: stretch;
+    }
+    .modal__stage {
+      display: block;
+    }
+    .modal__panel {
+      width: 100%;
+      height: 100svh;
+      max-height: none;
+      padding: 88px 24px 40px;
+    }
+    .modal :global(.modal__mark) {
+      display: none;
+    }
+  }
+</style>

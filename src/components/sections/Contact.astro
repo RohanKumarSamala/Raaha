@@ -1,0 +1,37 @@
+---
+import BookingPanel from '../forms/BookingPanel.astro';
+---
+
+<section class="contact t-deep" id="contact" data-header="light" aria-labelledby="contact-title">
+  <div class="contact__inner">
+    <BookingPanel id="contact" headingId="contact-title" />
+  </div>
+</section>
+
+<style is:global>
+  .contact {
+    position: relative;
+    z-index: 2;
+    padding: calc(180 * var(--u)) 0 0;
+  }
+  .contact__inner {
+    margin: 0 calc(222 * var(--u));
+    padding: calc(64 * var(--u)) calc(56 * var(--u));
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  @media (max-width: 1199px) {
+    .contact__inner {
+      margin: 0 var(--offset);
+    }
+  }
+  @media (max-width: 767px) {
+    .contact {
+      padding-top: 88px;
+    }
+    .contact__inner {
+      padding: 48px 0;
+      border-top: 0;
+    }
+  }
+</style>

@@ -1,0 +1,114 @@
+---
+import type { MediaRef } from '@/data/types';
+import Media from '../ui/Media.astro';
+import CircleButton from '../ui/CircleButton.astro';
+
+interface Props {
+  text: string;
+  author: string[];
+  image: MediaRef;
+  cta?: { label: string; href?: string; action?: 'booking' };
+  align?: 'right' | 'left';
+  id?: string;
+}
+const { text, author, image, cta, align = 'right', id } = Astro.props;
+---
+
+<section class:list={['quote t-image', `quote--${align}`]} data-header="light" id={id}>
+  <div class="quote__media" data-parallax="7">
+    <Media media={image} fill sizes="100vw" />
+  </div>
+  <figure class="quote__body">
+    <svg class="quote__mark" viewBox="0 0 34 26" fill="currentColor" aria-hidden="true" data-reveal="fade">
+      <path d="M0 26V15.6C0 6.9 4.3 1.7 12.9 0l1.5 3.3C9.8 4.6 7.5 7.5 7.4 11.9h6.1V26H0Zm19.6 0V15.6C19.6 6.9 23.9 1.7 32.5 0L34 3.3c-4.6 1.3-6.9 4.2-7 8.6h6.1V26H19.6Z" />
+    </svg>
+    <blockquote class="quote__text h5" data-reveal="lines">{text}</blockquote>
+    <figcaption class="quote__author l2" data-reveal="fade" data-delay="0.3">
+      {author[0]}<br /><span class="muted">{author[1]}</span>
+    </figcaption>
+  </figure>
+  {
+    cta && (
+      <div class="quote__cta">
+        <CircleButton label={cta.label} href={cta.href} action={cta.action} />
+      </div>
+    )
+  }
+</section>
+
+<style is:global>
+  .quote {
+    position: relative;
+    height: 100svh;
+    min-height: calc(820 * var(--u));
+    overflow: hidden;
+    z-index: 1;
+  }
+  .quote__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .quote__body {
+    position: absolute;
+    left: calc(740 * var(--u));
+    bottom: calc(150 * var(--u));
+    width: calc(760 * var(--u));
+  }
+  .quote--left .quote__body {
+    left: calc(196 * var(--u));
+    top: calc(170 * var(--u));
+    bottom: auto;
+    width: calc(700 * var(--u));
+  }
+  .quote__mark {
+    width: calc(34 * var(--u));
+    min-width: 22px;
+    margin: 0 0 calc(34 * var(--u)) calc(150 * var(--u));
+  }
+  .quote__text {
+    text-indent: calc(150 * var(--u));
+    line-height: 1.02;
+  }
+  /* SplitText wraps words in inline-blocks, which would inherit the indent. */
+  .quote__text * {
+    text-indent: 0;
+  }
+  .quote__text > .split-line-mask:first-child > .split-line {
+    text-indent: calc(150 * var(--u));
+  }
+  .quote__author {
+    margin-top: calc(56 * var(--u));
+    line-height: 1.6;
+  }
+  .quote__cta {
+    position: absolute;
+    left: calc(1040 * var(--u));
+    top: calc(420 * var(--u));
+  }
+  @media (max-width: 767px) {
+    .quote {
+      min-height: 640px;
+    }
+    .quote__body,
+    .quote--left .quote__body {
+      left: var(--offset);
+      right: var(--offset);
+      top: auto;
+      bottom: 64px;
+      width: auto;
+    }
+    .quote__mark {
+      margin-left: 0;
+    }
+    .quote__text,
+    .quote__text > .split-line-mask:first-child > .split-line {
+      text-indent: calc(60 * var(--u));
+    }
+    .quote__cta {
+      left: auto;
+      right: var(--offset);
+      top: 110px;
+    }
+  }
+</style>

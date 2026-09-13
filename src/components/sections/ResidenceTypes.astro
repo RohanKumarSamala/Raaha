@@ -1,0 +1,211 @@
+---
+import { residenceTypes } from '@/data/residences';
+import Media from '../ui/Media.astro';
+import PillButton from '../ui/PillButton.astro';
+
+const n = residenceTypes.length;
+---
+
+<section class="types t-mist" id="residences" data-header="ink" data-types aria-roledescription="carousel" aria-label="Residence types">
+  <div class="types__inner">
+    <div class="types__stats" aria-live="polite">
+      {
+        residenceTypes.map((t, i) => (
+          <dl class:list={['types__stat-set', i === 0 && 'is-active']} data-type-panel aria-hidden={i !== 0 ? 'true' : undefined}>
+            <div>
+              <dt class="l1 muted">Bedrooms</dt>
+              <dd class="h5">{t.bedrooms}</dd>
+            </div>
+            <div>
+              <dt class="l1 muted">Area up to</dt>
+              <dd class="h5">{t.areaRange}</dd>
+            </div>
+          </dl>
+        ))
+      }
+    </div>
+
+    <div class="types__image" data-cursor="drag" data-types-viewport>
+      {
+        residenceTypes.map((t, i) => (
+          <div class:list={['types__slide', i === 0 && 'is-active']} data-type-slide>
+            <Media media={t.image} fill sizes="(max-width: 767px) 80vw, 30vw" />
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="types__aside">
+      {
+        residenceTypes.map((t, i) => (
+          <div class:list={['types__aside-set', i === 0 && 'is-active']} data-type-panel aria-hidden={i !== 0 ? 'true' : undefined}>
+            <p class="p2">{t.summary}</p>
+            <PillButton label={t.cta} href={`/residences?type=${t.id}`} />
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="types__titles" aria-live="polite">
+      {
+        residenceTypes.map((t, i) => (
+          <h2 class:list={['types__title h2', i === 0 && 'is-active']} data-type-title data-fit="0.9" aria-hidden={i !== 0 ? 'true' : undefined}>
+            {t.name}
+          </h2>
+        ))
+      }
+    </div>
+
+    <div class="types__controls slider__controls l2">
+      <button class="icon-btn" data-dir="prev" data-types-prev aria-label="Previous residence type" data-cursor="link">
+        <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="M7 1 1 7l6 6"></path></svg>
+      </button>
+      <span class="slider__index" data-types-current>1</span>
+      <span class="slider__bar" aria-hidden="true"><span class="slider__bar-fill" data-types-bar style={`transform:scaleX(${1 / n})`}></span></span>
+      <span class="slider__index">{n}</span>
+      <button class="icon-btn" data-dir="next" data-types-next aria-label="Next residence type" data-cursor="link">
+        <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="m1 1 6 6-6 6"></path></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .types {
+    position: relative;
+    z-index: 2;
+    border-radius: calc(20 * var(--u)) calc(20 * var(--u)) 0 0;
+    margin-top: calc(-24 * var(--u));
+  }
+  .types__inner {
+    position: relative;
+    height: 100svh;
+    min-height: calc(900 * var(--u));
+  }
+  .types__stats,
+  .types__aside,
+  .types__titles {
+    display: grid;
+  }
+  .types__stats > *,
+  .types__aside > *,
+  .types__titles > * {
+    grid-area: 1 / 1;
+  }
+  [data-type-panel]:not(.is-active),
+  [data-type-title]:not(.is-active) {
+    visibility: hidden;
+  }
+  .types__stats {
+    position: absolute;
+    left: calc(350 * var(--u));
+    top: calc(386 * var(--u));
+  }
+  .types__stat-set {
+    display: grid;
+    gap: calc(34 * var(--u));
+  }
+  .types__stat-set dd {
+    margin-top: calc(10 * var(--u));
+  }
+  .types__image {
+    position: absolute;
+    left: 50%;
+    top: calc(172 * var(--u));
+    width: calc(438 * var(--u));
+    height: calc(588 * var(--u));
+    translate: -50% 0;
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+  .types__slide {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+  }
+  .types__slide.is-active {
+    visibility: visible;
+  }
+  .types__aside {
+    position: absolute;
+    left: calc(1098 * var(--u));
+    top: calc(386 * var(--u));
+    width: calc(300 * var(--u));
+  }
+  .types__aside-set {
+    display: grid;
+    justify-items: start;
+    gap: calc(24 * var(--u));
+  }
+  .types__titles {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(770 * var(--u));
+    justify-items: center;
+    text-align: center;
+    pointer-events: none;
+  }
+  .types__title {
+    white-space: nowrap;
+  }
+  .types__controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(915 * var(--u));
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .types__inner {
+      height: auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 72px var(--offset) 72px;
+    }
+    .types__stats,
+    .types__image,
+    .types__aside,
+    .types__titles,
+    .types__controls {
+      position: relative;
+      inset: auto;
+      translate: none;
+    }
+    .types__image {
+      order: 1;
+      width: 78%;
+      height: auto;
+      aspect-ratio: 3 / 4;
+    }
+    .types__titles {
+      order: 2;
+      margin-top: -0.45em;
+      width: 100%;
+    }
+    .types__title {
+      white-space: normal;
+      font-size: calc(52 * var(--u));
+    }
+    .types__controls {
+      order: 3;
+      margin-top: 20px;
+    }
+    .types__stats {
+      order: 4;
+      width: 100%;
+      margin-top: 40px;
+    }
+    .types__stat-set {
+      grid-template-columns: 1fr 1fr;
+    }
+    .types__aside {
+      order: 5;
+      width: 100%;
+      margin-top: 28px;
+    }
+  }
+</style>

@@ -1,0 +1,147 @@
+---
+import { home } from '@/data/home';
+import Media from '../ui/Media.astro';
+import Slider from '../ui/Slider.astro';
+import PillButton from '../ui/PillButton.astro';
+
+const s = home.space;
+---
+
+<section class="space t-light" data-header="ink" data-arch aria-labelledby="space-title">
+  <h2 class="space__title" id="space-title">
+    {s.lines.map((l) => <span class="space__line h1" data-reveal="lines">{l}</span>)}
+    <span class="space__script a1" data-reveal="script" data-delay="0.2">{s.script}</span>
+  </h2>
+
+  <div class="space__collage">
+    <div class="space__ornament t-deep" data-reveal="image-side">
+      <Media media={s.images.ornament} fill sizes="40vw" />
+    </div>
+    <div class="space__terrace" data-reveal="image" data-speed="0.06">
+      <Media media={s.images.terrace} fill sizes="(max-width: 767px) 90vw, 45vw" />
+    </div>
+    <div class="space__upgrades l1" data-reveal="fade">
+      <p>{s.upgrades.title}</p>
+      <ul>{s.upgrades.items.map((u) => <li>• {u}</li>)}</ul>
+    </div>
+  </div>
+
+  <div class="space__detail">
+    <p class="space__statement h6" data-reveal="lines">{s.statement}</p>
+    <p class="space__specs p2" data-reveal="lines">{s.specs}</p>
+    <div data-reveal="fade"><PillButton label={s.cta.label} href={s.cta.href} /></div>
+  </div>
+
+  <div class="space__slider" data-reveal="fade">
+    <Slider items={s.slider} ratio="3 / 2" sizes="(max-width: 767px) 100vw, 80vw" controls="start" label="Interior images" />
+  </div>
+</section>
+
+<style is:global>
+  .space {
+    position: relative;
+    z-index: 2;
+    padding: calc(250 * var(--u)) 0 calc(200 * var(--u));
+    margin-bottom: -1px;
+    clip-path: inset(0% 0% 0% 0% round 50vw 50vw 0 0);
+  }
+  .space__title {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-weight: 400;
+  }
+  .space__line {
+    display: block;
+  }
+  .space__script {
+    margin-top: calc(-60 * var(--u));
+    rotate: -8deg;
+    translate: calc(-10 * var(--u)) 0;
+    padding: 0 0.15em 0.1em;
+  }
+
+  .space__collage {
+    position: relative;
+    height: calc(1010 * var(--u));
+    margin-top: calc(-40 * var(--u));
+  }
+  .space__ornament {
+    position: absolute;
+    left: 0;
+    top: calc(250 * var(--u));
+    width: calc(634 * var(--u));
+    height: calc(580 * var(--u));
+  }
+  .space__terrace {
+    position: absolute;
+    right: 0;
+    top: calc(-40 * var(--u));
+    width: calc(650 * var(--u));
+    height: calc(720 * var(--u));
+  }
+  .space__upgrades {
+    position: absolute;
+    left: calc(350 * var(--u));
+    top: calc(870 * var(--u));
+    line-height: 1.6;
+  }
+
+  .space__detail {
+    display: grid;
+    justify-items: start;
+    gap: calc(28 * var(--u));
+    width: calc(470 * var(--u));
+    margin: calc(-230 * var(--u)) 0 0 calc(950 * var(--u));
+  }
+
+  .space__slider {
+    margin: calc(200 * var(--u)) 0 0 calc(350 * var(--u));
+  }
+
+  @media (max-width: 767px) {
+    .space {
+      padding: 150px 0 96px;
+    }
+    .space__script {
+      margin-top: -6px;
+    }
+    .space__collage {
+      height: auto;
+      margin-top: 48px;
+      display: grid;
+      gap: 24px;
+    }
+    .space__ornament,
+    .space__terrace,
+    .space__upgrades {
+      position: relative;
+      inset: auto;
+    }
+    .space__ornament {
+      width: 62%;
+      height: 220px;
+    }
+    .space__terrace {
+      width: 78%;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      margin-top: -120px;
+      justify-self: end;
+    }
+    .space__upgrades {
+      padding-inline: var(--offset);
+    }
+    .space__detail {
+      width: auto;
+      margin: 56px var(--offset) 0;
+      gap: 20px;
+    }
+    .space__slider {
+      margin: 64px 0 0;
+      padding-inline: var(--offset);
+    }
+  }
+</style>

@@ -1,0 +1,87 @@
+---
+import { home } from '@/data/home';
+import Media from '../ui/Media.astro';
+
+const a = home.architecture;
+---
+
+<section class="archi t-light" id="architecture" data-header="ink" data-archi aria-labelledby="archi-word">
+  <div class="archi__stage" data-archi-stage>
+    <div class="archi__a" data-archi-a>
+      <Media media={a.pair[0]} fill sizes="(max-width: 767px) 60vw, 30vw" />
+    </div>
+    <span class="archi__ghost" data-archi-ghost aria-hidden="true"></span>
+    <div class="archi__b t-image" data-archi-b>
+      <Media media={a.pair[1]} fill sizes="100vw" />
+    </div>
+    <h2 class="archi__word" id="archi-word" data-archi-word>{a.word}</h2>
+  </div>
+</section>
+
+<style is:global>
+  .archi {
+    position: relative;
+    z-index: 2;
+  }
+  .archi__stage {
+    position: relative;
+    height: 100svh;
+    min-height: calc(820 * var(--u));
+    overflow: hidden;
+  }
+  .archi__a {
+    position: absolute;
+    left: calc(352 * var(--u));
+    top: calc(520 * var(--u));
+    width: calc(430 * var(--u));
+    height: calc(560 * var(--u));
+  }
+  .archi__ghost {
+    position: absolute;
+    left: calc(800 * var(--u));
+    top: calc(176 * var(--u));
+    width: calc(432 * var(--u));
+    height: calc(636 * var(--u));
+    pointer-events: none;
+  }
+  .archi__b {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(22% 23% 10% 50%);
+  }
+  .archi__word {
+    position: absolute;
+    left: 50%;
+    top: calc(26 * var(--u));
+    translate: -50% 0;
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-stretch: var(--display-stretch);
+    font-size: calc(300 * var(--u));
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--c-white);
+    pointer-events: none;
+  }
+  @media (max-width: 767px) {
+    .archi__stage {
+      height: 100svh;
+      min-height: 600px;
+    }
+    .archi__a {
+      left: var(--offset);
+      top: auto;
+      bottom: 40px;
+      width: 44%;
+      height: 36%;
+    }
+    .archi__ghost {
+      left: 38%;
+      top: 22%;
+      width: 56%;
+      height: 50%;
+    }
+  }
+</style>

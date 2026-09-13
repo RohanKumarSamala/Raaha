@@ -1,0 +1,144 @@
+---
+import { site } from '@/data/site';
+import Mark from '../brand/Mark.astro';
+import RollText from '../ui/RollText.astro';
+import PillButton from '../ui/PillButton.astro';
+---
+
+<div class="menu t-deep" id="menu" role="dialog" aria-modal="true" aria-label="Site menu" data-menu hidden>
+  <div class="menu__inner">
+    <p class="menu__title" aria-hidden="true">
+      <span class="menu__the a2" data-menu-anim>The</span>
+      <span class="menu__word h2" data-menu-anim>Menu</span>
+    </p>
+
+    <nav class="menu__nav" aria-label="Site">
+      <ul class="menu__list">
+        {
+          site.nav.menu.map((item, i) => (
+            <li class="menu__item" data-menu-anim>
+              <span class="menu__index l2" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <a class="menu__link h4" href={item.href} data-menu-link data-roll data-cursor="link">
+                <RollText text={item.label} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="menu__foot" data-menu-anim>
+      <div class="menu__contact l2">
+        <a href={site.contact.phoneHref} data-roll data-cursor="link"><RollText text={site.contact.phone} /></a>
+        <a href={`mailto:${site.contact.email}`} data-roll data-cursor="link"><RollText text={site.contact.email} /></a>
+      </div>
+      <PillButton label="Book a call" action="booking" />
+      <ul class="menu__socials l2">
+        {site.socials.map((s) => <li><a href={s.href} data-roll data-cursor="link" rel="noopener" target="_blank"><RollText text={s.label} /></a></li>)}
+      </ul>
+    </div>
+
+    <Mark class="menu__mark" />
+  </div>
+</div>
+
+<style>
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-menu);
+    overflow: hidden;
+    clip-path: inset(0 0 100% 0);
+  }
+  .menu[hidden] {
+    display: none;
+  }
+  .menu__inner {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(120 * var(--u)) var(--offset) calc(90 * var(--u));
+    overflow-y: auto;
+  }
+  .menu__title {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: calc(56 * var(--u));
+  }
+  .menu__the {
+    position: absolute;
+    left: -0.35em;
+    top: -0.55em;
+    rotate: -8deg;
+  }
+  .menu__list {
+    display: grid;
+    gap: calc(10 * var(--u));
+    justify-items: center;
+  }
+  .menu__item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: calc(14 * var(--u));
+  }
+  .menu__index {
+    position: absolute;
+    right: 100%;
+    top: 0.3em;
+    margin-right: calc(18 * var(--u));
+    opacity: 0.45;
+  }
+  .menu__link {
+    display: inline-block;
+    padding: 2px 0;
+  }
+  .menu__foot {
+    display: flex;
+    align-items: center;
+    gap: calc(48 * var(--u));
+    margin-top: calc(64 * var(--u));
+  }
+  .menu__contact,
+  .menu__socials {
+    display: flex;
+    gap: calc(28 * var(--u));
+  }
+  .menu :global(.menu__mark) {
+    position: absolute;
+    left: 50%;
+    bottom: calc(36 * var(--u));
+    width: calc(44 * var(--u));
+    translate: -50% 0;
+    opacity: 0.8;
+  }
+  @media (max-width: 767px) {
+    .menu__title {
+      margin-bottom: calc(40 * var(--u));
+    }
+    .menu__link {
+      font-size: calc(34 * var(--u));
+    }
+    .menu__index {
+      display: none;
+    }
+    .menu__foot {
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 36px;
+    }
+    .menu__contact {
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .menu :global(.menu__mark) {
+      width: 36px;
+    }
+  }
+</style>
