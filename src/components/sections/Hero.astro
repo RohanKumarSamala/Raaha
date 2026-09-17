@@ -40,7 +40,7 @@ const h = home.hero;
 
   <div class="hero__content" data-hero-content>
     <h1 class="hero__title" data-hero-title>
-      {h.titleLines.map((line) => <span class="hero__line h1" data-hero-line data-fit="0.9">{line}</span>)}
+      {h.titleLines.map((line) => <span class="hero__line h1" data-hero-line data-fit="0.75">{line}</span>)}
       <span class="hero__script a2" data-hero-script>{h.script}</span>
     </h1>
 
@@ -94,9 +94,9 @@ const h = home.hero;
   }
   .hero__title {
     position: absolute;
-    left: 50%;
+    left: 0;
+    width: 100%;
     top: calc(58 * var(--u));
-    translate: -50% 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -110,7 +110,7 @@ const h = home.hero;
   .hero__script {
     position: absolute;
     left: 50%;
-    top: calc(262 * var(--u));
+    top: calc(210 * var(--u));
     translate: -34% 0;
     rotate: -9deg;
     white-space: nowrap;
@@ -229,7 +229,7 @@ const h = home.hero;
 
   @media (max-width: 1199px) and (min-width: 768px) {
     .hero__title { top: calc(110 * var(--u)); }
-    .hero__script { top: calc(205 * var(--u)); }
+    .hero__script { top: calc(164 * var(--u)); }
     .hero__row { left: var(--offset); right: var(--offset); top: calc(530 * var(--u)); }
   }
 
@@ -238,7 +238,7 @@ const h = home.hero;
       top: calc(150 * var(--u));
     }
     .hero__script {
-      top: calc(135 * var(--u));
+      top: calc(108 * var(--u));
     }
     .hero__row {
       left: var(--offset);
@@ -248,7 +248,7 @@ const h = home.hero;
       row-gap: 18px;
     }
     .hero__phrase {
-      font-size: calc(22 * var(--u));
+      font-size: calc(17.6 * var(--u));
     }
     .hero__toggle {
       grid-row: 2;

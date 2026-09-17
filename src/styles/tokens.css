@@ -59,7 +59,7 @@
   --l2: max(calc(9 * var(--u)), 9px);
 
   /* Optical size compensation when swapping display fonts (1 = matched cap height). */
-  --display-optical: 1;
+  --display-optical: 0.8;
 
   /* ---- Motion ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

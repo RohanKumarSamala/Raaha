@@ -36,7 +36,7 @@ const r = home.reasons;
           {item.title.map((t) => <span class="reason__title-line">{t}</span>)}
         </h3>
         <div class="reason__media" data-reveal="fade">
-          <Slider items={item.images} ratio="2 / 1" sizes="(max-width: 767px) 90vw, 30vw" label={`${item.title.join(' ')} images`} />
+          <Slider items={item.images} ratio="16 / 9" sizes="100vw" label={`${item.title.join(' ')} images`} />
         </div>
         <p class="reason__text p1" data-reveal="lines">{item.text}</p>
         <p class="reason__statement l1" data-reveal="lines">
@@ -119,7 +119,8 @@ const r = home.reasons;
     white-space: nowrap;
   }
   .reason__media {
-    width: calc(416 * var(--u));
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
     margin-top: calc(96 * var(--u));
   }
   .reason__text {
@@ -149,8 +150,9 @@ const r = home.reasons;
       white-space: normal;
     }
     .reason__media {
-      width: 100%;
-      padding-inline: var(--offset);
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      padding-inline: 0;
       margin-top: 40px;
     }
     .reason__text {
@@ -160,3 +162,4 @@ const r = home.reasons;
     }
   }
 </style>
+
