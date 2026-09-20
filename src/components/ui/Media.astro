@@ -49,7 +49,7 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
 const asset = media.src ? images[`/src/assets/images/${media.src}`]?.default : undefined;
 const isPlaceholder = !asset && !media.video;
 const widths = asset
-  ? [480, 768, 1080, 1440, 1920, 2560].filter((w) => w <= asset.width).concat(asset.width < 480 ? [asset.width] : [])
+  ? Array.from(new Set([...[480, 768, 1080, 1440, 1920, 2560].filter((w) => w < asset.width), asset.width])).sort((a, b) => a - b)
   : [];
 const style = [ratio && !fill ? `aspect-ratio:${ratio}` : '', media.position ? `--pos:${media.position}` : '']
   .filter(Boolean)
@@ -82,7 +82,7 @@ const style = [ratio && !fill ? `aspect-ratio:${ratio}` : '', media.position ? `
           formats={['avif', 'webp']}
           widths={widths}
           sizes={sizes}
-          quality={84}
+          quality={95}
           alt={media.alt}
           loading={priority ? 'eager' : 'lazy'}
           decoding={priority ? 'sync' : 'async'}
