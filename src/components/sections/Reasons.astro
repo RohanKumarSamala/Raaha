@@ -1,7 +1,7 @@
 ---
 import { home } from '@/data/home';
 import Mark from '../brand/Mark.astro';
-import Slider from '../ui/Slider.astro';
+import Media from '../ui/Media.astro';
 
 const r = home.reasons;
 ---
@@ -9,13 +9,21 @@ const r = home.reasons;
 <section class="reasons t-mist" id="location" data-header="ink" data-arch aria-labelledby="reasons-title">
   <svg class="arch-text" viewBox="0 0 1600 800" aria-hidden="true" data-arch-text>
     <path id="reasons-arc" d="M 110 800 A 690 690 0 0 1 1490 800" fill="none" />
-    <text class="arch-text__text">
-      <textPath href="#reasons-arc" startOffset="50%" text-anchor="middle" data-arch-offset>{r.arcText}</textPath>
+    <text class="arch-text__text" data-arch-text-node>
+      <textPath
+        href="#reasons-arc"
+        startOffset="50%"
+        text-anchor="middle"
+        textLength="680"
+        lengthAdjust="spacingAndGlyphs"
+        data-arch-offset
+      >{r.arcText}</textPath>
     </text>
   </svg>
 
   <h2 class="sr-only" id="reasons-title">{r.arcText}</h2>
 
+  <!-- Arch intro: the arc text lives here, clear of the carousel below -->
   <div class="reasons__head">
     <p class="reasons__region l2" data-reveal="fade">
       <span>{r.region[0]}</span>
@@ -26,37 +34,72 @@ const r = home.reasons;
     <p class="reasons__caption l2" data-reveal="lines">{r.caption[0]}<br />{r.caption[1]}</p>
   </div>
 
-  {
-    r.items.map((item, i) => (
-      <article class="reason" aria-labelledby={`reason-${i}`}>
-        <p class="reason__index l2" data-reveal="fade">
-          {String(i + 1).padStart(2, '0')} / {String(r.items.length).padStart(2, '0')}
-        </p>
-        <h3 class="reason__title h1" id={`reason-${i}`} data-reveal="lines" data-fit="0.92">
-          {item.title.map((t) => <span class="reason__title-line">{t}</span>)}
+  <!-- Stage: title / image / pager / body — one reason at a time, auto-advancing -->
+  <div class="reasons__stage" data-reasons-carousel>
+    <div class="reasons__titles">
+      {r.items.map((item, i) => (
+        <h3
+          class:list={['reasons__title h1', i === 0 && 'is-active']}
+          data-reasons-title
+          aria-hidden={i === 0 ? 'false' : 'true'}
+          data-fit="1"
+        >
+          {item.title.map((t) => <span class="reasons__title-line">{t}</span>)}
         </h3>
-        <div class="reason__media" data-reveal="fade">
-          <Slider items={item.images} ratio="16 / 9" sizes="100vw" label={`${item.title.join(' ')} images`} />
+      ))}
+    </div>
+
+    <div class="reasons__media" data-reasons-media>
+      {r.items.map((item, i) => (
+        <div
+          class:list={['reasons__slide', i === 0 && 'is-active']}
+          data-reasons-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} of ${r.items.length}`}
+        >
+          <Media media={item.images[0]} fill sizes="(min-width: 768px) 30vw, 90vw" />
         </div>
-        <p class="reason__text p1" data-reveal="lines">{item.text}</p>
-        <p class="reason__statement l1" data-reveal="lines">
-          {item.statement[0]}
-          <br />
-          {item.statement[1]}
-        </p>
-      </article>
-    ))
-  }
+      ))}
+    </div>
+
+    <div class="reasons__controls slider__controls l2">
+      <button class="icon-btn" data-dir="prev" data-reasons-prev aria-label="Previous reason" data-cursor="link">
+        <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="M7 1 1 7l6 6"></path></svg>
+      </button>
+      <span class="slider__index" data-reasons-current aria-live="polite">1</span>
+      <span class="slider__bar" aria-hidden="true"><span class="slider__bar-fill reasons__bar-fill" data-reasons-bar></span></span>
+      <span class="slider__index" data-reasons-next-num>2</span>
+      <button class="icon-btn" data-dir="next" data-reasons-next aria-label="Next reason" data-cursor="link">
+        <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="m1 1 6 6-6 6"></path></svg>
+      </button>
+    </div>
+
+    <div class="reasons__body">
+      {r.items.map((item, i) => (
+        <div
+          class:list={['reasons__body-item', i === 0 && 'is-active']}
+          data-reasons-body
+          aria-hidden={i === 0 ? 'false' : 'true'}
+        >
+          <p class="reasons__text p1">{item.text}</p>
+          <p class="reasons__statement l1">
+            {item.statement[0]}<br />{item.statement[1]}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
 </section>
 
 <style is:global>
   .reasons {
     position: relative;
     z-index: 1;
-    padding-bottom: calc(220 * var(--u));
-    margin-bottom: -1px;
-    clip-path: inset(0% 0% 0% 0% round 50vw 50vw 0 0);
     text-align: center;
+    clip-path: inset(0% 0% 0% 0% round 50vw 50vw 0 0);
+    will-change: clip-path;
+    margin-bottom: -1px;
   }
   .arch-text {
     position: absolute;
@@ -70,17 +113,22 @@ const r = home.reasons;
   .arch-text__text {
     fill: currentColor;
     font-family: var(--font-display);
+    font-variant-ligatures: none;
+    font-feature-settings: 'liga' 0;
     font-stretch: var(--display-stretch);
-    font-size: 66px;
+    font-size: 64px;
     text-transform: uppercase;
-    word-spacing: 1.1em;
-    letter-spacing: -0.01em;
+    stroke: currentColor;
+    stroke-width: 0.008em;
   }
+
+  /* ---- Arch intro ---- */
   .reasons__head {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding-top: calc(318 * var(--u));
+    padding-bottom: calc(120 * var(--u));
   }
   .reasons__region {
     display: flex;
@@ -97,69 +145,128 @@ const r = home.reasons;
     height: calc(210 * var(--u));
     margin: calc(38 * var(--u)) 0;
     background: currentColor;
-    opacity: 0.6;
+    opacity: 0.8;
   }
-  .reason {
+
+  /* ---- Stage ---- */
+  .reasons__stage {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: calc(200 * var(--u));
+    min-height: 100svh;
+    padding: calc(56 * var(--u)) var(--offset) calc(44 * var(--u));
   }
-  .reason:first-of-type {
-    padding-top: calc(160 * var(--u));
+
+  /* Titles / bodies share one grid cell so only the active one shows */
+  .reasons__titles,
+  .reasons__body {
+    display: grid;
   }
-  .reason__index {
-    margin-bottom: calc(28 * var(--u));
-    opacity: 0.6;
+  .reasons__titles > *,
+  .reasons__body > * {
+    grid-area: 1 / 1;
   }
-  .reason__title {
+  .reasons__titles {
+    /* sits on the header line, between the fixed logo and nav */
+    width: 70%;
+    pointer-events: none;
+  }
+  .reasons__title {
     display: flex;
     flex-direction: column;
     align-items: center;
     white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
   }
-  .reason__media {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    margin-top: calc(96 * var(--u));
-  }
-  .reason__text {
-    max-width: calc(590 * var(--u));
-    margin-top: calc(110 * var(--u));
-  }
-  .reason__statement {
-    margin-top: calc(34 * var(--u));
+  .reasons__title.is-active {
+    opacity: 1;
+    visibility: visible;
   }
 
-  @media (max-width: 767px) {
-    .reasons {
-      clip-path: inset(0% 0% 0% 0% round 50vw 50vw 0 0);
-      padding-bottom: 120px;
+  .reasons__media {
+    position: relative;
+    width: calc(424 * var(--u));
+    max-width: 100%;
+    aspect-ratio: 2 / 1;
+    margin-top: calc(72 * var(--u));
+  }
+  .reasons__slide {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+  }
+  .reasons__slide.is-active {
+    visibility: visible;
+  }
+
+  .reasons__controls {
+    margin-top: calc(28 * var(--u));
+  }
+  /* the bar doubles as the autoplay timer — driven from JS */
+  .reasons__controls .slider__bar {
+    height: 2px;
+    background: color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .reasons__bar-fill {
+    transform: scaleX(0);
+    transition: none;
+  }
+
+  .reasons__body {
+    max-width: calc(590 * var(--u));
+    margin-top: auto;
+    padding-top: calc(48 * var(--u));
+    align-items: end;
+  }
+  .reasons__body-item {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .reasons__body-item.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .reasons__text {
+    margin-bottom: calc(18 * var(--u));
+  }
+
+  /* ---- Tablet: the header takes a wider share of the row ---- */
+  @media (min-width: 768px) and (max-width: 1199px) {
+    .reasons__titles {
+      width: 59%;
     }
+  }
+
+  /* ---- Mobile ---- */
+  @media (max-width: 767px) {
     .arch-text__text {
-      font-size: 90px;
-      word-spacing: 0.5em;
+      font-size: 76px;
     }
     .reasons__head {
       padding-top: calc(170 * var(--u));
+      padding-bottom: calc(80 * var(--u));
     }
     .reasons__rule {
       height: calc(160 * var(--u));
     }
-    .reason__title {
+    .reasons__stage {
+      padding-top: calc(130 * var(--u));
+      padding-bottom: calc(40 * var(--u));
+    }
+    .reasons__titles {
+      width: 100%;
+    }
+    .reasons__title {
       white-space: normal;
     }
-    .reason__media {
-      width: 100vw;
-      margin-left: calc(-50vw + 50%);
-      padding-inline: 0;
-      margin-top: 40px;
+    .reasons__media {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      margin-top: calc(48 * var(--u));
     }
-    .reason__text {
+    .reasons__body {
       max-width: none;
-      padding-inline: calc(40 * var(--u));
-      margin-top: 40px;
     }
   }
 </style>
-

@@ -8,19 +8,19 @@
 
 export const site = {
   brand: {
-    name: 'RAHA', // PLACEHOLDER wordmark text — replaced by the supplied logo in components/brand
-    descriptor: 'Residences', // PLACEHOLDER
-    badgeText: 'RAHA · RESIDENCES · RAHA · RESIDENCES · ', // circular badge copy
-    legalName: 'RAHA Residences', // PLACEHOLDER
+    name: 'RAAHA',
+    descriptor: 'Retreat',
+    badgeText: 'RAAHA · RETREAT · RAAHA · RETREAT · ',
+    legalName: 'RAAHA Retreat',
   },
 
   seo: {
-    titleTemplate: '%s — RAHA Residences',
-    defaultTitle: 'RAHA Residences', // PLACEHOLDER
+    titleTemplate: '%s — RAAHA Retreat',
+    defaultTitle: 'RAAHA Retreat',
     description:
-      'RAHA — a private collection of contemporary residences shaped around architecture, light and landscape.', // PLACEHOLDER
-    ogImage: '/og-default.jpg', // PLACEHOLDER — add /public/og-default.jpg (1200×630)
-    themeColor: '#33122a',
+      'RAAHA — a boutique retreat designed around tranquility, wellbeing and timeless architecture.',
+    ogImage: '/og-default.jpg',
+    themeColor: '#7c3821',
     locale: 'en_GB',
   },
 
@@ -43,7 +43,7 @@ export const site = {
     primary: { label: ['Select', 'a residence'], href: '/residences' },
     secondary: [
       { label: 'Book a call', action: 'booking' },
-      { label: 'Contact', href: '/#contact' },
+      { label: 'Enquire', href: '/enquire' },
     ],
     menu: [
       { label: 'Home', href: '/' },
@@ -52,6 +52,7 @@ export const site = {
       { label: 'Residences', href: '/residences' },
       { label: 'Amenities', href: '/#amenities' },
       { label: 'Architecture', href: '/#architecture' },
+      { label: 'Enquire', href: '/enquire' },
       { label: 'Contact', href: '/#contact' },
     ],
   },

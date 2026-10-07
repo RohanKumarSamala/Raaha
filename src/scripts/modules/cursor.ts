@@ -1,67 +1,10 @@
-/** Custom cursor with interpolated ring, contextual states and magnetic targets. */
-import { gsap, finePointer, reduced, root } from '../core/gsap';
+/** Custom cursor module — default native mouse enabled. */
+import { finePointer, reduced, gsap } from '../core/gsap';
 import { $, $$ } from '../core/dom';
 
-const LABELS: Record<string, string> = { view: 'View', drag: 'Drag' };
-
 export function initCursor() {
-  const el = $('[data-cursor-root]');
-  if (!el || !finePointer || reduced) return;
-
-  const ring = $('[data-cursor-ring]', el)!;
-  const dot = $('[data-cursor-dot]', el)!;
-  const label = $('[data-cursor-label]', el)!;
-  root.classList.add('has-cursor');
-
-  const mouse = { x: -100, y: -100 };
-  const r = { x: -100, y: -100 };
-  const d = { x: -100, y: -100 };
-  let started = false;
-  let state = '';
-
-  window.addEventListener(
-    'pointermove',
-    (e) => {
-      if (e.pointerType !== 'mouse') return;
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      if (!started) {
-        r.x = d.x = mouse.x;
-        r.y = d.y = mouse.y;
-        started = true;
-      }
-      el.classList.remove('cursor--out');
-    },
-    { passive: true },
-  );
-  document.documentElement.addEventListener('pointerleave', () => el.classList.add('cursor--out'));
-  window.addEventListener('pointerdown', () => el.classList.add('cursor--down'));
-  window.addEventListener('pointerup', () => el.classList.remove('cursor--down'));
-
-  gsap.ticker.add((_t, delta) => {
-    const k = Math.min(delta / 16.7, 3);
-    d.x += (mouse.x - d.x) * Math.min(0.55 * k, 1);
-    d.y += (mouse.y - d.y) * Math.min(0.55 * k, 1);
-    r.x += (mouse.x - r.x) * Math.min(0.15 * k, 1);
-    r.y += (mouse.y - r.y) * Math.min(0.15 * k, 1);
-    dot.style.transform = `translate3d(${d.x}px, ${d.y}px, 0)`;
-    ring.style.transform = `translate3d(${r.x}px, ${r.y}px, 0)`;
-  });
-
-  const setState = (next: string, text = '') => {
-    if (next === state && label.textContent === text) return;
-    if (state) el.classList.remove(`cursor--${state}`);
-    state = next;
-    if (state) el.classList.add(`cursor--${state}`);
-    label.textContent = text;
-  };
-
-  document.addEventListener('pointerover', (e) => {
-    const t = (e.target as HTMLElement).closest<HTMLElement>('[data-cursor], a, button, input, textarea, select, label');
-    if (!t) return setState('');
-    const s = t.dataset.cursor ?? (t.matches('input, textarea, select') ? 'text' : 'link');
-    setState(s, t.dataset.cursorLabel ?? LABELS[s] ?? '');
-  });
+  // Disabled — using default native mouse cursor
+  return;
 }
 
 export function initMagnetic(scope: ParentNode = document) {

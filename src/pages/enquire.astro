@@ -1,0 +1,161 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BookingPanel from '@/components/forms/BookingPanel.astro';
+import { site } from '@/data/site';
+---
+
+<BaseLayout
+  title="Enquire"
+  description="Enquire about bookings, private retreats and milestone celebrations at Raaha."
+  header="light"
+  page="enquire"
+  crumbs={[{ label: 'Home', href: '/' }, { label: 'Enquire' }]}
+>
+  <div class="enquire-page t-deep" data-header="light">
+    <div class="enquire-page__hero wrap">
+      <p class="enquire-page__eyebrow l2" data-reveal="fade">Private Bookings & Retreats</p>
+      <h1 class="enquire-page__title h2" data-reveal="lines">Enquire</h1>
+      <p class="enquire-page__sub p1" data-reveal="fade" data-delay="0.15">
+        Connect with our concierge team to design your stay, request residence availability, or reserve the grounds for a private gathering.
+      </p>
+    </div>
+
+    <div class="enquire-page__form-wrap">
+      <div class="enquire-page__inner">
+        <BookingPanel id="enquire-page" headingId="enquire-title" />
+      </div>
+    </div>
+
+    <div class="enquire-page__direct wrap">
+      <div class="enquire-page__direct-grid">
+        <div class="enquire-page__direct-col">
+          <p class="l2 muted">Direct Concierge</p>
+          <a class="h5 u-link" href={site.contact.phoneHref} data-cursor="link">{site.contact.phone}</a>
+        </div>
+        <div class="enquire-page__direct-col">
+          <p class="l2 muted">Email Reservations</p>
+          <a class="h5 u-link" href={`mailto:${site.contact.email}`} data-cursor="link">{site.contact.email}</a>
+        </div>
+        <div class="enquire-page__direct-col">
+          <p class="l2 muted">Location</p>
+          <p class="p1">{site.contact.address.join(', ')}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .enquire-page {
+    position: relative;
+    background-color: #7c3821;
+    color: var(--c-ivory);
+    min-height: 100svh;
+    padding-top: calc(160 * var(--u));
+    padding-bottom: calc(120 * var(--u));
+    --line: var(--ivory-10);
+    --soft: var(--ivory-60);
+    isolation: isolate;
+  }
+  .enquire-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: url('/raaha-texture.webp') center / cover no-repeat;
+    opacity: 0.98;
+    pointer-events: none;
+  }
+  .enquire-page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 50%, rgba(124, 56, 33, 0.12) 0%, rgba(45, 17, 8, 0.38) 100%);
+    pointer-events: none;
+  }
+
+  .enquire-page__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: calc(64 * var(--u));
+  }
+
+  .enquire-page__eyebrow {
+    margin-bottom: calc(16 * var(--u));
+    letter-spacing: 0.3em;
+    opacity: 0.7;
+  }
+
+  .enquire-page__title {
+    margin-bottom: calc(20 * var(--u));
+  }
+
+  .enquire-page__sub {
+    max-width: 32em;
+    opacity: 0.85;
+    font-size: var(--p1);
+    line-height: 1.5;
+  }
+
+  .enquire-page__form-wrap {
+    margin: 0 calc(120 * var(--u));
+  }
+
+  .enquire-page__inner {
+    padding: calc(64 * var(--u)) calc(56 * var(--u));
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .enquire-page__direct {
+    margin-top: calc(80 * var(--u));
+  }
+
+  .enquire-page__direct-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: calc(48 * var(--u));
+    padding-top: calc(48 * var(--u));
+    border-top: 1px solid var(--line);
+  }
+
+  .enquire-page__direct-col {
+    display: flex;
+    flex-direction: column;
+    gap: calc(12 * var(--u));
+  }
+
+  @media (max-width: 1199px) {
+    .enquire-page__form-wrap {
+      margin: 0 var(--offset);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .enquire-page {
+      padding-top: 110px;
+      padding-bottom: 60px;
+    }
+
+    .enquire-page__hero {
+      margin-bottom: 40px;
+    }
+
+    .enquire-page__form-wrap {
+      margin: 0;
+    }
+
+    .enquire-page__inner {
+      padding: 32px var(--offset);
+      border-top: 0;
+    }
+
+    .enquire-page__direct-grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+</style>

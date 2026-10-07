@@ -23,4 +23,4 @@ export const mq = {
   desktop: '(min-width: 768px)',
 };
 
-export { gsap, ScrollTrigger, SplitText, Flip };
+export { gsap, ScrollTrigger, SplitText, CustomEase, Flip };

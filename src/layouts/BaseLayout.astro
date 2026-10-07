@@ -4,6 +4,7 @@ import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource-variable/noto-serif-display/wdth.css';
 import '@/styles/tokens.css';
 import '@/styles/base.css';
+import '@/styles/preloader.css';
 
 import { site } from '@/data/site';
 import Header from '@/components/chrome/Header.astro';
@@ -68,6 +69,11 @@ const ld = [orgLd, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
+    <!-- Brand Fonts Preload (Frieska for headings, Visby for subheadings & body) -->
+    <link rel="preload" href="/fonts/Frieska-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/VisbyCF-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/VisbyCF-Bold.woff2" as="font" type="font/woff2" crossorigin />
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.brand.legalName} />
     <meta property="og:locale" content={site.seo.locale} />
@@ -90,7 +96,7 @@ const ld = [orgLd, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
           if (sessionStorage.getItem('raha-transition')) {
             d.classList.add('is-transitioning');
             sessionStorage.removeItem('raha-transition');
-          } else if (!sessionStorage.getItem('raha-visited') && !d.classList.contains('is-reduced')) {
+          } else if (!d.classList.contains('is-reduced')) {
             d.classList.add('has-preloader');
           }
         } catch (e) {}
@@ -109,8 +115,10 @@ const ld = [orgLd, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
       <slot />
     </main>
 
-    <slot name="before-footer" />
-    <Footer />
+    <div class="footer-group">
+      <slot name="before-footer" />
+      <Footer />
+    </div>
 
     <BookingModal />
     <Curtain />

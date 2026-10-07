@@ -1,0 +1,84 @@
+/* ==========================================================================
+   BRAND FONTS (@font-face)
+   Display / Large Headings: Frieska
+   Subheadings / Body: Visby (Visby CF)
+   ========================================================================== */
+
+/* Frieska — Modern luxury serif for Headings */
+@font-face {
+  font-family: 'Frieska';
+  src: url('/fonts/Frieska-Regular.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Visby — Geometric sans-serif for Subheadings & Body */
+@font-face {
+  font-family: 'Visby';
+  src: url('/fonts/VisbyCF-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Visby';
+  src: url('/fonts/VisbyCF-Regular.woff2') format('woff2'),
+       url('/fonts/VisbyCF-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Visby';
+  src: url('/fonts/VisbyCF-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Visby';
+  src: url('/fonts/VisbyCF-DemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Visby';
+  src: url('/fonts/VisbyCF-Bold.woff2') format('woff2'),
+       url('/fonts/VisbyCF-Bold.ttf') format('truetype');
+  font-weight: 700 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Visby CF alias */
+@font-face {
+  font-family: 'Visby CF';
+  src: url('/fonts/VisbyCF-Regular.woff2') format('woff2'),
+       url('/fonts/VisbyCF-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Visby CF';
+  src: url('/fonts/VisbyCF-DemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Visby CF';
+  src: url('/fonts/VisbyCF-Bold.woff2') format('woff2'),
+       url('/fonts/VisbyCF-Bold.ttf') format('truetype');
+  font-weight: 700 800;
+  font-style: normal;
+  font-display: swap;
+}

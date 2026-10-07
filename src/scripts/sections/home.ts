@@ -1,7 +1,7 @@
-import { gsap, ScrollTrigger, SplitText, reduced, mq } from '../core/gsap';
+import { gsap, ScrollTrigger, SplitText, CustomEase, reduced, mq } from '../core/gsap';
 import { $, $$ } from '../core/dom';
 import { reveal } from '../modules/reveals';
-import { scrollToTarget } from '../core/scroll';
+import { scrollToTarget, getLenis } from '../core/scroll';
 
 /* -------------------------------------------------------------------------- */
 /* Hero — intro timeline, scroll exit, day/night                              */
@@ -9,36 +9,27 @@ import { scrollToTarget } from '../core/scroll';
 export function hero() {
   const el = $('[data-hero]');
   if (!el) return;
-  const media = $('[data-hero-media]', el)!;
-  const lines = $$('[data-hero-line]', el);
-  const script = $('[data-hero-script]', el)!;
-  const phrases = $$('[data-hero-phrase]', el);
-  const toggle = $<HTMLButtonElement>('[data-hero-toggle]', el);
-  const title = $('[data-hero-title]', el)!;
-  const hotspots = $$('[data-hotspot]', el);
+  const content = $('[data-hero-content]', el);
   const cta = $('[data-hero-cta]', el);
+  const hotspots = $$('[data-hotspot]', el);
+  const lines = $$('[data-hero-line]', el);
+  const script = $('[data-hero-script]', el);
+  const phrases = $$('[data-hero-phrase]', el);
 
-  // Day / night
-  const night = $('[data-hero-night]', el);
-  if (toggle && night) {
-    const labels = $$('.hero__toggle-label', toggle);
-    toggle.addEventListener('click', () => {
-      const on = toggle.getAttribute('aria-pressed') !== 'true';
-      toggle.setAttribute('aria-pressed', String(on));
-      toggle.setAttribute('aria-label', on ? 'Show the residences by day' : 'Show the residences by night');
-      labels[0].classList.toggle('is-active', !on);
-      labels[1].classList.toggle('is-active', on);
-      gsap.to(night, { clipPath: on ? 'inset(0% 0% 0% 0%)' : 'inset(0% 0% 0% 100%)', duration: 1.6, ease: 'raha.inOut' });
-      gsap.fromTo($('[data-media-inner]', on ? night : $('[data-hero-day]', el)!), { scale: 1.12 }, { scale: 1, duration: 2.2 });
-    });
-  }
-
-  // Scroll: title drifts away faster than the frame, image breathes.
+  // Smooth fade-out of hero text and CTA as Reasons arch overlays over the photo
   if (!reduced) {
-    const st = { trigger: el.parentElement, start: 'top top', end: () => `+=${window.innerHeight * 1.4}`, scrub: true };
-    gsap.to(title, { yPercent: -70, ease: 'none', scrollTrigger: st });
-    gsap.to(phrases, { y: () => -window.innerHeight * 0.12, ease: 'none', scrollTrigger: st });
-    gsap.fromTo(media, { scale: 1 }, { scale: 1.08, ease: 'none', scrollTrigger: st });
+    const fadeTargets = [content, cta, ...hotspots].filter(Boolean);
+    gsap.to(fadeTargets, {
+      opacity: 0,
+      y: -60,
+      ease: 'power1.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top top',
+        end: '+=220',
+        scrub: true,
+      },
+    });
   }
 
   if (reduced) return;
@@ -46,50 +37,249 @@ export function hero() {
   const splits = lines.map((l) => new SplitText(l, { type: 'chars' }));
   const chars = splits.flatMap((s) => s.chars);
   gsap.set(chars, { opacity: 0, yPercent: 30, filter: 'blur(16px)' });
-  gsap.set(script, { clipPath: 'inset(-60% 100% -60% -30%)' });
+  if (script) gsap.set(script, { clipPath: 'inset(-60% 100% -60% -30%)' });
   gsap.set(phrases[0], { xPercent: 30, opacity: 0 });
   gsap.set(phrases[1], { xPercent: -30, opacity: 0 });
-  gsap.set([toggle, ...hotspots, cta].filter(Boolean), { opacity: 0 });
-  gsap.set(media, { scale: 1.18 });
+  if (cta) gsap.set(cta, { opacity: 0, scale: 0.92 });
+  gsap.set(hotspots, { opacity: 0 });
 
   return () => {
-    gsap
+    const tl = gsap
       .timeline({ onComplete: () => splits.forEach((s) => s.revert()) })
-      .to(media, { scale: 1, duration: 2.8, ease: 'raha.out', clearProps: 'scale' }, 0)
-      .to(chars, { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: 1.7, stagger: 0.055, ease: 'raha.soft' }, 0.15)
-      .to(script, { clipPath: 'inset(-60% -30% -60% -30%)', duration: 2, ease: 'power2.inOut' }, 0.9)
-      .to(phrases, { xPercent: 0, opacity: 1, duration: 1.8, ease: 'raha.out' }, 1.1)
-      .to([toggle, cta].filter(Boolean), { opacity: 1, duration: 1.2 }, 1.6)
-      .to(hotspots, { opacity: 1, duration: 1, stagger: 0.15 }, 1.9);
+      .to(chars, { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: 1.7, stagger: 0.055, ease: 'raha.soft' }, 0.15);
+    if (script) {
+      tl.to(script, { clipPath: 'inset(-60% -30% -60% -30%)', duration: 2, ease: 'power2.inOut' }, 0.9);
+    }
+    tl.to(phrases, { xPercent: 0, opacity: 1, duration: 1.8, ease: 'raha.out' }, 1.1);
+    if (cta) {
+      tl.to(cta, { opacity: 1, scale: 1, duration: 1.4, ease: 'power2.out' }, 1.3);
+    }
+    if (hotspots.length) {
+      tl.to(hotspots, { opacity: 1, stagger: 0.1, duration: 1.2, ease: 'power2.out' }, 1.5);
+    }
   };
 }
 
 /* -------------------------------------------------------------------------- */
-/* Arches — dome sections widen as they rise; arc text slides along its path  */
+/* Arches — dome sections widen as they rise; arc text expands along its path */
 /* -------------------------------------------------------------------------- */
 export const arch = (selector: string) => () => {
-  if (reduced) return;
   $$(`${selector}[data-arch]`).forEach((sec) => {
+    const textPath = $<SVGTextPathElement>('[data-arch-offset]', sec);
+    if (reduced) {
+      if (textPath) textPath.setAttribute('textLength', '1240');
+      return;
+    }
+    // 1. Subtle, ultra-smooth dome widening as it rises
     gsap.fromTo(
       sec,
-      { clipPath: 'inset(0% 9% 0% 9% round 50vw 50vw 0px 0px)' },
+      { clipPath: 'inset(0% 2% 0% 2% round 50vw 50vw 0px 0px)' },
       {
         clipPath: 'inset(0% 0% 0% 0% round 50vw 50vw 0px 0px)',
-        ease: 'none',
-        scrollTrigger: { trigger: sec, start: 'top bottom', end: 'top 15%', scrub: true },
+        ease: 'power1.out',
+        scrollTrigger: {
+          trigger: sec,
+          start: 'top bottom',
+          end: 'top 15%',
+          scrub: 0.6,
+        },
       },
     );
-    const offset = $('[data-arch-offset]', sec);
-    if (offset) {
-      const o = { v: 62 };
-      gsap.to(o, {
-        v: 50,
-        ease: 'none',
-        onUpdate: () => offset.setAttribute('startOffset', `${o.v}%`),
-        scrollTrigger: { trigger: sec, start: 'top bottom', end: 'top top', scrub: true },
-      });
+
+    // 2. Arc text: starts compressed at the apex (Pic 2) and expands smoothly
+    //    outward symmetrically along the curve as the arch rises (Pic 3)
+    if (textPath) {
+      const len = { v: 680 };
+      gsap.fromTo(
+        len,
+        { v: 680 },
+        {
+          v: 1240,
+          ease: 'power1.out',
+          onUpdate: () => {
+            textPath.setAttribute('textLength', len.v.toFixed(1));
+          },
+          scrollTrigger: {
+            trigger: sec,
+            start: 'top bottom',
+            end: 'top 10%',
+            scrub: 0.6,
+          },
+        },
+      );
     }
   });
+};
+
+/* -------------------------------------------------------------------------- */
+/* Reasons — auto-advancing carousel (every 5s while in view) + pager          */
+/*   out: title letters flip up, copy lines slide out, photo wipes off left    */
+/*   in:  photo wipes in on a diagonal, then letters and lines rise into place */
+/* -------------------------------------------------------------------------- */
+export function reasons() {
+  const sec = $('[data-reasons-carousel]');
+  if (!sec) return;
+
+  const titles = $$('[data-reasons-title]', sec);
+  const slides = $$('[data-reasons-slide]', sec);
+  const bodies = $$('[data-reasons-body]', sec);
+  const currentEl = $('[data-reasons-current]', sec);
+  const nextEl = $('[data-reasons-next-num]', sec);
+  const bar = $('[data-reasons-bar]', sec);
+  const n = titles.length;
+  const HOLD = 5;
+  const S = 0.4;
+  const M = 0.8;
+  const L = 1.2;
+  const STAGGER = 0.1;
+  const EASE_IN = CustomEase.create('reasons.in', '0.5, 0, 0.75, 0');
+  const EASE_OUT = CustomEase.create('reasons.out', '0.25, 1, 0.5, 1');
+  const EASE_INOUT = CustomEase.create('reasons.inOut', '0.75, 0, 0.25, 1');
+  const EASE_SETTLE = CustomEase.create('reasons.settle', '0.25, 0.1, 0.25, 1');
+
+  if (n < 2) return;
+
+  let active = 0;
+  let animating = false;
+  let inView = false;
+  let timer: gsap.core.Tween | null = null;
+
+  const paint = () => {
+    if (currentEl) currentEl.textContent = String(active + 1);
+    if (nextEl) nextEl.textContent = String(((active + 1) % n) + 1);
+  };
+
+  const show = (i: number, on: boolean) => {
+    [titles[i], bodies[i]].forEach((el) => {
+      el.classList.toggle('is-active', on);
+      el.setAttribute('aria-hidden', String(!on));
+    });
+  };
+
+  // The pager bar fills over HOLD seconds, then hands over to the next reason
+  const startTimer = () => {
+    timer?.kill();
+    timer = null;
+    if (!bar || reduced) return;
+    timer = gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: HOLD, ease: 'none', paused: !inView, onComplete: () => set(active + 1) });
+  };
+
+  const set = (to: number) => {
+    const i = (to + n) % n;
+    if (i === active || animating) return;
+    const prev = active;
+    active = i;
+    paint();
+
+    const outSlide = slides[prev];
+    const inSlide = slides[i];
+
+    if (reduced) {
+      show(prev, false);
+      show(i, true);
+      outSlide.classList.remove('is-active');
+      inSlide.classList.add('is-active');
+      return;
+    }
+
+    animating = true;
+    startTimer();
+
+    // Text is split only for the length of the move, so ligatures and wrapping stay native at rest
+    const outChars = new SplitText(titles[prev], { type: 'words,chars' });
+    const outLines = new SplitText($$('p', bodies[prev]), { type: 'lines', mask: 'lines' });
+    let inChars: SplitText | null = null;
+    let inLines: SplitText | null = null;
+
+    inSlide.classList.add('is-active');
+    gsap.set(inSlide, { zIndex: 2 });
+    gsap.set(outSlide, { zIndex: 1 });
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        inChars?.revert();
+        inLines?.revert();
+        outSlide.classList.remove('is-active');
+        gsap.set([inSlide, outSlide], { clearProps: 'zIndex,clipPath' });
+        gsap.set([$('[data-media-inner]', inSlide), $('[data-media-inner]', outSlide)], { clearProps: 'transform' });
+        animating = false;
+      },
+    });
+
+    // Out
+    tl.to(outChars.chars, { opacity: 0, yPercent: -50, rotateY: -90, duration: S, stagger: STAGGER * 0.25, ease: EASE_IN }, 0)
+      .to(outLines.lines, { yPercent: -110, duration: S, stagger: STAGGER * 0.5, ease: EASE_IN }, 0)
+      .fromTo(
+        outSlide,
+        { clipPath: 'polygon(0% 0%, 100% 0%, 125% 100%, 0% 100%)' },
+        { clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)', duration: L, ease: EASE_INOUT },
+        0,
+      )
+      .to($('[data-media-inner]', outSlide), { scale: 1.5, xPercent: -25, duration: L, ease: EASE_INOUT }, 0);
+
+    // In — photo
+    tl.fromTo(
+      inSlide,
+      { clipPath: 'polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)' },
+      { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: L, ease: EASE_INOUT },
+      0,
+    ).fromTo($('[data-media-inner]', inSlide), { scale: 1.5, xPercent: 25 }, { scale: 1, xPercent: 0, duration: L, ease: EASE_INOUT }, 0);
+
+    // In — text, once the old copy has cleared
+    tl.add(() => {
+      outChars.revert();
+      outLines.revert();
+      show(prev, false);
+      show(i, true);
+      inChars = new SplitText(titles[i], { type: 'words,chars' });
+      inLines = new SplitText($$('p', bodies[i]), { type: 'lines', mask: 'lines' });
+      tl.fromTo(
+        inChars.chars,
+        { opacity: 0, yPercent: 50, rotateY: 90 },
+        { opacity: 1, yPercent: 0, rotateY: 0, duration: L, stagger: STAGGER * 0.5, ease: EASE_OUT },
+        M,
+      ).fromTo(inLines.lines, { yPercent: 110 }, { yPercent: 0, duration: L, stagger: STAGGER, ease: EASE_OUT }, M);
+    }, M);
+  };
+
+  $('[data-reasons-prev]', sec)?.addEventListener('click', () => set(active - 1));
+  $('[data-reasons-next]', sec)?.addEventListener('click', () => set(active + 1));
+
+  // Only count down while the carousel is on screen
+  ScrollTrigger.create({
+    trigger: sec,
+    start: 'top 70%',
+    end: 'bottom 30%',
+    onToggle: (self) => {
+      inView = self.isActive;
+      if (inView) timer?.play();
+      else timer?.pause();
+    },
+  });
+  paint();
+  startTimer();
+
+  // Settle: when scrolling comes to rest with most of the stage on screen, ease it to full view
+  const lenis = getLenis();
+  if (lenis) {
+    const mm = gsap.matchMedia();
+    mm.add(mq.desktop, () => {
+      let t = 0;
+      const off = lenis.on('scroll', () => {
+        clearTimeout(t);
+        t = window.setTimeout(() => {
+          const vh = window.innerHeight;
+          const r = sec.getBoundingClientRect();
+          const visible = (Math.min(r.bottom, vh) - Math.max(r.top, 0)) / Math.min(r.height, vh);
+          if (visible > 0.5 && Math.abs(r.top) > 1) lenis.scrollTo(sec, { duration: L, easing: EASE_SETTLE });
+        }, 80);
+      });
+      return () => {
+        clearTimeout(t);
+        off();
+      };
+    });
+  }
 }
 
 /* -------------------------------------------------------------------------- */

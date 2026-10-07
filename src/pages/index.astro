@@ -16,10 +16,9 @@ import { home } from '@/data/home';
 ---
 
 <BaseLayout title={undefined} description={home.seo.description} header="light" page="home">
-  <!-- 1–3 · Hero held in place while the arch rises over it -->
-  <div class="hero-stack">
+  <!-- 1–2 · Hero held sticky while the arch rises as an overlay over the photo -->
+  <div class="hero-stack" data-hero-stack>
     <Hero />
-    <div class="hero-stack__hold" aria-hidden="true"></div>
     <Reasons />
   </div>
 
@@ -56,15 +55,12 @@ import { home } from '@/data/home';
 
   <!-- 13–14 · Call to action + booking -->
   <Cta />
-  <Contact />
+  <Contact slot="before-footer" />
 </BaseLayout>
 
 <style is:global>
   .hero-stack {
     position: relative;
-  }
-  .hero-stack__hold {
-    height: 55svh;
   }
   .amen-stack {
     position: relative;

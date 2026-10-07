@@ -10,36 +10,35 @@ import type { MediaRef } from './types';
 
 export const home = {
   seo: {
-    title: 'RAHA Residences', // PLACEHOLDER
+    title: 'RAAHA RESORT', // PLACEHOLDER
     description:
       'A private collection of contemporary residences designed around privacy, wellbeing and timeless architecture.', // PLACEHOLDER
   },
 
   hero: {
-    titleLines: ['RAHA', 'Residences'],
-    script: 'Retreat', // Raaha Retreat
+    titleLines: ['RAAHA', 'RETREAT'],
+    script: '',
     phrase: ['A place', 'to return to'],
-    day: { src: 'raaha_hires/raaha_05.jpg', alt: 'RAHA Retreat swimming pool and pink villas under blue skies', tone: 'sky', label: 'Hero · Daytime Pool' } as MediaRef,
-    night: { src: 'raaha_hires/raaha_07.jpg', alt: 'RAHA Retreat palms and illuminated lanterns at golden sunset', tone: 'night', label: 'Hero · Sunset Palms' } as MediaRef,
-    toggle: ['By day', 'At sunset'],
+    day: { src: 'home/24.png', alt: 'RAAHA Retreat swimming pool and terracotta villas under evening sunset skies', tone: 'dusk', position: 'center 50%', label: 'Hero · Evening Pool & Sanctuary' } as MediaRef,
     cta: { label: 'View available residences', href: '/residences' },
     hotspots: [
-      { x: 30, y: 55, title: 'Private cottages', text: 'Spacious cottages set around private lawns and swimming pool.' },
-      { x: 65, y: 70, title: 'Poolside retreat', text: 'Sparkling pool framed by palm trees and outdoor pergolas.' },
+      { x: 18, y: 66, title: 'Shaded Pergola', text: 'Private outdoor lounge oriented to evening sunsets.' },
+      { x: 53, y: 62, title: 'Sanctuary Villas', text: 'Terracotta suites crafted with floor-to-ceiling glass and private decks.' },
+      { x: 64, y: 88, title: 'Reflecting Pool', text: 'Tranquil central pool framed by lush palms and open skies.' },
     ],
   },
 
   reasons: {
-    arcText: 'Three reasons to choose RAHA',
+    arcText: 'Three reasons to choose RAAHA',
     region: ['Boutique', 'Retreat'],
     caption: ['A place to live — to return', 'year after year'],
     items: [
       {
         title: ['Real-life location'],
-        text: 'Nestled amidst lush palms and open skies, RAHA offers a rare balance of secluded retreat living and effortless hospitality — a serene sanctuary for weekends, celebrations and unforgettable stays.',
+        text: 'Nestled amidst lush palms and open skies, RAAHA offers a rare balance of secluded retreat living and effortless hospitality — a serene sanctuary for weekends, celebrations and unforgettable stays.',
         statement: ['Designed as a community,', 'not a complex'],
         images: [
-          { src: 'raaha_hires/raaha_30.jpg', alt: 'Raaha pink cottages and manicured grounds', tone: 'sky', label: 'The Grounds', position: 'center 75%' },
+          { src: 'raaha_hires/IMG_6071.jpg', alt: 'Golden sunset over the Raaha lawns, framed by canna lilies and a textured wall', tone: 'dusk', label: 'Sunset on the grounds', position: 'center 62%' },
           { src: 'raaha_hires/raaha_32.jpg', alt: 'Poolside loungers and wooden pergola deck under the palms', tone: 'garden', label: 'Under the palms', position: 'center 85%' },
         ] as MediaRef[],
       },
@@ -48,7 +47,7 @@ export const home = {
         text: 'Clean contemporary volumes, warm pink facade tones and deep shaded pergolas — an architectural language crafted to feel calm, tactile and intimate from the moment you arrive.',
         statement: ['Crafted to feel', 'like a private home'],
         images: [
-          { src: 'raaha_hires/raaha_05.jpg', alt: 'Pink cottage architecture framed by palms and pool', tone: 'stone', label: 'Architecture · Cottages' },
+          { src: 'raaha_hires/25.png', alt: 'Pink Raaha cottages with shaded verandas under a sunset sky', tone: 'dusk', label: 'Architecture · Cottages', position: 'center 72%' },
           { src: 'raaha_hires/raaha_08.jpg', alt: 'Bedroom window view onto the private garden court', tone: 'interior', label: 'Architecture · Garden View' },
         ] as MediaRef[],
       },
@@ -57,7 +56,7 @@ export const home = {
         text: 'Lawns, pool water and sunlight are woven seamlessly with every space. Every cottage connects directly to manicured outdoor grounds, courts and open-air lounges.',
         statement: ['Space to breathe,', 'every single day'],
         images: [
-          { src: 'raaha_hires/raaha_26.jpg', alt: 'Dusk sky over palms and manicured lawn', tone: 'sea', label: 'Evenings at Raaha' },
+          { src: 'home/24.png', alt: 'Raaha swimming pool and terracotta villas under an evening sky', tone: 'dusk', label: 'Evenings at Raaha', position: 'center 65%' },
           { src: 'raaha_hires/raaha_18.jpg', alt: 'Private pickleball and multi-sports court surrounded by palm trees', tone: 'garden', label: 'Wellbeing · Court' },
         ] as MediaRef[],
       },
@@ -66,15 +65,15 @@ export const home = {
 
   quote: {
     text: 'Instead of corridors, walking paths connect the residences — making RAHA feel closer to a group of private homes than a standard development',
-    author: ['Architecture team', 'RAHA Residences'],
+    author: ['Architecture team', 'RAAHA Residences'],
     image: { src: 'raaha_hires/raaha_26.jpg', alt: 'Sunset over Raaha lawn and palms', tone: 'sea', label: 'Quote · Sunset at Raaha' } as MediaRef,
   },
 
   concept: {
     label: 'The concept',
     statement:
-      'RAHA is a boutique sanctuary of private villas, designed around privacy, wellbeing and timeless retreat living',
-    text: 'Combining contemporary architecture with warm materials, expansive lawns and carefully curated gathering spaces, RAHA is crafted for pauses from the ordinary.',
+      'RAAHA is a boutique sanctuary of private villas, designed around privacy, wellbeing and timeless retreat living',
+    text: 'Combining contemporary architecture with warm materials, expansive lawns and carefully curated gathering spaces, RAAHA is crafted for pauses from the ordinary.',
     location: {
       country: 'Retreat',
       lines: ['The', 'Private', 'Sanctuary'],
@@ -87,7 +86,7 @@ export const home = {
       points: [
         { x: 8, y: 70, name: 'Airport', time: '50 min' },
         { x: 30, y: 48, name: 'City Center', time: '20 min' },
-        { x: 52, y: 58, name: 'RAHA', time: '', home: true },
+        { x: 52, y: 58, name: 'RAAHA', time: '', home: true },
         { x: 72, y: 40, name: 'Clubhouse', time: '5 min' },
         { x: 92, y: 30, name: 'Lakeside', time: '15 min' },
       ],

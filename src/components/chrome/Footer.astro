@@ -73,6 +73,35 @@ const cols = [
   .footer {
     position: relative;
     padding: calc(150 * var(--u)) 0 calc(56 * var(--u));
+    background-color: #7c3821;
+    color: var(--c-ivory);
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .footer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: url('/raaha-texture.webp') center / cover no-repeat;
+    opacity: 0.98;
+    pointer-events: none;
+  }
+  .footer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 50%, rgba(124, 56, 33, 0.12) 0%, rgba(45, 17, 8, 0.38) 100%);
+    pointer-events: none;
+  }
+  :global(.footer-group) .footer {
+    background: transparent !important;
+    isolation: auto;
+  }
+  :global(.footer-group) .footer::before,
+  :global(.footer-group) .footer::after {
+    display: none !important;
   }
   .footer__main {
     display: grid;

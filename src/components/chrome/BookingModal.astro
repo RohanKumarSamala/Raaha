@@ -6,7 +6,7 @@ import Mark from '../brand/Mark.astro';
 <div class="modal" id="booking" role="dialog" aria-modal="true" aria-labelledby="booking-title" data-modal data-reveal-manual hidden>
   <div class="modal__overlay" data-modal-close></div>
   <div class="modal__stage">
-    <div class="modal__panel t-mist" data-modal-panel data-lenis-prevent>
+    <div class="modal__panel t-deep" data-modal-panel data-lenis-prevent>
       <button type="button" class="modal__close" data-modal-close aria-label="Close booking form" data-cursor="link">
         <svg viewBox="0 0 12 12" stroke="currentColor" fill="none" aria-hidden="true"><path d="m1 1 10 10M11 1 1 11" /></svg>
       </button>
@@ -30,8 +30,8 @@ import Mark from '../brand/Mark.astro';
   .modal__overlay {
     position: absolute;
     inset: 0;
-    background: rgb(24 34 58 / 0.62);
-    backdrop-filter: blur(2px);
+    background: rgb(124 56 33 / 0.72);
+    backdrop-filter: blur(4px);
     opacity: 0;
   }
   .modal__stage {
@@ -47,6 +47,14 @@ import Mark from '../brand/Mark.astro';
     overflow-y: auto;
     padding: calc(56 * var(--u)) calc(56 * var(--u)) calc(56 * var(--u)) calc(56 * var(--u));
     clip-path: inset(100% 0 0 0);
+    background-color: #7c3821;
+    background-image:
+      radial-gradient(ellipse at 50% 30%, rgba(124, 56, 33, 0.12) 0%, rgba(45, 17, 8, 0.42) 100%),
+      url('/raaha-texture.webp');
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    color: var(--c-ivory);
   }
   .modal__close {
     position: absolute;

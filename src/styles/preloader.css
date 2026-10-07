@@ -1,0 +1,503 @@
+/* ==========================================================================
+   ERA RESIDENCE ARCHITECTURAL PRELOADER FOR RAAHA RESIDENCES
+   Deep brand palette (#7c3821), Frieska & Visby typography,
+   chamfered perimeter frame, and iconic cathedral arch portal exit.
+   ========================================================================== */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  overflow: hidden;
+  background-color: #7c3821;
+  color: var(--c-ivory, #e7dfc5);
+  pointer-events: auto;
+  isolation: isolate;
+
+  /* Architectural Arch Portal Mask Variables */
+  --arch-w: 24vw;
+  --arch-h: calc(var(--arch-w) / (560 / 2592));
+  --arch-y: 104vh;
+
+  mask-image:
+    linear-gradient(white, white),
+    linear-gradient(white, white),
+    linear-gradient(white, white),
+    url('/preloader_arch.svg');
+  -webkit-mask-image:
+    linear-gradient(white, white),
+    linear-gradient(white, white),
+    linear-gradient(white, white),
+    url('/preloader_arch.svg');
+  mask-size:
+    calc(50% - (var(--arch-w) / 2) + 2px) 100%,
+    calc(var(--arch-w) + 4px) calc(var(--arch-y) + 2px),
+    calc(50% - (var(--arch-w) / 2) + 2px) 100%,
+    var(--arch-w) var(--arch-h);
+  -webkit-mask-size:
+    calc(50% - (var(--arch-w) / 2) + 2px) 100%,
+    calc(var(--arch-w) + 4px) calc(var(--arch-y) + 2px),
+    calc(50% - (var(--arch-w) / 2) + 2px) 100%,
+    var(--arch-w) var(--arch-h);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-position:
+    left top,
+    center top,
+    right top,
+    center var(--arch-y);
+  -webkit-mask-position:
+    left top,
+    center top,
+    right top,
+    center var(--arch-y);
+  mask-composite: add;
+  -webkit-mask-composite: source-over;
+}
+
+html.has-preloader .preloader,
+.has-preloader .preloader {
+  display: block;
+}
+
+/* Authentic Texture & Radial Vignette */
+.preloader::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: url('/raaha-texture.webp') center / cover no-repeat;
+  opacity: 0.98;
+  pointer-events: none;
+}
+
+.preloader::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 50%, rgba(124, 56, 33, 0.12) 0%, rgba(45, 17, 8, 0.38) 100%);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   CONTENT LAYOUT (100vh flex column with top, center, bottom sections)
+   ========================================================================== */
+
+.preloader_ctn {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(36 * var(--u, 1px)) var(--offset, 48px);
+  box-sizing: border-box;
+}
+
+/* Top Area: Centered Brand Mark Symbol */
+.preloader_t {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.s_logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.logo_symbol {
+  width: max(calc(52 * var(--u, 1px)), 44px);
+  height: max(calc(52 * var(--u, 1px)), 44px);
+  color: var(--c-ivory, #e7dfc5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo_symbol .preloader__mark,
+.logo_symbol svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Center Area: 10-Column Editorial Grid */
+.preloader_c {
+  width: 100%;
+  margin: auto 0;
+}
+
+.preloader_grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.preloader_title-l {
+  grid-area: 1 / 2 / 2 / 4;
+  align-self: center;
+  text-align: center;
+}
+
+.preloader_title-r {
+  grid-area: 1 / 8 / 2 / 10;
+  align-self: center;
+  text-align: center;
+}
+
+.preloader_kicker {
+  font-family: var(--font-subheading, 'Visby', sans-serif);
+  font-size: var(--c1, 13px);
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--c-ivory, #e7dfc5);
+  opacity: 0.85;
+}
+
+.preloader_logo {
+  grid-area: 1 / 4 / 2 / 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+
+.preloader_title {
+  font-family: var(--font-heading, 'Frieska', serif);
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0;
+  font-size: calc(68 * var(--u, 1px));
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--c-ivory, #e7dfc5);
+  margin: 0;
+}
+
+.preloader_logo_a {
+  margin-top: calc(-24 * var(--u, 1px));
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.preloader_a {
+  font-family: var(--font-script, 'Pinyon Script', cursive);
+  font-size: calc(68 * var(--u, 1px));
+  line-height: 1;
+  color: var(--c-ivory, #e7dfc5);
+}
+
+/* Bottom Area: Progress Track + Numeric Counter + Tagline */
+.preloader_b {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.preloader_b .preloader_grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  width: 100%;
+}
+
+.s_title {
+  grid-area: 1 / 5 / 2 / 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.preloader_progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(14 * var(--u, 1px));
+}
+
+.preloader_progress_fill {
+  width: 1px;
+  height: calc(96 * var(--u, 1px));
+  background-color: var(--ivory-20, rgba(231, 223, 197, 0.2));
+  overflow: hidden;
+  position: relative;
+}
+
+.preloader_progress_track {
+  width: 100%;
+  height: 100%;
+  background-color: var(--c-ivory, #e7dfc5);
+  transform: translateY(-100%);
+}
+
+.preloader_counter {
+  font-family: var(--font-subheading, 'Visby', sans-serif);
+  font-size: var(--l2, 11px);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: var(--c-ivory, #e7dfc5);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.u-24 {
+  height: calc(20 * var(--u, 1px));
+}
+
+.u-48 {
+  height: calc(48 * var(--u, 1px));
+  flex: none;
+}
+
+.preloader_tagline {
+  font-family: var(--font-subheading, 'Visby', sans-serif);
+  font-size: var(--l1, 13px);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--c-ivory, #e7dfc5);
+  margin: 0;
+}
+
+/* ==========================================================================
+   CONCENTRIC ARCH CONTOURS (Ride with the portal opening)
+   ========================================================================== */
+
+.preloader_bg_arch {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.preloader_bg_arch_is-1 {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--arch-y) - (var(--arch-h) * 0.005));
+  transform: translateX(-50%);
+  width: calc(var(--arch-w) * 1.02);
+  height: calc(var(--arch-h) * 1.01);
+  border: 1px solid var(--ivory-30, rgba(231, 223, 197, 0.3));
+  border-bottom: none;
+  border-top-left-radius: var(--arch-w);
+  border-top-right-radius: var(--arch-w);
+  z-index: 1;
+}
+
+.preloader_bg_arch_is-2 {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--arch-y) - (var(--arch-h) * 0.015));
+  transform: translateX(-50%);
+  width: calc(var(--arch-w) * 1.1);
+  height: calc(var(--arch-h) * 1.03);
+  border: 1px solid var(--ivory-10, rgba(231, 223, 197, 0.12));
+  border-bottom: none;
+  border-top-left-radius: var(--arch-w);
+  border-top-right-radius: var(--arch-w);
+  z-index: 0;
+}
+
+/* ==========================================================================
+   BACKGROUND LAYER: OVERSIZED WATERMARK & CHAMFERED PERIMETER FRAME
+   ========================================================================== */
+
+.preloader_bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.preloader_bg_a {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.preloader_watermark {
+  font-family: var(--font-script, 'Pinyon Script', cursive);
+  font-size: calc(480 * var(--u, 1px));
+  line-height: 1;
+  color: var(--c-ivory, #e7dfc5);
+  transform: rotate(-10deg);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.preloader_bg_decor {
+  position: absolute;
+  left: calc(24 * var(--u, 1px));
+  top: calc(24 * var(--u, 1px));
+  right: calc(24 * var(--u, 1px));
+  bottom: calc(24 * var(--u, 1px));
+  pointer-events: none;
+}
+
+.decor {
+  position: absolute;
+  inset: 0;
+  color: var(--ivory-30, rgba(231, 223, 197, 0.3));
+}
+
+.frame_lt {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}
+
+.frame_rt {
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}
+
+.frame_rb {
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}
+
+.frame_lb {
+  position: absolute;
+  inset: auto auto 0 0;
+  width: 24px;
+  height: 24px;
+  z-index: 1;
+}
+
+.frame_t-lr {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: -12px;
+  height: 24px;
+  z-index: 1;
+}
+
+.frame_b-lr {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: -12px;
+  height: 24px;
+  z-index: 1;
+}
+
+.frame_l-tb {
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  left: -12px;
+  width: 24px;
+  z-index: 1;
+}
+
+.frame_r-tb {
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  right: -12px;
+  width: 24px;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (Matching ERA mobile breakpoints)
+   ========================================================================== */
+
+@media (max-width: 991px) {
+  .preloader {
+    --arch-w: 40vw;
+  }
+  .preloader_grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .preloader_b .preloader_grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .preloader_title-l,
+  .preloader_title-r {
+    display: none;
+  }
+  .preloader_logo {
+    grid-area: 1 / 2 / 2 / 4;
+  }
+  .s_title {
+    grid-area: 1 / 2 / 2 / 4;
+  }
+  .preloader_title {
+    font-size: calc(52 * var(--u, 1px));
+  }
+  .preloader_a {
+    font-size: calc(52 * var(--u, 1px));
+  }
+  .preloader_watermark {
+    font-size: calc(320 * var(--u, 1px));
+  }
+}
+
+@media (max-width: 767px) {
+  .preloader {
+    --arch-w: 48vw;
+  }
+  .preloader_ctn {
+    padding: 24px 20px;
+  }
+  .preloader_grid,
+  .preloader_b .preloader_grid {
+    display: flex;
+    justify-content: center;
+  }
+  .preloader_title {
+    font-size: 34px;
+  }
+  .preloader_a {
+    font-size: 36px;
+    margin-top: -10px;
+  }
+  .preloader_progress_fill {
+    height: 70px;
+  }
+  .preloader_watermark {
+    font-size: 200px;
+  }
+  .preloader_bg_decor {
+    left: 12px;
+    top: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+}

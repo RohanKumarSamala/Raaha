@@ -113,7 +113,7 @@ const galleryByType: Record<string, { src: string; alt: string; tone: (typeof to
     { src: 'raaha_hires/raaha_05.jpg', alt: 'Penthouse duplex facade and swimming pool under the palms', tone: 'sky', label: 'Exterior · Poolside' },
     { src: 'raaha_hires/raaha_16.jpg', alt: 'Expansive penthouse living room pavilion', tone: 'interior', label: 'Living · Grand Lounge' },
     { src: 'raaha_hires/raaha_32.jpg', alt: 'Poolside cabana, sun loungers and wooden pergola deck', tone: 'sky', label: 'Pool · Sun Deck' },
-    { src: 'raaha_hires/raaha_07.jpg', alt: 'Dusk illumination and evening ambiance across the retreat', tone: 'sea', label: 'Sunset · Evening Glow' },
+    { src: 'raaha_hires/raaha_07.jpg', alt: 'Dusk illumination and evening ambiance across the retreat', tone: 'sky', label: 'Sunset · Evening Glow' },
   ],
 };
 

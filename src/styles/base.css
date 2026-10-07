@@ -13,6 +13,7 @@ html {
   text-size-adjust: 100%;
   scrollbar-width: thin;
   overflow-x: clip;
+  font-variant-ligatures: none;
 }
 
 /* Lenis */
@@ -36,8 +37,9 @@ body {
   color: var(--c-ink);
   font-family: var(--font-body);
   font-size: var(--p1);
-  line-height: 1.38;
-  font-stretch: 112%;
+  font-weight: var(--body-weight);
+  line-height: 1.45;
+  font-stretch: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -59,6 +61,7 @@ picture {
 a {
   color: inherit;
   text-decoration: none;
+  cursor: pointer;
 }
 
 button {
@@ -145,21 +148,23 @@ ol {
 .h5,
 .h6,
 .c1 {
-  font-family: var(--font-display);
+  font-family: var(--font-heading, var(--font-display));
   font-weight: var(--display-weight);
-  font-stretch: var(--display-stretch);
+  -webkit-text-stroke: var(--display-stroke) currentColor;
+  font-stretch: normal;
   text-transform: uppercase;
   font-kerning: normal;
-  font-feature-settings: 'kern', 'liga';
+  font-variant-ligatures: none;
+  font-feature-settings: 'kern' 1, 'liga' 0, 'calt' 0;
 }
 
-.h1 { font-size: calc(var(--h1) * var(--display-optical)); line-height: 0.875; letter-spacing: -0.024em; }
-.h2 { font-size: calc(var(--h2) * var(--display-optical)); line-height: 0.88; letter-spacing: -0.024em; }
-.h3 { font-size: calc(var(--h3) * var(--display-optical)); line-height: 0.92; letter-spacing: -0.02em; }
-.h4 { font-size: calc(var(--h4) * var(--display-optical)); line-height: 0.9; letter-spacing: -0.016em; }
-.h5 { font-size: calc(var(--h5) * var(--display-optical)); line-height: 1; letter-spacing: -0.008em; }
-.h6 { font-size: calc(var(--h6) * var(--display-optical)); line-height: 1; letter-spacing: 0; }
-.c1 { font-size: var(--c1); line-height: 1.12; letter-spacing: 0.8em; }
+.h1 { font-size: calc(var(--h1) * var(--display-optical)); line-height: 0.92; letter-spacing: -0.01em; }
+.h2 { font-size: calc(var(--h2) * var(--display-optical)); line-height: 0.94; letter-spacing: -0.01em; }
+.h3 { font-size: calc(var(--h3) * var(--display-optical)); line-height: 0.96; letter-spacing: -0.005em; }
+.h4 { font-size: calc(var(--h4) * var(--display-optical)); line-height: 1.0; letter-spacing: 0; }
+.h5 { font-size: calc(var(--h5) * var(--display-optical)); line-height: 1.1; letter-spacing: 0.02em; }
+.h6 { font-size: calc(var(--h6) * var(--display-optical)); line-height: 1.1; letter-spacing: 0.04em; }
+.c1 { font-size: var(--c1); line-height: 1.12; letter-spacing: 0.5em; }
 
 .a1,
 .a2 {
@@ -176,25 +181,71 @@ ol {
 .p2 { font-size: var(--p2); line-height: 1.455; letter-spacing: -0.012em; }
 
 .l1,
-.l2 {
-  font-family: var(--font-body);
+.l2,
+.subheading,
+.sub-heading {
+  font-family: var(--font-subheading, var(--font-body));
   text-transform: uppercase;
-  font-stretch: 125%;
-  font-weight: 600;
+  font-stretch: normal;
+  font-weight: 700;
 }
-.l1 { font-size: var(--l1); line-height: 1.455; letter-spacing: 0.048em; }
-.l2 { font-size: var(--l2); line-height: 1.333; letter-spacing: 0.32em; }
+.l1 { font-size: var(--l1); line-height: 1.455; letter-spacing: 0.08em; }
+.l2 { font-size: var(--l2); line-height: 1.333; letter-spacing: 0.24em; }
 
-.muted { opacity: 0.6; }
+.muted { opacity: 0.82; }
 
 /* ==========================================================================
    THEMES — sections declare a surface; header colour follows data-header
    ========================================================================== */
 
 .t-light { background: var(--c-ivory); color: var(--c-ink); --line: var(--ink-10); --soft: var(--ink-60); }
-.t-mist { background: var(--c-mist); color: var(--c-ink); --line: var(--ink-10); --soft: var(--ink-60); }
+.t-mist { background: var(--c-mist); color: var(--c-ink-deep); --line: var(--ink-10); --soft: var(--ink-60); }
 .t-deep { background: var(--c-deep); color: var(--c-ivory); --line: var(--ivory-10); --soft: var(--ivory-60); }
 .t-image { color: var(--c-white); --line: rgb(255 255 255 / 0.25); --soft: rgb(255 255 255 / 0.8); }
+
+/* ==========================================================================
+   FOOTER & PRE-FOOTER GROUP — Authentic preloader texture & radial vignette
+   ========================================================================== */
+
+.footer-group {
+  position: relative;
+  background-color: #7c3821;
+  color: var(--c-ivory, #e7dfc5);
+  isolation: isolate;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.footer-group::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: url('/raaha-texture.webp') center / cover no-repeat;
+  opacity: 0.98;
+  pointer-events: none;
+}
+
+.footer-group::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 50%, rgba(124, 56, 33, 0.12) 0%, rgba(45, 17, 8, 0.38) 100%);
+  pointer-events: none;
+}
+
+.footer-group .contact,
+.footer-group .footer {
+  background: transparent !important;
+}
+
+.footer-group .contact::before,
+.footer-group .contact::after,
+.footer-group .footer::before,
+.footer-group .footer::after {
+  display: none !important;
+}
 
 /* ==========================================================================
    LAYOUT HELPERS

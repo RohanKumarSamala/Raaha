@@ -1,7 +1,6 @@
 ---
 import { home } from '@/data/home';
 import Media from '../ui/Media.astro';
-import CircleButton from '../ui/CircleButton.astro';
 
 const h = home.hero;
 ---
@@ -11,58 +10,39 @@ const h = home.hero;
     <div class="hero__layer" data-hero-day>
       <Media media={h.day} fill priority sizes="100vw" />
     </div>
-    {
-      h.night && (
-        <div class="hero__layer hero__layer--night" data-hero-night>
-          <Media media={h.night} fill sizes="100vw" />
-        </div>
-      )
-    }
+
+    <div class="hero__hotspots" aria-label="Points of interest">
+      {
+        h.hotspots.map((spot, i) => (
+          <div class="hotspot" style={`left:${spot.x}%;top:${spot.y}%`} data-hotspot>
+            <button type="button" class="hotspot__pin" aria-describedby={`hotspot-${i}`} data-cursor="link">
+              <span class="hotspot__ring" />
+              <span class="hotspot__core" />
+              <span class="sr-only">{spot.title}</span>
+            </button>
+            <div class="hotspot__tip t-light" id={`hotspot-${i}`} role="tooltip">
+              <p class="l2">{spot.title}</p>
+              <p class="p2">{spot.text}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
   </div>
 
-  <div class="hero__hotspots" aria-label="Points of interest">
-    {
-      h.hotspots.map((spot, i) => (
-        <div class="hotspot" style={`left:${spot.x}%;top:${spot.y}%`} data-hotspot>
-          <button type="button" class="hotspot__pin" aria-describedby={`hotspot-${i}`} data-cursor="link">
-            <span class="hotspot__ring" />
-            <span class="hotspot__core" />
-            <span class="sr-only">{spot.title}</span>
-          </button>
-          <div class="hotspot__tip t-light" id={`hotspot-${i}`} role="tooltip">
-            <p class="l2">{spot.title}</p>
-            <p class="p2">{spot.text}</p>
-          </div>
-        </div>
-      ))
-    }
-  </div>
+  <div class="hero__grad hero__grad--top" aria-hidden="true"></div>
+  <div class="hero__grad hero__grad--bot" aria-hidden="true"></div>
 
   <div class="hero__content" data-hero-content>
     <h1 class="hero__title" data-hero-title>
-      {h.titleLines.map((line) => <span class="hero__line h1" data-hero-line data-fit="0.75">{line}</span>)}
-      <span class="hero__script a2" data-hero-script>{h.script}</span>
+      {h.titleLines.map((line) => <span class="hero__line h1" data-hero-line data-fit="0.49">{line}</span>)}
+      {h.script && <span class="hero__script a2" data-hero-script>{h.script}</span>}
     </h1>
 
     <div class="hero__row">
       <p class="hero__phrase h5" data-hero-phrase>{h.phrase[0]}</p>
-      {
-        h.night && (
-          <button type="button" class="hero__toggle l2" data-hero-toggle aria-pressed="false" aria-label="Show the residences by night" data-cursor="link">
-            <span class="hero__toggle-label is-active">{h.toggle[0]}</span>
-            <span class="hero__toggle-track" aria-hidden="true">
-              <i />
-            </span>
-            <span class="hero__toggle-label">{h.toggle[1]}</span>
-          </button>
-        )
-      }
       <p class="hero__phrase h5" data-hero-phrase>{h.phrase[1]}</p>
     </div>
-  </div>
-
-  <div class="hero__cta" data-hero-cta>
-    <CircleButton label={h.cta.label} href={h.cta.href} />
   </div>
 </section>
 
@@ -78,19 +58,35 @@ const h = home.hero;
   .hero__media {
     position: absolute;
     inset: 0;
-    will-change: transform;
+    width: 100%;
+    height: 100%;
   }
   .hero__layer {
     position: absolute;
     inset: 0;
   }
-  .hero__layer--night {
-    clip-path: inset(0% 0% 0% 100%);
+  .hero__grad {
+    position: absolute;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .hero__grad--top {
+    top: 0;
+    height: 38%;
+    background: linear-gradient(180deg, rgb(16 24 38 / 0.52) 0%, rgb(16 24 38 / 0.16) 55%, transparent 100%);
+  }
+  .hero__grad--bot {
+    bottom: 0;
+    height: 40%;
+    background: linear-gradient(0deg, rgb(16 24 38 / 0.45) 0%, rgb(16 24 38 / 0.12) 50%, transparent 100%);
   }
   .hero__content {
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 3;
   }
   .hero__title {
     position: absolute;
@@ -106,6 +102,7 @@ const h = home.hero;
   }
   .hero__line {
     display: block;
+    font-size: calc(var(--h1) * 0.65);
   }
   .hero__script {
     position: absolute;
@@ -118,56 +115,15 @@ const h = home.hero;
   }
   .hero__row {
     position: absolute;
-    left: calc(352 * var(--u));
-    right: calc(352 * var(--u));
-    top: calc(506 * var(--u));
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    left: calc(300 * var(--u));
+    right: calc(300 * var(--u));
+    top: calc(375 * var(--u));
+    display: flex;
+    justify-content: space-between;
     align-items: center;
   }
   .hero__phrase:last-child {
     text-align: right;
-  }
-  .hero__toggle {
-    pointer-events: auto;
-    display: flex;
-    align-items: center;
-    gap: calc(14 * var(--u));
-    padding: 10px 0;
-    margin-top: calc(-8 * var(--u));
-    translate: 0 calc(-56 * var(--u));
-  }
-  .hero__toggle-label {
-    opacity: 0.5;
-    transition: opacity 0.6s var(--ease-out);
-  }
-  .hero__toggle-label.is-active {
-    opacity: 1;
-  }
-  .hero__toggle-track {
-    position: relative;
-    width: calc(64 * var(--u));
-    min-width: 36px;
-    height: 1px;
-    background: rgb(255 255 255 / 0.35);
-  }
-  .hero__toggle-track i {
-    position: absolute;
-    inset: 0;
-    width: 50%;
-    background: currentColor;
-    transition: translate 0.9s var(--ease-in-out);
-  }
-  .hero__toggle[aria-pressed='true'] .hero__toggle-track i {
-    translate: 100% 0;
-  }
-
-  .hero__cta {
-    position: absolute;
-    left: 50%;
-    bottom: calc(40 * var(--u));
-    translate: -50% 0;
-    display: none;
   }
 
   /* Hotspots */
@@ -175,6 +131,7 @@ const h = home.hero;
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 3;
   }
   .hotspot {
     position: absolute;
@@ -228,36 +185,27 @@ const h = home.hero;
   }
 
   @media (max-width: 1199px) and (min-width: 768px) {
-    .hero__title { top: calc(110 * var(--u)); }
-    .hero__script { top: calc(164 * var(--u)); }
-    .hero__row { left: var(--offset); right: var(--offset); top: calc(530 * var(--u)); }
+    .hero__title { top: calc(90 * var(--u)); }
+    .hero__script { top: calc(144 * var(--u)); }
+    .hero__row { left: var(--offset); right: var(--offset); top: calc(390 * var(--u)); }
   }
 
   @media (max-width: 767px) {
     .hero__title {
-      top: calc(150 * var(--u));
+      top: calc(115 * var(--u));
     }
     .hero__script {
-      top: calc(108 * var(--u));
+      top: calc(75 * var(--u));
     }
     .hero__row {
       left: var(--offset);
       right: var(--offset);
-      top: calc(360 * var(--u));
-      grid-template-columns: 1fr 1fr;
-      row-gap: 18px;
+      top: calc(275 * var(--u));
+      display: flex;
+      justify-content: space-between;
     }
     .hero__phrase {
-      font-size: calc(17.6 * var(--u));
-    }
-    .hero__toggle {
-      grid-row: 2;
-      grid-column: 1 / -1;
-      justify-self: center;
-      translate: 0 0;
-    }
-    .hero__cta {
-      display: block;
+      font-size: calc(14 * var(--u));
     }
     .hotspot {
       display: none;

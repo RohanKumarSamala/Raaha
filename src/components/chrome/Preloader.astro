@@ -3,61 +3,114 @@ import { site } from '@/data/site';
 import Mark from '../brand/Mark.astro';
 ---
 
-<div class="preloader t-deep" data-preloader aria-hidden="true">
-  <span class="preloader__frame"></span>
-  <span class="preloader__watermark a1">{site.brand.name.charAt(0) + site.brand.name.slice(1).toLowerCase()}</span>
-  <div class="preloader__center">
-    <Mark class="preloader__mark" />
-    <span class="preloader__count l2" data-preloader-count>00</span>
+<div class="preloader theme_on-dark" data-preloader aria-hidden="true">
+  <!-- Content overlay (centered, top mark, center title, bottom progress) -->
+  <div class="preloader_ctn">
+    <!-- Top Area: Brand Symbol -->
+    <div class="preloader_t">
+      <div class="u-48"></div>
+      <div class="s_logo" data-part="ctn">
+        <div class="logo_symbol">
+          <Mark class="preloader__mark" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Area: Editorial Brand Lockup -->
+    <div class="preloader_c">
+      <div class="preloader_grid">
+        <div class="preloader_title-l">
+          <div data-part="h" class="preloader_kicker c1 a-center">SANCTUARY</div>
+        </div>
+        <div class="preloader_logo">
+          <div data-part="h" class="h3 a-center preloader_title">
+            <span>RAAHA</span>
+            <br />
+            <span>RETREAT</span>
+          </div>
+        </div>
+        <div class="preloader_title-r">
+          <div data-part="h" class="preloader_kicker c1 a-center">BOUTIQUE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Area: Vertical Progress Track + Counter + Tagline -->
+    <div class="preloader_b">
+      <div class="preloader_grid">
+        <div class="s_title">
+          <div data-part="line" class="preloader_progress">
+            <div class="preloader_progress_fill">
+              <div class="preloader_progress_track" data-preloader-track></div>
+            </div>
+            <span class="preloader_counter l2" data-preloader-count>00</span>
+          </div>
+          <div class="u-24"></div>
+          <p data-part="p" class="l1 a-center preloader_tagline">
+            RAAHA RETREAT
+            <br />
+            A place to return to.
+          </p>
+        </div>
+      </div>
+      <div class="u-48"></div>
+    </div>
+  </div>
+
+  <!-- Concentric Architectural Arch Contours that ride with the portal -->
+  <div class="preloader_bg_arch" aria-hidden="true">
+    <div class="preloader_bg_arch_is-1"></div>
+    <div class="preloader_bg_arch_is-2"></div>
+  </div>
+
+  <!-- Background Layer: Watermark and Chamfered Architectural Perimeter Frame -->
+  <div class="preloader_bg" aria-hidden="true">
+    <div class="preloader_bg_a">
+      <span class="preloader_watermark a1">{site.brand.name.charAt(0) + site.brand.name.slice(1).toLowerCase()}</span>
+    </div>
+    <div class="preloader_bg_decor">
+      <div class="decor">
+        <div class="frame_lt">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+            <line x1="0" y1="24" x2="24" y2="0" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_t-lr">
+          <svg width="100%" height="100%" viewBox="0 0 100 24" preserveAspectRatio="none" fill="none">
+            <line x1="0" y1="12" x2="100" y2="12" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_rt">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+            <line x1="0" y1="0" x2="24" y2="24" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_r-tb">
+          <svg width="100%" height="100%" viewBox="0 0 24 100" preserveAspectRatio="none" fill="none">
+            <line x1="12" y1="0" x2="12" y2="100" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_rb">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+            <line x1="0" y1="24" x2="24" y2="0" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_b-lr">
+          <svg width="100%" height="100%" viewBox="0 0 100 24" preserveAspectRatio="none" fill="none">
+            <line x1="0" y1="12" x2="100" y2="12" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_lb">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
+            <line x1="0" y1="0" x2="24" y2="24" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+        <div class="frame_l-tb">
+          <svg width="100%" height="100%" viewBox="0 0 24 100" preserveAspectRatio="none" fill="none">
+            <line x1="12" y1="0" x2="12" y2="100" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-
-<style>
-  .preloader {
-    position: fixed;
-    inset: 0;
-    z-index: var(--z-preloader);
-    display: none;
-    overflow: hidden;
-  }
-  :global(.has-preloader) .preloader {
-    display: block;
-  }
-  .preloader__frame {
-    position: absolute;
-    inset: calc(14 * var(--u));
-    border: 1px solid var(--ivory-10);
-    border-radius: calc(18 * var(--u));
-  }
-  .preloader__watermark {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    translate: -50% -55%;
-    font-size: calc(560 * var(--u));
-    white-space: nowrap;
-    opacity: 0.06;
-    rotate: -8deg;
-  }
-  .preloader__center {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    translate: -50% -50%;
-    display: grid;
-    justify-items: center;
-    gap: calc(22 * var(--u));
-  }
-  .preloader :global(.preloader__mark) {
-    width: max(calc(46 * var(--u)), 36px);
-  }
-  .preloader__count {
-    letter-spacing: 0.2em;
-    font-variant-numeric: tabular-nums;
-  }
-  @media (max-width: 767px) {
-    .preloader__watermark {
-      font-size: calc(300 * var(--u));
-    }
-  }
-</style>

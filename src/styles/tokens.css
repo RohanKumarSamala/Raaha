@@ -6,30 +6,40 @@
    Replace palette + font stacks here when RAHA brand guidelines arrive.
    ========================================================================== */
 
+@import './fonts.css';
+
 :root {
-  /* ---- Palette (PLACEHOLDER brand colours) ---- */
-  --c-ivory: #f3f2eb;
-  --c-ink: #18223a;
-  --c-deep: #33122a;
-  --c-mist: #b7cdd8;
-  --c-blush: #f3c0cb;
+  /* ---- Palette (RAAHA brand colours — from brand deck) ---- */
+  --c-ivory: #e7dfc5;          /* Cream / warm ivory background          */
+  --c-ink: #7c3821;            /* Earthy brown — primary brand tone      */
+  --c-deep: #7c3821;           /* Earthy brown — dark brand background   */
+  --c-ink-deep: #4a1e0d;       /* Darker brown — text on the beige (mist) theme */
+  --c-taupe: #7b573c;          /* Muted taupe — deep accent              */
+  --c-mist: #b88d6a;           /* Warm beige — secondary accent          */
+  --c-blush: #737b4c;          /* Sage green — nature accent             */
   --c-white: #ffffff;
   --c-error: #c2453f;
   --c-success: #2f8a55;
 
-  --ink-60: rgb(24 34 58 / 0.6);
-  --ink-30: rgb(24 34 58 / 0.3);
-  --ink-10: rgb(24 34 58 / 0.12);
-  --ivory-60: rgb(243 242 235 / 0.62);
-  --ivory-30: rgb(243 242 235 / 0.3);
-  --ivory-10: rgb(243 242 235 / 0.14);
+  --ink-60: rgb(124 56 33 / 0.82);
+  --ink-30: rgb(124 56 33 / 0.3);
+  --ink-10: rgb(124 56 33 / 0.12);
+  --ivory-60: rgb(231 223 197 / 0.84);
+  --ivory-30: rgb(231 223 197 / 0.3);
+  --ivory-10: rgb(231 223 197 / 0.14);
 
-  /* ---- Type families (swap for RAHA brand fonts) ---- */
-  --font-display: 'Noto Serif Display Variable', 'Bodoni 72', 'Didot', 'Times New Roman', serif;
-  --display-stretch: 62.5%;
-  --display-weight: 400;
+  /* ---- Type families (Brand deck: Frieska = Headings, Visby = Sub Headings & Body) ---- */
+  --font-display: 'Frieska', 'Noto Serif Display Variable', 'Bodoni 72', 'Didot', serif;
+  --font-heading: 'Frieska', 'Noto Serif Display Variable', 'Bodoni 72', 'Didot', serif;
+  --font-subheading: 'Visby', 'Visby CF', 'Archivo Variable', sans-serif;
+  --font-body: 'Visby', 'Visby CF', 'Archivo Variable', sans-serif;
   --font-script: 'Pinyon Script', 'Snell Roundhand', cursive;
-  --font-body: 'Archivo Variable', 'Helvetica Neue', Arial, sans-serif;
+  --display-stretch: normal;
+  --display-weight: 400;
+  /* Frieska ships in one weight — a hairline outline thickens it without changing size */
+  --display-stroke: 0.008em;
+  --body-weight: 500;
+  --display-optical: 1;
 
   /* ---- Fluid unit ---- */
   --canvas: 1600;

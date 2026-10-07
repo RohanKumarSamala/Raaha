@@ -13,6 +13,14 @@ import Mark from '../brand/Mark.astro';
     z-index: var(--z-curtain);
     display: grid;
     place-items: center;
+    background-color: #7c3821;
+    background-image:
+      radial-gradient(ellipse at 50% 50%, rgba(124, 56, 33, 0.12) 0%, rgba(45, 17, 8, 0.42) 100%),
+      url('/raaha-texture.webp');
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    color: var(--c-ivory);
     transform: translateY(100%);
     pointer-events: none;
   }
