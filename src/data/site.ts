@@ -47,7 +47,7 @@ export const site = {
   nav: {
     secondary: [
       { label: 'Book a call', action: 'booking' },
-      { label: 'Enquire', href: '/enquire' },
+      { label: 'Enquire', href: '/#footer' },
     ],
     menu: [
       { label: 'Home', href: '/' },
@@ -55,7 +55,7 @@ export const site = {
       { label: 'Concept', href: '/#concept' },
       { label: 'Amenities', href: '/#amenities' },
       { label: 'Architecture', href: '/#architecture' },
-      { label: 'Enquire', href: '/enquire' },
+      { label: 'Enquire', href: '/#footer' },
       { label: 'Contact', href: '/#contact' },
     ],
   },
