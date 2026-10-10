@@ -3,7 +3,7 @@ import { site } from '@/data/site';
 import Badge from '../brand/Badge.astro';
 import RollText from '../ui/RollText.astro';
 
-const { primary, secondary } = site.nav;
+const { secondary } = site.nav;
 ---
 
 <header class="header" data-header-root>
@@ -12,10 +12,6 @@ const { primary, secondary } = site.nav;
   </a>
 
   <nav class="header__nav" aria-label="Primary">
-    <a class="header__primary h6" href={primary.href} data-roll data-cursor="link">
-      <span class="header__primary-line"><RollText text={primary.label[0]} /></span>
-      <span class="header__primary-line u-link"><RollText text={primary.label[1]} /></span>
-    </a>
     <ul class="header__links l2">
       {
         secondary.map((item) => (
@@ -60,10 +56,18 @@ const { primary, secondary } = site.nav;
     transition: color 0.6s var(--ease-out);
   }
   :global(:root[data-header='ink']) .header {
-    --header-fg: var(--c-ink);
+    --header-fg: var(--c-ink-deep);
   }
   :global(:root[data-header='light']) .header,
   :global(:root.menu-open) .header {
+    --header-fg: var(--c-ivory);
+  }
+  /* The logo follows its own surface probe (see initHeaderTheme) */
+  :global(:root[data-logo='ink']) .header__logo {
+    --header-fg: var(--c-ink-deep);
+  }
+  :global(:root[data-logo='light']) .header__logo,
+  :global(:root.menu-open) .header__logo {
     --header-fg: var(--c-ivory);
   }
 
@@ -83,22 +87,11 @@ const { primary, secondary } = site.nav;
     align-items: flex-end;
     text-align: right;
   }
-  .header__primary {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    line-height: 0.95;
-    transition: opacity 0.5s var(--ease-out);
-  }
-  .header__primary-line.u-link::after {
-    bottom: -0.1em;
-  }
   .header__links {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: calc(6 * var(--u));
-    margin-top: calc(22 * var(--u));
   }
   .header__links li {
     transition: opacity 0.5s var(--ease-out), transform 0.6s var(--ease-out);
@@ -109,7 +102,6 @@ const { primary, secondary } = site.nav;
     letter-spacing: 0.32em;
     margin-right: -0.32em;
   }
-  :global(:root.menu-open) .header__primary,
   :global(:root.menu-open) .header__links li:not(:last-child) {
     opacity: 0;
     pointer-events: none;

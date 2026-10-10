@@ -2,7 +2,6 @@
 import { home } from '@/data/home';
 import Mark from '../brand/Mark.astro';
 import Media from '../ui/Media.astro';
-import CircleButton from '../ui/CircleButton.astro';
 
 const c = home.concept;
 const pts = c.map.points;
@@ -24,45 +23,67 @@ for (let i = 0; i < P.length - 1; i++) {
   <div class="concept__track" data-concept-track>
     <!-- Panel 1 — statement -->
     <div class="cpanel cpanel--intro">
+      <!-- Bougainvillea hanging from the corner, in front of the heading -->
+      <div class="cflower cflower--corner" aria-hidden="true" data-flower>
+        <div class="cflower__sway"><img src="/images/bougainvillea-corner.webp" alt="" data-wind="top" width="1327" height="1185" decoding="async" /></div>
+      </div>
       <p class="cpanel__label l1" id="concept-label" data-reveal="fade" data-reveal-horizontal>{c.label}</p>
       <h2 class="cpanel__statement h4" data-reveal="lines" data-reveal-horizontal>{c.statement}</h2>
       <p class="cpanel__text p1" data-reveal="lines" data-reveal-horizontal>{c.text}</p>
-      <Mark class="cpanel__mark" />
+      <div class="cpanel__mark-wrap" data-reveal="fade" data-delay="0.5" data-reveal-horizontal><Mark class="cpanel__mark" /></div>
     </div>
 
     <!-- Panel 2 — place name -->
     <div class="cpanel cpanel--place">
-      <p class="cpanel__country c1" data-reveal="fade" data-reveal-horizontal>{c.location.country}</p>
+      <!-- Bush rising from the floor across the seam between panels 1 and 2 -->
+      <div class="cflower cflower--bush" aria-hidden="true" data-flower data-flower-drift="-18">
+        <div class="cflower__sway"><img src="/images/bougainvillea-bush.webp" alt="" data-wind="bottom" width="2000" height="717" decoding="async" /></div>
+      </div>
+      <p class="cpanel__country c1" data-reveal="chars-flip" data-reveal-horizontal>{c.location.country}</p>
       <h3 class="cpanel__place h1" aria-label={c.location.lines.join(' ')}>
-        {c.location.lines.map((l, i) => <span class={`cpanel__place-line cpanel__place-line--${i}`} data-place-line aria-hidden="true">{l}</span>)}
+        {c.location.lines.map((l, i) => <span class={`cpanel__place-line cpanel__place-line--${i}`} data-place-line aria-hidden="true"><span class="cpanel__place-word" data-reveal="chars-flip" data-delay={String(i * 0.12)} data-reveal-horizontal>{l}</span></span>)}
       </h3>
     </div>
 
     <!-- Panel 3 — portrait + copy -->
     <div class="cpanel cpanel--image">
-      <div class="cpanel__portrait" data-reveal="image-side" data-reveal-horizontal>
+      <div class="cpanel__portrait" data-reveal="image-slant" data-reveal-horizontal>
         <Media media={c.location.image} fill sizes="(max-width: 767px) 100vw, 40vw" />
       </div>
       <div class="cpanel__copy">
         <h3 class="cpanel__title h5" data-reveal="lines" data-reveal-horizontal>{c.location.title}</h3>
         <p class="cpanel__body p2" data-reveal="lines" data-reveal-horizontal>{c.location.text}</p>
       </div>
-      <div class="cpanel__cta">
-        <CircleButton label={c.location.cta.label} href={c.location.cta.href} />
-      </div>
     </div>
 
     <!-- Panel 4 — route map -->
     <div class="cpanel cpanel--map" data-concept-map>
+      <div class="cflower cflower--far" aria-hidden="true" data-flower>
+        <div class="cflower__sway"><img src="/images/bougainvillea-corner.webp" alt="" data-wind="top" width="1327" height="1185" decoding="async" /></div>
+      </div>
+      <div class="cmap__head">
+        <p class="cmap__title l1" data-reveal="fade" data-reveal-horizontal>{c.map.label}</p>
+        <h3 class="cmap__heading h3" aria-label={`${c.map.heading[0]} ${c.map.script} ${c.map.heading[1]}`}>
+          <span class="cmap__heading-line" aria-hidden="true" data-reveal="chars-flip" data-reveal-horizontal>{c.map.heading[0]}</span>
+          <span class="cmap__script a2" aria-hidden="true" data-reveal="script" data-delay="0.5" data-reveal-horizontal>{c.map.script}</span>
+          <span class="cmap__heading-line" aria-hidden="true" data-reveal="chars-flip" data-delay="0.25" data-reveal-horizontal>{c.map.heading[1]}</span>
+        </h3>
+        <p class="cmap__text p1" data-reveal="lines" data-delay="0.4" data-reveal-horizontal>{c.map.text}</p>
+      </div>
+      <div class="cmap__stage">
       <svg class="cmap" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
+        <path class="cmap__guide" d={d} pathLength="1" />
+        <path class="cmap__road" d={d} data-map-road pathLength="1" />
         <path class="cmap__route" d={d} data-map-path pathLength="1" />
       </svg>
       <ul class="cmap__points" aria-label="Travel times">
+        <li class="cmap__car" data-map-car aria-hidden="true"></li>
         {
           pts.map((p) => (
             <li class:list={['cmap__point', p.home && 'cmap__point--home']} style={`left:${p.x}%;top:${p.y}%`} data-map-point>
               <span class="cmap__dot" aria-hidden="true" />
               <span class="cmap__label">
+                {p.home && <Mark class="cmap__mark" />}
                 <span class="cmap__name l1">{p.name}</span>
                 {p.time && <span class="cmap__time l2">{p.time}</span>}
               </span>
@@ -70,6 +91,7 @@ for (let i = 0; i < P.length - 1; i++) {
           ))
         }
       </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -101,20 +123,137 @@ for (let i = 0; i < P.length - 1; i++) {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding-top: calc(40 * var(--u));
+  }
+  .cpanel--intro > :not(.cflower) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- Bougainvillea cut-outs: top layer, gently alive ---- */
+  .cflower {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .cflower img {
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: cflower-breathe 6.5s ease-in-out infinite alternate;
+  }
+  /* once the breeze canvas is running it stands in for the still */
+  .cflower img.is-wind {
+    visibility: hidden;
+    animation: none;
+  }
+  .cflower .wind-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .cflower__sway {
+    position: relative;
+    animation: cflower-sway 9s ease-in-out infinite alternate;
+    will-change: transform;
+    /* grows in from where it is attached (class set as it scrolls into view) */
+    opacity: 0;
+    scale: 0.9;
+    transition: opacity 1.4s var(--ease-out), scale 2.2s var(--ease-out);
+  }
+  .cflower.is-in .cflower__sway,
+  .is-reduced .cflower__sway,
+  .no-js .cflower__sway {
+    opacity: 1;
+    scale: 1;
+  }
+  /* hangs from the top-left corner: pivots where it is attached */
+  .cflower--corner {
+    left: 0;
+    top: 0;
+    /* in front of the copy, sized so only its lowest sprig brushes the first word */
+    width: calc(402 * var(--u));
+  }
+  .cflower--corner .cflower__sway,
+  .cflower--corner img {
+    transform-origin: 0 0;
+  }
+  /* grows from the floor: pivots at its base */
+  .cflower--bush {
+    left: calc(-230 * var(--u));
+    bottom: calc(-6 * var(--u));
+    width: calc(900 * var(--u));
+  }
+  .cflower--bush .cflower__sway,
+  .cflower--bush img {
+    transform-origin: 50% 100%;
+  }
+  .cflower--bush .cflower__sway {
+    animation-duration: 11s;
+  }
+  .cflower--bush img {
+    animation-duration: 7.5s;
+  }
+  /* mirrored corner at the far end of the route */
+  .cflower--far {
+    right: 0;
+    top: 0;
+    width: calc(520 * var(--u));
+    scale: -1 1;
+  }
+  .cflower--far .cflower__sway,
+  .cflower--far img {
+    transform-origin: 0 0;
+    animation-delay: -4s;
+  }
+  @keyframes cflower-sway {
+    from { transform: rotate(-0.5deg); }
+    to { transform: rotate(0.6deg); }
+  }
+  @keyframes cflower-breathe {
+    from { transform: skewX(-0.7deg) scale(1); }
+    to { transform: skewX(0.8deg) scale(1.012); }
+  }
+  .is-reduced .cflower__sway,
+  .is-reduced .cflower img {
+    animation: none;
+  }
+
+  /* ---- Panel 1 copy ---- */
+  .cpanel__label {
+    display: flex;
+    align-items: center;
+    gap: calc(18 * var(--u));
+    letter-spacing: 0.3em;
+  }
+  .cpanel__label::before,
+  .cpanel__label::after {
+    content: '';
+    width: calc(44 * var(--u));
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
   }
   .cpanel__statement {
-    max-width: calc(880 * var(--u));
-    margin-top: calc(32 * var(--u));
+    max-width: calc(980 * var(--u));
+    margin-top: calc(34 * var(--u));
+    font-size: calc(var(--h4) * var(--display-optical) * 1.12);
+    line-height: 1.06;
+    text-wrap: balance;
   }
   .cpanel__text {
-    max-width: calc(300 * var(--u));
-    margin-top: calc(170 * var(--u));
+    max-width: calc(400 * var(--u));
+    margin-top: calc(72 * var(--u));
+    font-size: max(calc(16 * var(--u)), 14px);
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+  .cpanel__mark-wrap {
+    margin-top: calc(44 * var(--u));
   }
   .cpanel__mark {
     width: calc(44 * var(--u));
     min-width: 30px;
-    margin-top: calc(40 * var(--u));
   }
 
   /* Panel 2 */
@@ -123,17 +262,23 @@ for (let i = 0; i < P.length - 1; i++) {
     display: flex;
     align-items: center;
   }
+  /* label and title share one vertical centre line */
   .cpanel__country {
     position: absolute;
     left: calc(120 * var(--u));
-    top: calc(488 * var(--u));
+    top: 50%;
+    translate: 0 -50%;
   }
   .cpanel__place {
     position: absolute;
     left: calc(340 * var(--u));
-    top: calc(236 * var(--u));
+    top: 50%;
+    translate: 0 -50%;
     display: flex;
     flex-direction: column;
+  }
+  .cpanel__place-word {
+    display: inline-block;
   }
   .cpanel__place-line {
     display: block;
@@ -148,7 +293,7 @@ for (let i = 0; i < P.length - 1; i++) {
 
   /* Panel 3 */
   .cpanel--image {
-    width: calc(1500 * var(--u));
+    width: calc(1180 * var(--u));
   }
   .cpanel__portrait {
     position: absolute;
@@ -165,7 +310,9 @@ for (let i = 0; i < P.length - 1; i++) {
     width: calc(450 * var(--u));
   }
   .cpanel__body {
-    margin-top: calc(14 * var(--u));
+    margin-top: calc(16 * var(--u));
+    font-size: max(calc(15 * var(--u)), 14px);
+    line-height: 1.5;
   }
   .cpanel__cta {
     position: absolute;
@@ -177,29 +324,112 @@ for (let i = 0; i < P.length - 1; i++) {
   .cpanel--map {
     width: calc(1500 * var(--u));
   }
-  .cmap {
+  /* heading block above, the road below — both centred on the same column */
+  .cmap__head {
     position: absolute;
     left: 0;
-    right: calc(200 * var(--u));
-    top: calc(210 * var(--u));
-    height: calc(420 * var(--u));
     width: calc(100% - 200 * var(--u));
+    top: calc(84 * var(--u));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .cmap__title {
+    letter-spacing: 0.3em;
+  }
+  .cmap__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: calc(26 * var(--u));
+  }
+  .cmap__heading-line {
+    display: block;
+    white-space: nowrap;
+  }
+  /* the script word sits across the join of the two lines */
+  .cmap__script {
+    display: block;
+    margin: calc(-34 * var(--u)) 0 calc(-30 * var(--u)) calc(360 * var(--u));
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+  .cmap__text {
+    max-width: calc(430 * var(--u));
+    margin-top: calc(24 * var(--u));
+    font-size: max(calc(15 * var(--u)), 14px);
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+  .cmap__stage {
+    position: absolute;
+    left: 0;
+    width: calc(100% - 200 * var(--u));
+    top: calc(392 * var(--u));
+    height: calc(330 * var(--u));
+  }
+  .cmap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     overflow: visible;
   }
-  .cmap__route {
+  /* The road: a faint dotted line shows where it leads, then a soft verge and a
+     firm centre line draw over it as you scroll. */
+  /* (no non-scaling-stroke here: it would measure the dashes in screen space and
+     the pathLength-based draw-on would stop short of the end) */
+  .cmap path {
     fill: none;
     stroke: currentColor;
-    stroke-width: 2.6;
     stroke-linecap: round;
+  }
+  .cmap__guide {
+    stroke-width: 1.6;
+    stroke-dasharray: 0.0015 0.011;
+    opacity: 0.45;
+  }
+  .cmap__road {
+    stroke-width: 18;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    opacity: 0.13;
+  }
+  .cmap__route {
+    stroke-width: 3.4;
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
   }
+  /* marker riding the leading end of the road */
+  .cmap__car {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: var(--c-ivory);
+    border: 2.5px solid currentColor;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+  }
+  .cmap__car::after {
+    content: '';
+    position: absolute;
+    inset: -9px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    animation: cmap-ping 2.2s var(--ease-out) infinite;
+  }
+  @keyframes cmap-ping {
+    from { transform: scale(0.5); opacity: 0.8; }
+    to { transform: scale(1.6); opacity: 0; }
+  }
   .cmap__points {
     position: absolute;
-    left: 0;
-    top: calc(210 * var(--u));
-    height: calc(420 * var(--u));
-    width: calc(100% - 200 * var(--u));
+    inset: 0;
   }
   .cmap__point {
     position: absolute;
@@ -227,8 +457,17 @@ for (let i = 0; i < P.length - 1; i++) {
     text-align: center;
     white-space: nowrap;
   }
+  .cmap__mark {
+    width: calc(40 * var(--u));
+    min-width: 28px;
+    margin-bottom: calc(8 * var(--u));
+  }
+  .cmap__name {
+    font-size: max(calc(14 * var(--u)), 11px);
+  }
   .cmap__time {
-    opacity: 0.6;
+    font-size: max(calc(11.5 * var(--u)), 10px);
+    opacity: 0.85;
   }
   .cmap__point--home .cmap__dot {
     width: 15px;
@@ -251,20 +490,50 @@ for (let i = 0; i < P.length - 1; i++) {
     .cpanel--intro {
       padding: 120px var(--offset) 80px;
     }
+    .cflower--corner {
+      width: 60vw;
+    }
+    .cflower--bush {
+      position: relative;
+      order: 3;
+      left: -24vw;
+      bottom: auto;
+      width: 136vw;
+      max-width: none;
+      margin-top: -4vw;
+    }
+    .cflower--far {
+      display: none;
+    }
+    .cmap__head {
+      position: static;
+      width: auto;
+      padding: 0 var(--offset);
+    }
+    .cmap__script {
+      margin-left: 30vw;
+    }
+    .cmap__heading-line {
+      white-space: normal;
+    }
     .cpanel__statement {
-      font-size: calc(30 * var(--u));
+      font-size: calc(32 * var(--u));
     }
     .cpanel__text {
-      max-width: calc(300 * var(--u));
+      max-width: calc(330 * var(--u));
       margin-top: 48px;
+      font-size: 15px;
     }
     .cpanel--place {
-      padding: 40px var(--offset) 24px;
-      display: block;
+      padding: 40px var(--offset) 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
     .cpanel__country,
     .cpanel__place {
       position: static;
+      translate: none;
     }
     .cpanel__place {
       margin-top: 16px;
@@ -294,15 +563,15 @@ for (let i = 0; i < P.length - 1; i++) {
       margin-top: 32px;
     }
     .cpanel--map {
-      height: 360px;
-      margin: 20px 0 60px;
+      margin: 56px 0 60px;
     }
-    .cmap,
-    .cmap__points {
-      top: 60px;
-      height: 240px;
+    .cmap__stage {
+      position: relative;
+      top: auto;
       left: var(--offset);
       width: calc(100% - 2 * var(--offset));
+      height: 240px;
+      margin-top: 64px;
     }
   }
 </style>

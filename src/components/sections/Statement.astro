@@ -1,0 +1,105 @@
+---
+/**
+ * Estate statement — a quiet full-screen beat after the stays carousel: a rule
+ * dropping from the top, a small caption, one large line about the land, and
+ * bougainvillea rising from the corner. Shares the carousel's surface so the two
+ * read as one continuous page.
+ */
+import { home } from '@/data/home';
+import Mark from '../brand/Mark.astro';
+
+const s = home.statement;
+---
+
+<section class="statement t-mist" data-header="ink" data-statement aria-labelledby="statement-title">
+  <span class="statement__rule" data-reveal="line-y" aria-hidden="true"></span>
+
+  <p class="statement__caption l1" data-reveal="lines">{s.caption[0]}<br />{s.caption[1]}</p>
+
+  <h2 class="statement__title h4" id="statement-title" data-reveal="lines">{s.text}</h2>
+
+  <p class="statement__note p1" data-reveal="lines" data-delay="0.25">{s.note}</p>
+
+  <div class="statement__mark" data-reveal="fade" data-delay="0.4"><Mark /></div>
+
+  <!-- same hanging cut-out as the concept, turned to rise from the floor -->
+  <div class="cflower statement__flower" aria-hidden="true" data-flower>
+    <div class="cflower__sway"><img src="/images/bougainvillea-corner.webp" alt="" data-wind="top" width="1327" height="1185" decoding="async" loading="lazy" /></div>
+  </div>
+</section>
+
+<style is:global>
+  .statement {
+    position: relative;
+    z-index: 2;
+    min-height: 100svh;
+    margin-top: -1px;
+    padding: 0 var(--offset) calc(56 * var(--u));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  .statement__rule {
+    display: block;
+    width: 1px;
+    height: 22svh;
+    background: currentColor;
+    opacity: 0.7;
+  }
+  .statement__caption {
+    margin-top: 7svh;
+    letter-spacing: 0.12em;
+    line-height: 1.6;
+  }
+  .statement__title {
+    max-width: calc(1120 * var(--u));
+    margin-top: 11svh;
+    font-size: calc(var(--h4) * var(--display-optical) * 1.12);
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+  .statement__mark {
+    width: calc(52 * var(--u));
+    min-width: 36px;
+    margin-top: auto;
+    padding-top: calc(48 * var(--u));
+  }
+  .statement__mark svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .statement__note {
+    max-width: calc(560 * var(--u));
+    margin-top: calc(36 * var(--u));
+    font-size: max(calc(15 * var(--u)), 14px);
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+  /* flipped top-to-bottom so the hanging sprays climb out of the bottom-left corner */
+  .statement__flower {
+    left: 0;
+    bottom: 0;
+    width: calc(440 * var(--u));
+    scale: 1 -1;
+  }
+  .statement__flower .cflower__sway,
+  .statement__flower img {
+    transform-origin: 0 0;
+  }
+
+  @media (max-width: 767px) {
+    .statement {
+      padding-bottom: 42vw;
+    }
+    .statement__title {
+      margin-top: 12svh;
+      font-size: calc(30 * var(--u));
+    }
+    .statement__flower {
+      width: 62vw;
+    }
+  }
+</style>

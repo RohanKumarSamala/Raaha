@@ -1,0 +1,87 @@
+rules_version = '2';
+
+// RAAHA — Firestore security rules.
+// Paste into Firebase console → Firestore Database → Rules → Publish.
+//
+// These rules are the security boundary. The admin page only shows or hides things;
+// whether a request is allowed is decided here, on Google's servers.
+//
+//   bookings/{id}        a "book a call" request
+//                        · anyone may CREATE one, in exactly the expected shape
+//                        · only admins may read, update status, or delete
+//   admin/{email}        one document per admin; the id is the lower-case Google email
+//                        · only admins may list, add or remove admins
+//                        · nobody can add themselves: the first admin is created by
+//                          hand in the console, every later one by an existing admin
+//
+// An "admin" is a visitor who (1) signed in with Google or with an email and
+// password, (2) has a verified email, and (3) has a document in /admin under that
+// email.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function verifiedUser() {
+      // Google sign-in, or an email-and-password account whose address has been
+      // verified. The verified check matters: anyone can register a password account
+      // under any address, but only the owner of the inbox can verify it.
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider in ['google.com', 'password'];
+    }
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+    function isAdmin() {
+      return verifiedUser()
+        && exists(/databases/$(database)/documents/admin/$(myEmail()));
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'phone', 'message', 'context', 'status', 'createdAt'])
+        && request.resource.data.keys().hasAll(['name', 'email', 'phone', 'status', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() >= 5 && request.resource.data.email.size() <= 200
+        && request.resource.data.phone is string && request.resource.data.phone.size() >= 7 && request.resource.data.phone.size() <= 30
+        && (!('message' in request.resource.data) || (request.resource.data.message is string && request.resource.data.message.size() <= 2000))
+        && (!('context' in request.resource.data) || (request.resource.data.context is string && request.resource.data.context.size() <= 200))
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt == request.time;
+
+      allow read, delete: if isAdmin();
+
+      // admins may only move a request along and leave a note — never rewrite what
+      // the visitor sent
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'note', 'updatedAt', 'updatedBy'])
+        && request.resource.data.status in ['new', 'contacted', 'done']
+        && (!('note' in request.resource.data) || (request.resource.data.note is string && request.resource.data.note.size() <= 2000))
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == myEmail();
+    }
+
+    match /admin/{adminEmail} {
+      // a signed-in, verified user may look up their OWN entry (to learn whether they
+      // are an admin); only admins can see anyone else's
+      allow get: if verifiedUser() && (myEmail() == adminEmail || isAdmin());
+      allow list: if isAdmin();
+
+      allow create: if isAdmin()
+        && adminEmail == adminEmail.lower()
+        && adminEmail.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.keys().hasOnly(['email', 'addedBy', 'addedAt'])
+        && request.resource.data.email == adminEmail
+        && request.resource.data.addedBy == myEmail()
+        && request.resource.data.addedAt == request.time;
+
+      // an admin cannot remove themselves, so there is always at least one left
+      allow delete: if isAdmin() && adminEmail != myEmail();
+      allow update: if false;
+    }
+
+    // everything else is closed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

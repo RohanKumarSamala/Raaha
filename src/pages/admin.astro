@@ -1,0 +1,721 @@
+---
+/**
+ * /admin — booking requests and the admin list.
+ *
+ * A plain standalone page (no site chrome, preloader or smooth scroll). It is kept
+ * out of search engines and the sitemap, but that is only tidiness: what protects
+ * the data is Google sign-in plus firestore.rules. Behaviour: scripts/admin.ts.
+ */
+import '@/styles/tokens.css';
+import Mark from '@/components/brand/Mark.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Admin — RAAHA Retreat</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="adm">
+    <!-- Firebase values missing -->
+    <main class="adm-gate" data-view="setup" hidden>
+      <Mark class="adm-mark" />
+      <h1>Admin is not set up yet</h1>
+      <p>Add the Firebase project values to <code>.env</code> (see <code>.env.example</code>) and restart the site.</p>
+    </main>
+
+    <main class="adm-gate" data-view="loading">
+      <Mark class="adm-mark" />
+      <p>Checking access…</p>
+    </main>
+
+    <main class="adm-gate" data-view="signin" hidden>
+      <Mark class="adm-mark" />
+      <h1>RAAHA admin</h1>
+      <p>Sign in with an approved account to see booking requests.</p>
+      <button type="button" class="adm-btn" data-signin>Sign in with Google</button>
+      <p class="adm-or"><span>or</span></p>
+      <form class="adm-login" data-login novalidate>
+        <input type="email" class="adm-input" name="email" placeholder="Email" aria-label="Email" autocomplete="username" required />
+        <input type="password" class="adm-input" name="password" placeholder="Password" aria-label="Password" autocomplete="current-password" required />
+        <button type="submit" class="adm-btn adm-btn--ghost">Sign in</button>
+        <button type="button" class="adm-link" data-forgot>Forgot password?</button>
+      </form>
+      <p class="adm-fine">Accounts cannot be created here. Access is granted by an existing admin.</p>
+    </main>
+
+    <!-- password account whose email has not been confirmed yet -->
+    <main class="adm-gate" data-view="verify" hidden>
+      <Mark class="adm-mark" />
+      <h1>Confirm your email</h1>
+      <p>Before <strong data-verify-email></strong> can be used here, confirm that the address is yours. We will send a link to it — open the link, then come back and continue.</p>
+      <button type="button" class="adm-btn" data-verify-send>Send confirmation email</button>
+      <button type="button" class="adm-btn adm-btn--ghost" data-verify-done>I have confirmed — continue</button>
+      <button type="button" class="adm-link" data-signout>Use a different account</button>
+    </main>
+
+    <main class="adm-gate" data-view="denied" hidden>
+      <Mark class="adm-mark" />
+      <h1>No access</h1>
+      <p><strong data-denied-email></strong> is not an approved admin. Ask an existing admin to add this email, or sign in with a different account.</p>
+      <p class="adm-fine" data-denied-why></p>
+      <button type="button" class="adm-btn adm-btn--ghost" data-signout>Use a different account</button>
+    </main>
+
+    <div class="adm-app" data-view="app" hidden>
+      <header class="adm-top">
+        <div class="adm-top__brand"><Mark class="adm-mark adm-mark--sm" /><span>RAAHA admin</span></div>
+        <nav class="adm-tabs" role="tablist">
+          <button type="button" role="tab" data-tab="requests" aria-selected="true">Requests</button>
+          <button type="button" role="tab" data-tab="admins" aria-selected="false">Admins</button>
+        </nav>
+        <div class="adm-top__me"><span data-me></span><button type="button" class="adm-link" data-signout>Sign out</button></div>
+      </header>
+
+      <section class="adm-panel" data-panel="requests">
+        <header class="adm-hero">
+          <div>
+            <p class="adm-eyebrow">Book a call</p>
+            <h1 class="adm-title">Requests</h1>
+          </div>
+          <p class="adm-summary" data-summary></p>
+        </header>
+
+        <div class="adm-stats adm-filters">
+          <button type="button" class="adm-stat" data-filter="all" aria-pressed="true"><b data-count>0</b><span>All</span></button>
+          <button type="button" class="adm-stat adm-stat--new" data-filter="new" aria-pressed="false"><b data-count>0</b><span>New</span></button>
+          <button type="button" class="adm-stat adm-stat--contacted" data-filter="contacted" aria-pressed="false"><b data-count>0</b><span>Contacted</span></button>
+          <button type="button" class="adm-stat adm-stat--done" data-filter="done" aria-pressed="false"><b data-count>0</b><span>Done</span></button>
+        </div>
+
+        <div class="adm-bar">
+          <input type="search" class="adm-input" placeholder="Search name, phone, email or message" aria-label="Search requests" data-search />
+          <button type="button" class="adm-btn adm-btn--ghost" data-export>Export CSV</button>
+        </div>
+        <ul class="adm-list" data-bookings></ul>
+        <p class="adm-empty" data-empty hidden></p>
+      </section>
+
+      <section class="adm-panel" data-panel="admins" hidden>
+        <header class="adm-hero">
+          <div>
+            <p class="adm-eyebrow">Access</p>
+            <h1 class="adm-title">Admins</h1>
+          </div>
+        </header>
+        <p class="adm-fine">Only the emails listed here can open this page — by Google sign-in, or by an email-and-password account created in Firebase whose address has been confirmed. Adding an email gives full access the next time it signs in; removing it takes access away immediately.</p>
+        <form class="adm-add" data-add-admin>
+          <input type="email" class="adm-input" placeholder="name@gmail.com" aria-label="Admin email" required />
+          <button type="submit" class="adm-btn">Add admin</button>
+        </form>
+        <ul class="adm-admins" data-admins></ul>
+      </section>
+    </div>
+
+    <p class="adm-toast" role="status" data-toast hidden></p>
+
+    <script>
+      import '../scripts/admin';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .adm {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--c-ivory);
+    color: var(--c-ink-deep);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .adm *,
+  .adm *::before,
+  .adm *::after {
+    box-sizing: border-box;
+  }
+  .adm [hidden] {
+    display: none !important;
+  }
+  :where(.adm) :where(h1, h2, h3, p, ul) {
+    margin: 0;
+    padding: 0;
+  }
+  .adm ul {
+    list-style: none;
+  }
+  .adm a {
+    color: inherit;
+  }
+  .adm input,
+  .adm select {
+    font: inherit;
+    color: inherit;
+  }
+  .adm button {
+    font-family: inherit;
+  }
+  .adm-or {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(320px, 100%);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .adm-or::before,
+  .adm-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+  .adm-login {
+    display: grid;
+    gap: 10px;
+    width: min(320px, 100%);
+    justify-items: stretch;
+  }
+  .adm-login .adm-link {
+    justify-self: center;
+  }
+  .adm-mark {
+    width: 56px;
+    color: var(--c-ink);
+  }
+  .adm-mark--sm {
+    width: 30px;
+  }
+  .adm-fine {
+    font-size: 13px;
+    opacity: 0.75;
+  }
+
+  /* ---- gate screens ---- */
+  .adm-gate {
+    min-height: 100vh;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 18px;
+    padding: 32px;
+    text-align: center;
+  }
+  .adm-gate h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 40px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .adm-gate p {
+    max-width: 420px;
+  }
+
+  /* ---- controls ---- */
+  .adm-btn {
+    padding: 12px 22px;
+    border: 1px solid var(--c-ink);
+    border-radius: 999px;
+    background: var(--c-ink);
+    color: var(--c-ivory);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .adm-btn--ghost {
+    background: transparent;
+    color: var(--c-ink-deep);
+  }
+  .adm-btn:hover {
+    opacity: 0.85;
+  }
+  .adm-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .adm-link--danger {
+    color: var(--c-error);
+  }
+  .adm-input,
+  .adm-select {
+    padding: 10px 14px;
+    border: 1px solid var(--ink-30);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 0.55);
+  }
+  .adm-input {
+    flex: 1;
+    min-width: 200px;
+  }
+  .adm :focus-visible {
+    outline: 2px solid var(--c-ink);
+    outline-offset: 2px;
+  }
+
+  /* ---- app ---- */
+  .adm-app {
+    --card: rgb(255 255 255 / 0.62);
+    --hair: rgb(124 56 33 / 0.14);
+    min-height: 100vh;
+    background:
+      radial-gradient(900px 420px at 100% -10%, rgb(184 141 106 / 0.28), transparent 70%),
+      radial-gradient(700px 380px at -10% 0%, rgb(115 123 76 / 0.12), transparent 70%);
+  }
+  .adm-top {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 14px clamp(16px, 4vw, 56px);
+    background: rgb(231 223 197 / 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--hair);
+  }
+  .adm-top__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+  .adm-tabs {
+    display: flex;
+    gap: 4px;
+    margin-right: auto;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgb(124 56 33 / 0.08);
+  }
+  .adm-tabs button {
+    color: inherit;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.25s, color 0.25s;
+  }
+  .adm-tabs button[aria-selected='true'] {
+    background: var(--c-ink);
+    color: var(--c-ivory);
+    box-shadow: 0 4px 14px rgb(124 56 33 / 0.28);
+  }
+  .adm-top__me {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+  }
+  .adm-top__me span {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgb(124 56 33 / 0.08);
+  }
+
+  .adm-panel {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 44px clamp(16px, 4vw, 56px) 96px;
+    display: grid;
+    gap: 22px;
+  }
+  .adm-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .adm-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+  .adm-title {
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: var(--c-ink);
+  }
+  .adm-summary {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--hair);
+    background: var(--card);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* stat tiles double as the filter */
+  .adm-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .adm-stat {
+    --tone: var(--c-ink);
+    color: inherit;
+    display: grid;
+    gap: 2px;
+    padding: 18px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 18px;
+    background: var(--card);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  }
+  .adm-stat--new {
+    --tone: #b4532a;
+  }
+  .adm-stat--contacted {
+    --tone: #9a7a2e;
+  }
+  .adm-stat--done {
+    --tone: var(--c-blush);
+  }
+  .adm-stat b {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--tone);
+    font-variant-numeric: tabular-nums;
+  }
+  .adm-stat span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .adm-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgb(74 30 13 / 0.1);
+  }
+  .adm-stat[aria-pressed='true'] {
+    border-color: var(--tone);
+    box-shadow: inset 0 0 0 1px var(--tone), 0 10px 26px rgb(74 30 13 / 0.1);
+  }
+
+  .adm-bar,
+  .adm-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .adm-input {
+    padding: 13px 18px;
+    border-radius: 999px;
+    border-color: var(--hair);
+    background: var(--card);
+  }
+  .adm-input:focus {
+    outline: 2px solid var(--c-ink);
+    outline-offset: 1px;
+  }
+
+  /* request cards */
+  .adm-list {
+    display: grid;
+    gap: 14px;
+  }
+  .adm-card {
+    --tone: var(--c-mist);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 18px;
+    padding: 24px 26px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 20px;
+    background: var(--card);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 8px 24px rgb(74 30 13 / 0.06);
+    transition: box-shadow 0.3s, transform 0.3s;
+    animation: adm-in 0.5s both;
+  }
+  .adm-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 16px 36px rgb(74 30 13 / 0.1);
+  }
+  @keyframes adm-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  .adm-card--new {
+    --tone: #b4532a;
+  }
+  .adm-card--contacted {
+    --tone: #9a7a2e;
+  }
+  .adm-card--done {
+    --tone: var(--c-blush);
+  }
+  .adm-card__avatar {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--tone) 16%, transparent);
+    color: var(--tone);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+  }
+  .adm-card__main {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+  .adm-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+  }
+  .adm-card__head .adm-card__meta {
+    margin-left: auto;
+  }
+  .adm-card__name {
+    font-size: 19px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  .adm-card__time,
+  .adm-card__meta,
+  .adm-admin__meta {
+    font-size: 12.5px;
+    opacity: 0.65;
+  }
+  .adm-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .adm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 7px 14px 7px 8px;
+    border: 1px solid var(--hair);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.5);
+    font-size: 13.5px;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .adm-chip:hover {
+    background: #fff;
+    border-color: var(--c-ink);
+  }
+  .adm-chip__label {
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--c-ink);
+    color: var(--c-ivory);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .adm-card__message {
+    padding: 4px 0 4px 16px;
+    border-left: 2px solid var(--tone);
+    font-size: 15.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  /* one action row: status on the left, delete on the right, same height */
+  .adm-card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 16px;
+    margin-top: 4px;
+    padding-top: 16px;
+    border-top: 1px solid var(--hair);
+  }
+  .adm-seg {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgb(124 56 33 / 0.08);
+  }
+  .adm-seg__btn {
+    --tone: var(--c-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--c-ink-deep);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: background 0.25s, color 0.25s, opacity 0.25s, box-shadow 0.25s;
+  }
+  .adm-seg__btn i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--tone);
+  }
+  .adm-seg__btn--new {
+    --tone: #b4532a;
+  }
+  .adm-seg__btn--contacted {
+    --tone: #9a7a2e;
+  }
+  .adm-seg__btn--done {
+    --tone: var(--c-blush);
+  }
+  .adm-seg__btn:hover {
+    opacity: 1;
+  }
+  .adm-seg__btn[aria-pressed='true'] {
+    background: var(--tone);
+    color: #fff;
+    opacity: 1;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--tone) 40%, transparent);
+  }
+  .adm-seg__btn[aria-pressed='true'] i {
+    background: #fff;
+  }
+  .adm-del {
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid color-mix(in srgb, var(--c-error) 40%, transparent);
+    border-radius: 999px;
+    background: none;
+    color: var(--c-error);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+  }
+  .adm-del:hover {
+    background: var(--c-error);
+    color: #fff;
+  }
+  .adm-empty {
+    padding: 56px 24px;
+    border: 1px dashed var(--hair);
+    border-radius: 20px;
+    text-align: center;
+    opacity: 0.75;
+  }
+
+  /* admins */
+  .adm-admins {
+    display: grid;
+    gap: 10px;
+  }
+  .adm-admin {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 22px;
+    border: 1px solid var(--hair);
+    border-radius: 18px;
+    background: var(--card);
+  }
+  .adm-admin div {
+    display: grid;
+    gap: 2px;
+    overflow-wrap: anywhere;
+  }
+  .adm-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    translate: -50% 0;
+    max-width: calc(100vw - 32px);
+    padding: 13px 20px;
+    border-radius: 14px;
+    background: var(--c-ink-deep);
+    color: var(--c-ivory);
+    font-size: 14px;
+    box-shadow: 0 14px 34px rgb(74 30 13 / 0.3);
+    z-index: 5;
+  }
+  .adm-toast.is-bad {
+    background: var(--c-error);
+  }
+  @media (max-width: 720px) {
+    .adm-top {
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .adm-top__me span {
+      display: none;
+    }
+    .adm-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .adm-card {
+      padding: 20px 18px 16px;
+      gap: 14px;
+    }
+    .adm-card__head .adm-card__meta {
+      margin-left: 0;
+      flex-basis: 100%;
+    }
+    .adm-seg__btn {
+      padding: 0 12px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .adm-card {
+      animation: none;
+    }
+  }
+</style>

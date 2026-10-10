@@ -13,11 +13,15 @@ interface Props {
   class?: string;
   label?: string;
   controls?: 'center' | 'start';
+  /** Seconds each slide holds before advancing on its own (omit for manual only). */
+  autoplay?: number;
+  /** Show each slide's `caption` under the photo. */
+  captions?: boolean;
 }
-const { items, ratio, sizes = '50vw', class: cls, label = 'Image gallery', controls = 'center' } = Astro.props;
+const { items, ratio, sizes = '50vw', class: cls, label = 'Image gallery', controls = 'center', autoplay, captions = false } = Astro.props;
 ---
 
-<div class:list={['slider', `slider--${controls}`, cls]} data-slider role="region" aria-roledescription="carousel" aria-label={label}>
+<div class:list={['slider', `slider--${controls}`, cls]} data-slider data-autoplay={autoplay} role="region" aria-roledescription="carousel" aria-label={label}>
   <div class="slider__viewport" style={`aspect-ratio:${ratio}`} data-slider-viewport data-cursor="drag">
     {
       items.map((m, i) => (
@@ -41,13 +45,20 @@ const { items, ratio, sizes = '50vw', class: cls, label = 'Image gallery', contr
           <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="M7 1 1 7l6 6" /></svg>
         </button>
         <span class="slider__index" data-slider-current aria-live="polite">1</span>
-        <span class="slider__bar" aria-hidden="true">
-          <span class="slider__bar-fill" data-slider-bar style={`transform:scaleX(${1 / items.length})`} />
+        <span class="slider__bar" aria-hidden="true" style={autoplay ? undefined : `--p:${1 / items.length}`}>
+          <span class="slider__bar-fill" data-slider-bar />
         </span>
         <span class="slider__index">{items.length}</span>
         <button class="icon-btn" data-dir="next" data-slider-next aria-label="Next image" data-cursor="link">
           <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="m1 1 6 6-6 6" /></svg>
         </button>
+        {captions && (
+          <span class="slider__captions" aria-live="polite">
+            {items.map((m, i) => (
+              <span class:list={['slider__caption', i === 0 && 'is-active']} data-slider-caption>{m.caption ?? m.label}</span>
+            ))}
+          </span>
+        )}
       </div>
     )
   }
@@ -79,24 +90,52 @@ const { items, ratio, sizes = '50vw', class: cls, label = 'Image gallery', contr
     justify-content: flex-start;
     margin-left: calc(-8 * var(--u));
   }
+  /* captions share one spot beside the pager; only the current one shows */
+  .slider__captions {
+    display: grid;
+    margin-left: max(calc(28 * var(--u)), 16px);
+  }
+  .slider__caption {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    white-space: nowrap;
+  }
+  .slider__caption.is-active {
+    visibility: visible;
+  }
   .slider__index {
     min-width: 1.5em;
     text-align: center;
     letter-spacing: 0.1em;
   }
+  /* Progress line: a hairline track with a slightly heavier dark line travelling
+     along it — no knob. --p (0 → 1) is set on the track by the script: a countdown
+     where the slider plays on its own, the position (2 of 3) where it does not. */
   .slider__bar {
+    --p: 0;
     position: relative;
-    width: calc(160 * var(--u));
-    min-width: 90px;
+    width: calc(190 * var(--u));
+    min-width: 110px;
     height: 1px;
-    background: var(--line, currentColor);
-    overflow: hidden;
+    background: color-mix(in srgb, currentColor 28%, transparent);
   }
   .slider__bar-fill {
     position: absolute;
-    inset: 0;
+    left: 0;
+    right: 0;
+    top: -0.5px;
+    height: 2px;
     background: currentColor;
     transform-origin: left;
-    transition: transform 0.9s var(--ease-in-out);
+    transform: scaleX(var(--p));
+  }
+  /* manual sliders step between positions, so let the line glide there */
+  .slider:not([data-autoplay]) .slider__bar {
+    transition: --p 0.9s var(--ease-in-out);
+  }
+  @property --p {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
   }
 </style>

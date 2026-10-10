@@ -25,22 +25,26 @@ export const site = {
   },
 
   contact: {
-    phone: '+00 (000) 000-000', // PLACEHOLDER
-    phoneHref: 'tel:+00000000000', // PLACEHOLDER
-    email: 'hello@raha-residences.com', // PLACEHOLDER
+    // the first number is the primary one (menu, enquiry page, search-engine data)
+    phone: '+91 83416 85800',
+    phoneHref: 'tel:+918341685800',
+    phones: [
+      // `whatsapp` opens a chat with that number (used by the footer)
+      { label: '+91 83416 85800', href: 'tel:+918341685800', whatsapp: 'https://wa.me/918341685800' },
+      { label: '+91 77996 23050', href: 'tel:+917799623050', whatsapp: 'https://wa.me/917799623050' },
+    ],
+    email: 'raaharetreat.hyd@gmail.com',
     officeLabel: 'Sales office',
     address: ['Address line one', 'City, Region, Country'], // PLACEHOLDER
     mapUrl: 'https://maps.google.com', // PLACEHOLDER
   },
 
   socials: [
-    { label: 'Instagram', href: '#' }, // PLACEHOLDER
-    { label: 'Facebook', href: '#' }, // PLACEHOLDER
-    { label: 'LinkedIn', href: '#' }, // PLACEHOLDER
+    { label: 'Instagram · @raaha.retreat_', href: 'https://www.instagram.com/raaha.retreat_/' },
+    { label: 'Instagram · @raaha_retreat', href: 'https://www.instagram.com/raaha_retreat/' },
   ],
 
   nav: {
-    primary: { label: ['Select', 'a residence'], href: '/residences' },
     secondary: [
       { label: 'Book a call', action: 'booking' },
       { label: 'Enquire', href: '/enquire' },
@@ -49,7 +53,6 @@ export const site = {
       { label: 'Home', href: '/' },
       { label: 'Location', href: '/#location' },
       { label: 'Concept', href: '/#concept' },
-      { label: 'Residences', href: '/residences' },
       { label: 'Amenities', href: '/#amenities' },
       { label: 'Architecture', href: '/#architecture' },
       { label: 'Enquire', href: '/enquire' },
@@ -63,16 +66,9 @@ export const site = {
       { label: 'Privacy policy', href: '/privacy' },
       { label: 'Terms of use', href: '/terms' },
     ],
-    disclaimer:
-      'Images are illustrative renders. Layouts, areas and specifications are indicative and may change during development.', // PLACEHOLDER
   },
 
-  project: [
-    { label: 'Developer', value: 'Developer name' }, // PLACEHOLDER
-    { label: 'Status', value: 'Under construction' }, // PLACEHOLDER
-  ],
-
-  credits: { label: 'Website', value: 'Studio name', href: '#' }, // PLACEHOLDER
+  credits: { label: 'Made by', value: 'Arclume', href: 'https://arclume.co.in/' },
 
   forms: {
     /**

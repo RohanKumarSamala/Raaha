@@ -1,7 +1,8 @@
 import { gsap, ScrollTrigger, SplitText, CustomEase, reduced, mq } from '../core/gsap';
 import { $, $$ } from '../core/dom';
 import { reveal } from '../modules/reveals';
-import { scrollToTarget, getLenis } from '../core/scroll';
+import { getLenis } from '../core/scroll';
+import { initWind } from '../modules/wind';
 
 /* -------------------------------------------------------------------------- */
 /* Hero — intro timeline, scroll exit, day/night                              */
@@ -125,7 +126,7 @@ export function reasons() {
   const bodies = $$('[data-reasons-body]', sec);
   const currentEl = $('[data-reasons-current]', sec);
   const nextEl = $('[data-reasons-next-num]', sec);
-  const bar = $('[data-reasons-bar]', sec);
+  const bar = $('[data-reasons-bar]', sec)?.parentElement ?? null; // the track: it carries --p
   const n = titles.length;
   const HOLD = 5;
   const S = 0.4;
@@ -144,6 +145,11 @@ export function reasons() {
   let inView = false;
   let timer: gsap.core.Tween | null = null;
 
+  // Split each title into letters once and leave it that way. Splitting only for the
+  // animation and merging afterwards changed the letter and word spacing a moment
+  // after the title landed, which read as a jump.
+  const chars = reduced ? [] : titles.map((t) => new SplitText(t, { type: 'words,chars' }));
+
   const paint = () => {
     if (currentEl) currentEl.textContent = String(active + 1);
     if (nextEl) nextEl.textContent = String(((active + 1) % n) + 1);
@@ -161,7 +167,7 @@ export function reasons() {
     timer?.kill();
     timer = null;
     if (!bar || reduced) return;
-    timer = gsap.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: HOLD, ease: 'none', paused: !inView, onComplete: () => set(active + 1) });
+    timer = gsap.fromTo(bar, { '--p': 0 }, { '--p': 1, duration: HOLD, ease: 'none', paused: !inView, onComplete: () => set(active + 1) });
   };
 
   const set = (to: number) => {
@@ -185,10 +191,8 @@ export function reasons() {
     animating = true;
     startTimer();
 
-    // Text is split only for the length of the move, so ligatures and wrapping stay native at rest
-    const outChars = new SplitText(titles[prev], { type: 'words,chars' });
+    // Titles stay split for good (see `chars` above); the copy is split per move so it re-wraps freely
     const outLines = new SplitText($$('p', bodies[prev]), { type: 'lines', mask: 'lines' });
-    let inChars: SplitText | null = null;
     let inLines: SplitText | null = null;
 
     inSlide.classList.add('is-active');
@@ -197,7 +201,6 @@ export function reasons() {
 
     const tl = gsap.timeline({
       onComplete: () => {
-        inChars?.revert();
         inLines?.revert();
         outSlide.classList.remove('is-active');
         gsap.set([inSlide, outSlide], { clearProps: 'zIndex,clipPath' });
@@ -207,7 +210,7 @@ export function reasons() {
     });
 
     // Out
-    tl.to(outChars.chars, { opacity: 0, yPercent: -50, rotateY: -90, duration: S, stagger: STAGGER * 0.25, ease: EASE_IN }, 0)
+    tl.to(chars[prev].chars, { opacity: 0, yPercent: -50, rotateY: -90, duration: S, stagger: STAGGER * 0.25, ease: EASE_IN }, 0)
       .to(outLines.lines, { yPercent: -110, duration: S, stagger: STAGGER * 0.5, ease: EASE_IN }, 0)
       .fromTo(
         outSlide,
@@ -227,14 +230,13 @@ export function reasons() {
 
     // In — text, once the old copy has cleared
     tl.add(() => {
-      outChars.revert();
+      gsap.set(chars[prev].chars, { clearProps: 'opacity,transform' }); // (not 'all': the letters need their inline-block)
       outLines.revert();
       show(prev, false);
       show(i, true);
-      inChars = new SplitText(titles[i], { type: 'words,chars' });
       inLines = new SplitText($$('p', bodies[i]), { type: 'lines', mask: 'lines' });
       tl.fromTo(
-        inChars.chars,
+        chars[i].chars,
         { opacity: 0, yPercent: 50, rotateY: 90 },
         { opacity: 1, yPercent: 0, rotateY: 0, duration: L, stagger: STAGGER * 0.5, ease: EASE_OUT },
         M,
@@ -245,17 +247,16 @@ export function reasons() {
   $('[data-reasons-prev]', sec)?.addEventListener('click', () => set(active - 1));
   $('[data-reasons-next]', sec)?.addEventListener('click', () => set(active + 1));
 
-  // Only count down while the carousel is on screen
-  ScrollTrigger.create({
-    trigger: sec,
-    start: 'top 70%',
-    end: 'bottom 30%',
-    onToggle: (self) => {
-      inView = self.isActive;
+  // Only count down while the carousel is on screen. (An observer rather than a
+  // scroll trigger: it also reports correctly when the page is reloaded mid-section.)
+  new IntersectionObserver(
+    ([e]) => {
+      inView = e.isIntersecting;
       if (inView) timer?.play();
       else timer?.pause();
     },
-  });
+    { threshold: 0.4 },
+  ).observe(sec);
   paint();
   startTimer();
 
@@ -289,9 +290,38 @@ export function concept() {
   const sec = $('[data-concept]');
   if (!sec) return;
   const track = $('[data-concept-track]', sec)!;
+
   const path = $<SVGPathElement>('[data-map-path]', sec);
+  const road = $$<SVGPathElement>('[data-map-road]', sec);
+  const car = $('[data-map-car]', sec);
   const points = $$('[data-map-point]', sec);
+
+  // The road draws itself with scroll and a marker rides its leading end.
+  // The svg box is 1000×600 stretched over the map area, so path units map to %.
+  const total = path?.getTotalLength() ?? 0;
+  const drive = (p: number) => {
+    if (!path || !car) return;
+    const at = path.getPointAtLength(total * p);
+    car.style.left = `${at.x / 10}%`;
+    car.style.top = `${at.y / 6}%`;
+    car.style.opacity = p > 0.005 && p < 0.995 ? '1' : '0';
+  };
+  const drawRoad = (scrollTrigger: ScrollTrigger.Vars) => {
+    if (!path) return;
+    gsap.fromTo([path, ...road], { strokeDashoffset: 1 }, {
+      strokeDashoffset: 0,
+      ease: 'none',
+      scrollTrigger,
+      onUpdate() {
+        drive(this.progress());
+      },
+    });
+  };
   const horizontal = $$('[data-reveal-horizontal]', sec);
+
+  // Flowers: each one grows in as it arrives (the breeze itself is started page-wide)
+  const flowers = $$('[data-flower]', sec);
+  const growIn = (el: HTMLElement, st: ScrollTrigger.Vars) => ScrollTrigger.create({ ...st, trigger: el, once: true, onEnter: () => el.classList.add('is-in') });
 
   let container: gsap.core.Tween | null = null;
   const mm = gsap.matchMedia();
@@ -313,6 +343,8 @@ export function concept() {
 
     container = tween;
 
+    flowers.forEach((el, i) => growIn(el, i === 0 ? { start: 'top 65%' } : { containerAnimation: tween, start: 'left 96%' }));
+
     $$('[data-place-line]', sec).forEach((line, i) => {
       gsap.fromTo(
         line,
@@ -321,14 +353,17 @@ export function concept() {
       );
     });
 
+    // Flowers drift against the track for depth (the bush slides back as you pass it)
+    $$('[data-flower-drift]', sec).forEach((el) => {
+      gsap.fromTo(
+        el,
+        { xPercent: 0 },
+        { xPercent: parseFloat(el.dataset.flowerDrift ?? '-20'), ease: 'none', scrollTrigger: { trigger: el, containerAnimation: tween, start: 'left right', end: 'right left', scrub: true } },
+      );
+    });
+
     const mapPanel = $('[data-concept-map]', sec)!;
-    if (path) {
-      gsap.fromTo(path, { strokeDashoffset: 1 }, {
-        strokeDashoffset: 0,
-        ease: 'none',
-        scrollTrigger: { trigger: mapPanel, containerAnimation: tween, start: 'left 85%', end: 'right right', scrub: true },
-      });
-    }
+    drawRoad({ trigger: mapPanel, containerAnimation: tween, start: 'left 85%', end: 'right right', scrub: true });
     points.forEach((p, i) => {
       gsap.from(p, {
         autoAlpha: 0,
@@ -341,9 +376,8 @@ export function concept() {
 
   mm.add(mq.mobile, () => {
     container = null;
-    if (path) {
-      gsap.fromTo(path, { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', scrollTrigger: { trigger: path, start: 'top 85%', end: 'bottom 40%', scrub: true } });
-    }
+    flowers.forEach((el) => growIn(el, { start: 'top 85%' }));
+    drawRoad({ trigger: path, start: 'top 85%', end: 'bottom 40%', scrub: true });
   });
 
   // Reveals are created once the page is uncovered so the first panel animates in view.
@@ -351,57 +385,8 @@ export function concept() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Location — fog parts to reveal the aerial                                   */
-/* -------------------------------------------------------------------------- */
-export function location() {
-  const sec = $('[data-location]');
-  if (!sec) return;
-  const clouds = $$('[data-cloud]', sec);
-  const head = $('[data-location-head]', sec)!;
-  const caption = $('[data-location-caption]', sec)!;
-  const media = $('[data-location-media] [data-media-inner]', sec);
-
-  if (reduced) {
-    gsap.set(clouds, { opacity: 0 });
-    gsap.set(caption, { opacity: 1 });
-    sec.dataset.header = 'light';
-    return;
-  }
-
-  const titleSplit = SplitText.create($('.location__title', head)!, { type: 'lines', mask: 'lines' });
-
-  gsap
-    .timeline({
-      scrollTrigger: {
-        trigger: sec,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1,
-        onUpdate: (self) => {
-          const next = self.progress < 0.38 ? 'ink' : 'light';
-          if (sec.dataset.header !== next) sec.dataset.header = next;
-        },
-      },
-    })
-    .from(titleSplit.lines, { yPercent: 110, stagger: 0.05, duration: 0.18 }, 0)
-    .from($('.location__script', head), { clipPath: 'inset(-60% 100% -60% -30%)', duration: 0.2 }, 0.06)
-    .from($('.location__sub', head), { opacity: 0, duration: 0.15 }, 0.12)
-    .to(head, { opacity: 0, y: -80, duration: 0.2 }, 0.34)
-    .to(clouds, {
-      xPercent: (i) => (i % 2 ? 70 : -70) * (1 + (i % 3) * 0.3),
-      yPercent: (i) => (i > 3 ? 40 : -30),
-      opacity: 0,
-      scale: 1.4,
-      duration: 0.5,
-      stagger: 0.02,
-      ease: 'power1.in',
-    }, 0.3)
-    .fromTo(media, { scale: 1.35 }, { scale: 1, duration: 0.8, ease: 'power2.out' }, 0.25)
-    .to(caption, { opacity: 1, duration: 0.15 }, 0.82);
-}
-
-/* -------------------------------------------------------------------------- */
-/* Residence types carousel                                                    */
+/* Stays carousel — same move as the reasons: letters flip, copy lifts away,   */
+/* the photo wipes across on a diagonal                                        */
 /* -------------------------------------------------------------------------- */
 export function types() {
   const sec = $('[data-types]');
@@ -412,59 +397,111 @@ export function types() {
   const asideSets = $$('.types__aside-set', sec);
   const n = slides.length;
   const current = $('[data-types-current]', sec)!;
-  const bar = $('[data-types-bar]', sec)!;
-  const splits = titles.map((t) => new SplitText(t, { type: 'words,chars', mask: 'chars' }));
+  const bar = $('[data-types-bar]', sec)!.parentElement!; // the track: it carries --p
+  const splits = titles.map((t) => new SplitText(t, { type: 'words,chars' }));
+  const S = 0.4;
+  const M = 0.8;
+  const L = 1.2;
+  const EASE_IN = CustomEase.create('types.in', '0.5, 0, 0.75, 0');
+  const EASE_OUT = CustomEase.create('types.out', '0.25, 1, 0.5, 1');
+  const EASE_INOUT = CustomEase.create('types.inOut', '0.75, 0, 0.25, 1');
+  const HOLD = 4;
   let index = 0;
   let busy = false;
+  let inView = false;
+  let timer: gsap.core.Tween | null = null;
+
+  // the pager bar fills over HOLD seconds, then the next slide takes over
+  const startTimer = () => {
+    timer?.kill();
+    timer = null;
+    if (reduced) {
+      gsap.set(bar, { '--p': (index + 1) / n });
+      return;
+    }
+    timer = gsap.fromTo(bar, { '--p': 0 }, { '--p': 1, duration: HOLD, ease: 'none', paused: !inView, onComplete: () => go(index + 1) });
+  };
+
+  // every line of copy in a slide's two side panels, in reading order
+  const copy = (i: number) => [...Array.from(statSets[i].children), ...Array.from(asideSets[i].children).flatMap((c) => (c.tagName === 'UL' ? Array.from(c.children) : [c]))];
 
   const go = (to: number) => {
     const target = (to + n) % n;
     if (busy || target === index) return;
-    busy = true;
-    const dir = to > index ? 1 : -1;
-    const d = reduced ? 0.01 : 1;
-    const outSlide = slides[index];
-    const inSlide = slides[target];
-    const outPanels = [statSets[index], asideSets[index]];
-    const inPanels = [statSets[target], asideSets[target]];
-    const outTitle = titles[index];
+    const prev = index;
+    index = target;
+    current.textContent = String(index + 1);
+    timer?.kill();
 
+    const outSlide = slides[prev];
+    const inSlide = slides[target];
+    const swap = () => {
+      [statSets, asideSets].forEach((set) => {
+        set[prev].classList.remove('is-active');
+        set[prev].setAttribute('aria-hidden', 'true');
+        set[target].classList.add('is-active');
+        set[target].removeAttribute('aria-hidden');
+      });
+      titles[prev].classList.remove('is-active');
+      titles[target].classList.add('is-active');
+      titles.forEach((t, i) => t.setAttribute('aria-hidden', String(i !== target)));
+    };
+
+    if (reduced) {
+      swap();
+      outSlide.classList.remove('is-active');
+      inSlide.classList.add('is-active');
+      startTimer();
+      return;
+    }
+
+    busy = true;
+    gsap.to(bar, { '--p': 0, duration: S, ease: 'power2.out' });
     inSlide.classList.add('is-active');
     gsap.set(inSlide, { zIndex: 2 });
     gsap.set(outSlide, { zIndex: 1 });
 
+    const outMedia = $('[data-media-inner]', outSlide);
+    const inMedia = $('[data-media-inner]', inSlide);
     const tl = gsap.timeline({
       onComplete: () => {
         outSlide.classList.remove('is-active');
         gsap.set([inSlide, outSlide], { clearProps: 'zIndex,clipPath' });
+        gsap.set([inMedia, outMedia], { clearProps: 'transform' });
+        gsap.set(copy(prev), { clearProps: 'opacity,visibility,transform' });
         busy = false;
+        startTimer();
       },
     });
-    tl.fromTo(inSlide, { clipPath: dir > 0 ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: d * 1.3, ease: 'raha.inOut' }, 0)
-      .fromTo($('[data-media-inner]', inSlide), { scale: 1.25 }, { scale: 1, duration: d * 1.8 }, 0)
-      .fromTo(splits[index].chars, { yPercent: 0 }, { yPercent: -110 * dir, duration: d * 0.6, stagger: 0.012, ease: 'power3.in', immediateRender: false }, 0)
-      .add(() => {
-        outTitle.classList.remove('is-active');
-        titles[target].classList.add('is-active');
-        titles.forEach((t, i) => t.setAttribute('aria-hidden', String(i !== target)));
-      }, d * 0.6)
-      .fromTo(splits[target].chars, { yPercent: 110 * dir }, { yPercent: 0, duration: d * 1.1, stagger: 0.018 }, d * 0.6)
-      .to(outPanels, { autoAlpha: 0, y: -14, duration: d * 0.45, ease: 'power2.in' }, 0)
-      .add(() => {
-        outPanels.forEach((p) => {
-          p.classList.remove('is-active');
-          p.setAttribute('aria-hidden', 'true');
-        });
-        inPanels.forEach((p) => {
-          p.classList.add('is-active');
-          p.removeAttribute('aria-hidden');
-        });
-      }, d * 0.45)
-      .fromTo(inPanels, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: d, stagger: 0.08, clearProps: 'visibility' }, d * 0.5);
 
-    index = target;
-    current.textContent = String(index + 1);
-    bar.style.transform = `scaleX(${(index + 1) / n})`;
+    // out
+    tl.to(splits[prev].chars, { opacity: 0, yPercent: -50, rotateY: -90, duration: S, stagger: 0.02, ease: EASE_IN }, 0)
+      .to(copy(prev), { autoAlpha: 0, y: -18, duration: S, stagger: 0.03, ease: EASE_IN }, 0)
+      .fromTo(
+        outSlide,
+        { clipPath: 'polygon(0% 0%, 100% 0%, 125% 100%, 0% 100%)' },
+        { clipPath: 'polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)', duration: L, ease: EASE_INOUT },
+        0,
+      )
+      .to(outMedia, { scale: 1.5, xPercent: -25, duration: L, ease: EASE_INOUT }, 0);
+
+    // in — photo
+    tl.fromTo(
+      inSlide,
+      { clipPath: 'polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)' },
+      { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: L, ease: EASE_INOUT },
+      0,
+    ).fromTo(inMedia, { scale: 1.5, xPercent: 25 }, { scale: 1, xPercent: 0, duration: L, ease: EASE_INOUT }, 0);
+
+    // in — title and copy, once the old ones have cleared
+    tl.add(swap, M)
+      .fromTo(
+        splits[target].chars,
+        { opacity: 0, yPercent: 50, rotateY: 90 },
+        { opacity: 1, yPercent: 0, rotateY: 0, duration: L, stagger: 0.05, ease: EASE_OUT, immediateRender: false },
+        M,
+      )
+      .fromTo(copy(target), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: L, stagger: 0.09, ease: EASE_OUT, immediateRender: false, clearProps: 'visibility' }, M);
   };
 
   $('[data-types-prev]', sec)?.addEventListener('click', () => go(index - 1));
@@ -480,38 +517,84 @@ export function types() {
     if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
   });
 
-  // Entrance
+  // Only count down while the carousel is on screen. (An observer rather than a
+  // scroll trigger: it also reports correctly when the page is reloaded mid-section.)
+  new IntersectionObserver(
+    ([e]) => {
+      inView = e.isIntersecting;
+      if (inView) timer?.play();
+      else timer?.pause();
+    },
+    { threshold: 0.4 },
+  ).observe(sec);
+  startTimer();
+
+  // Entrance: the photo opens on the same diagonal, then the title and copy arrive
   if (!reduced) {
-    gsap.from(vp, {
-      clipPath: 'inset(100% 0% 0% 0%)',
-      duration: 1.6,
-      ease: 'raha.inOut',
-      scrollTrigger: { trigger: sec, start: 'top 60%', once: true },
-    });
-    gsap.from(splits[0].chars, { yPercent: 110, stagger: 0.02, duration: 1.2, scrollTrigger: { trigger: sec, start: 'top 45%', once: true } });
+    const first = slides[0];
+    gsap
+      .timeline({ scrollTrigger: { trigger: sec, start: 'top 55%', once: true } })
+      .fromTo(
+        vp,
+        { clipPath: 'polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)' },
+        { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: 1.5, ease: EASE_INOUT, clearProps: 'clipPath' },
+        0,
+      )
+      .fromTo($('[data-media-inner]', first), { scale: 1.5, xPercent: 25 }, { scale: 1, xPercent: 0, duration: 1.5, ease: EASE_INOUT, clearProps: 'transform' }, 0)
+      .from(splits[0].chars, { opacity: 0, yPercent: 50, rotateY: 90, duration: L, stagger: 0.05, ease: EASE_OUT }, 0.6)
+      .from(copy(0), { autoAlpha: 0, y: 26, duration: L, stagger: 0.09, ease: EASE_OUT, clearProps: 'all' }, 0.7);
   }
 }
 
 /* -------------------------------------------------------------------------- */
-/* Amenities — sticky sequence driven by scroll                               */
+/* Estate statement — flower grows in from the corner as the section arrives   */
+/* -------------------------------------------------------------------------- */
+export function statement() {
+  const sec = $('[data-statement]');
+  if (!sec) return;
+  $$('[data-flower]', sec).forEach((el) => ScrollTrigger.create({ trigger: sec, start: 'top 60%', once: true, onEnter: () => el.classList.add('is-in') }));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Breeze through every cut-out flower on the page                             */
+/* -------------------------------------------------------------------------- */
+export function flowers() {
+  initWind();
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      }),
+    { threshold: 0.12 },
+  );
+  $$('[data-flower]').forEach((el) => io.observe(el));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Amenities — one full-screen photo; the list on the right chooses which.     */
+/* Nothing changes with scroll: scrolling simply moves on to the next section. */
 /* -------------------------------------------------------------------------- */
 export function amenities() {
   const sec = $('[data-amen]');
-  const spacer = $('[data-amen-spacer]');
-  if (!sec || !spacer) return;
+  if (!sec) return;
   const bgs = $$('[data-amen-bg]', sec);
   const items = $$<HTMLButtonElement>('[data-amen-item]', sec);
   const texts = $$('[data-amen-text]', sec);
   const rail = $('[data-amen-rail]', sec)!;
-  const n = bgs.length;
+  const S = 0.4;
+  const L = 1.2;
+  const EASE_IN = CustomEase.create('amen.in', '0.5, 0, 0.75, 0');
+  const EASE_OUT = CustomEase.create('amen.out', '0.25, 1, 0.5, 1');
+  const EASE_INOUT = CustomEase.create('amen.inOut', '0.75, 0, 0.25, 1');
   let active = 0;
-  let st: ScrollTrigger | null = null;
+  let split: SplitText | null = null;
 
   const set = (i: number) => {
     if (i === active) return;
     const prev = active;
     active = i;
-    const dir = i > prev ? 1 : -1;
     items.forEach((it, k) => {
       it.classList.toggle('is-active', k === i);
       it.toggleAttribute('aria-current', k === i);
@@ -520,111 +603,182 @@ export function amenities() {
 
     const inBg = bgs[i];
     const outBg = bgs[prev];
-    gsap.killTweensOf([inBg, outBg]);
+    const inText = texts[i];
+    const outText = texts[prev];
+
+    // settle anything still moving from a previous click
+    gsap.killTweensOf([...bgs, ...bgs.map((b) => $('[data-media-inner]', b)), ...texts.flatMap((t) => Array.from(t.children))]);
+    split?.revert();
+    split = null;
     bgs.forEach((b, k) => {
-      if (k !== i && k !== prev) b.classList.remove('is-active');
+      if (k !== i && k !== prev) {
+        b.classList.remove('is-active');
+        gsap.set(b, { clearProps: 'clipPath,zIndex' });
+      }
     });
+    texts.forEach((t, k) => {
+      t.setAttribute('aria-hidden', String(k !== i));
+      if (k !== i && k !== prev) t.classList.remove('is-active');
+    });
+
+    if (reduced) {
+      outBg.classList.remove('is-active');
+      inBg.classList.add('is-active');
+      outText.classList.remove('is-active');
+      inText.classList.add('is-active');
+      return;
+    }
+
+    // photo: the new one wipes across on a diagonal while it settles from a zoom
     inBg.classList.add('is-active');
     gsap.set(inBg, { zIndex: 2 });
-    gsap.set(outBg, { zIndex: 1 });
-    gsap.fromTo(inBg, { clipPath: dir > 0 ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 100% 0%)' }, {
-      clipPath: 'inset(0% 0% 0% 0%)',
-      duration: reduced ? 0 : 1.3,
-      ease: 'raha.inOut',
+    gsap.set(outBg, { zIndex: 1, clipPath: 'none' });
+    gsap.fromTo(
+      inBg,
+      { clipPath: 'polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)' },
+      {
+        clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+        duration: L * 1.15,
+        ease: EASE_INOUT,
+        onComplete: () => {
+          outBg.classList.remove('is-active');
+          gsap.set([inBg, outBg], { clearProps: 'clipPath,zIndex' });
+        },
+      },
+    );
+    gsap.fromTo($('[data-media-inner]', inBg), { scale: 1.35, xPercent: 12 }, { scale: 1, xPercent: 0, duration: L * 1.15, ease: EASE_INOUT });
+    gsap.to($('[data-media-inner]', outBg), { scale: 1.2, xPercent: -8, duration: L * 1.15, ease: EASE_INOUT, clearProps: 'transform' });
+
+    // copy: the old lines lift away, the new ones rise line by line
+    gsap.to(outText.children, {
+      autoAlpha: 0,
+      y: -22,
+      duration: S,
+      stagger: 0.04,
+      ease: EASE_IN,
       onComplete: () => {
-        outBg.classList.remove('is-active');
-        gsap.set(inBg, { clearProps: 'clipPath,zIndex' });
+        outText.classList.remove('is-active');
+        gsap.set(outText.children, { clearProps: 'all' });
       },
     });
-    gsap.fromTo($('[data-media-inner]', inBg), { scale: 1.2 }, { scale: 1, duration: 2 });
-
-    texts.forEach((t, k) => {
-      const on = k === i;
-      t.setAttribute('aria-hidden', String(!on));
-      if (on) {
-        t.classList.add('is-active');
-        gsap.fromTo(t.children, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08, delay: 0.25 });
-      } else if (k === prev) {
-        gsap.to(t.children, { autoAlpha: 0, y: -20, duration: 0.4, onComplete: () => t.classList.remove('is-active') });
-      } else t.classList.remove('is-active');
+    inText.classList.add('is-active');
+    gsap.set(inText.children, { clearProps: 'all' });
+    const label = inText.children[0];
+    const quote = inText.children[1] as HTMLElement;
+    split = new SplitText(quote, { type: 'lines', mask: 'lines', linesClass: 'split-line' });
+    gsap.fromTo(label, { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 1, ease: EASE_OUT, delay: 0.12 });
+    gsap.fromTo(split.lines, { yPercent: 110 }, {
+      yPercent: 0,
+      duration: L,
+      stagger: 0.08,
+      ease: EASE_OUT,
+      delay: 0.18,
+      onComplete: () => {
+        split?.revert();
+        split = null;
+      },
     });
   };
 
+  items.forEach((it, i) => it.addEventListener('click', () => set(i)));
+
+  if (reduced) return;
   const mm = gsap.matchMedia();
   mm.add(mq.desktop, () => {
-    st = ScrollTrigger.create({
-      trigger: spacer,
-      start: 'top bottom',
-      end: 'bottom bottom',
-      onUpdate: (self) => set(Math.min(n - 1, Math.floor(self.progress * n))),
-    });
-    return () => {
-      st = null;
-    };
-  });
+    // Arrival: the list steps in, the rule draws, the copy rises
+    const first = texts[0];
+    gsap
+      .timeline({ scrollTrigger: { trigger: sec, start: 'top 45%', once: true } })
+      .from(rail.parentElement, { scaleY: 0, transformOrigin: 'top', duration: 1.2, ease: EASE_INOUT }, 0)
+      .from(items, { autoAlpha: 0, x: 36, duration: 1, stagger: 0.09, ease: EASE_OUT, clearProps: 'all' }, 0.1)
+      .from(first.children, { autoAlpha: 0, y: 34, duration: L, stagger: 0.12, ease: EASE_OUT, clearProps: 'all' }, 0.25)
+      .from($('.amen__cta', sec), { autoAlpha: 0, scale: 0.9, duration: 1.2, ease: EASE_OUT, clearProps: 'all' }, 0.5);
 
-  items.forEach((it, i) =>
-    it.addEventListener('click', () => {
-      if (!st) return set(i);
-      scrollToTarget(st.start + ((i + 0.5) / n) * (st.end - st.start));
-    }),
-  );
+    // Leaving: the photo eases forward and the overlay thins as the next section rises
+    gsap
+      .timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: () => `+=${window.innerHeight}`, scrub: true, invalidateOnRefresh: true } })
+      .fromTo($('.amen__bgs', sec), { scale: 1 }, { scale: 1.18, ease: 'none' }, 0)
+      .to([$('.amen__nav', sec), $('.amen__copy', sec), $('.amen__cta', sec)], { opacity: 0, y: -40, ease: 'power1.in' }, 0);
+  });
 }
 
 /* -------------------------------------------------------------------------- */
-/* Architecture — portrait expands into a full-bleed frame                     */
+/* Architecture — two offset windows slide level, join, and the frame grows    */
+/* until the photo fills the screen; flowers are pushed aside; the statement    */
+/* then rises over the same photo.                                             */
 /* -------------------------------------------------------------------------- */
 export function architecture() {
   const sec = $('[data-archi]');
   if (!sec) return;
   const stage = $('[data-archi-stage]', sec)!;
-  const ghost = $('[data-archi-ghost]', sec)!;
-  const b = $('[data-archi-b]', sec)!;
-  const a = $('[data-archi-a]', sec)!;
-  const word = $('[data-archi-word]', sec)!;
-
-  const fit = () => {
-    word.style.fontSize = '';
-    const target = stage.clientWidth * 0.955;
-    const w = word.scrollWidth;
-    if (w) word.style.fontSize = `${(parseFloat(getComputedStyle(word).fontSize) * target) / w}px`;
-  };
-  fit();
-  window.addEventListener('resize', fit);
-
-  const inset = () => {
-    const s = stage.getBoundingClientRect();
-    const g = ghost.getBoundingClientRect();
-    return `inset(${g.top - s.top}px ${s.right - g.right}px ${s.bottom - g.bottom}px ${g.left - s.left}px)`;
-  };
+  const photo = $('[data-archi-photo]', sec)!;
+  const mask = $('[data-archi-mask]', sec)!;
+  const left = $('[data-archi-l]', sec)!;
+  const right = $('[data-archi-r]', sec)!;
+  const flowerL = $('[data-archi-flower="l"]', sec);
+  const flowerR = $('[data-archi-flower="r"]', sec);
+  const shade = $('[data-archi-shade]', sec);
+  const quoteText = $('[data-archi-quote-text]', sec);
+  const quoteParts = $$('[data-archi-quote-part]', sec);
 
   if (reduced) {
-    gsap.set(b, { clipPath: 'inset(0px 0px 0px 0px)' });
+    gsap.set(mask, { display: 'none' });
     return;
   }
 
-  const split = SplitText.create(word, { type: 'chars', mask: 'chars' });
+  // A window is a rectangular hole in its panel: the polygon runs round the panel,
+  // dips in to trace the hole, and comes back out (same point count for every state,
+  // so the shapes can be tweened).
+  const hole = (x1: number, x2: number, y1: number, y2: number) =>
+    `polygon(0% 0%, 0% 100%, ${x1}% 100%, ${x1}% ${y1}%, ${x2}% ${y1}%, ${x2}% ${y2}%, ${x1}% ${y2}%, ${x1}% 100%, 100% 100%, 100% 0%)`;
 
-  gsap
-    .timeline({
+  const inner = $('[data-media-inner]', photo);
+  const quoteLines = quoteText ? SplitText.create(quoteText, { type: 'lines', mask: 'lines' }) : null;
+  const EASE = CustomEase.create('archi.inOut', '0.75, 0, 0.25, 1');
+
+  const mm = gsap.matchMedia();
+  const build = (g: { lx: [number, number]; rx: [number, number]; l0: [number, number]; r0: [number, number]; y: [number, number]; grow: number }) => {
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sec,
         start: 'top top',
-        end: () => `+=${window.innerHeight * 1.6}`,
+        end: () => `+=${window.innerHeight * 3}`,
         pin: stage,
         scrub: 1,
         invalidateOnRefresh: true,
         anticipatePin: 1,
       },
-    })
-    .fromTo(b, { clipPath: inset }, { clipPath: 'inset(0px 0px 0px 0px)', duration: 1, ease: 'power2.inOut' }, 0)
-    .fromTo($('[data-media-inner]', b), { scale: 1.25 }, { scale: 1, duration: 1, ease: 'power1.out' }, 0)
-    .to(a, { y: () => -window.innerHeight * 0.5, opacity: 0, duration: 0.7, ease: 'power1.in' }, 0)
-    .from(split.chars, { yPercent: 110, duration: 0.55, stagger: 0.025, ease: 'power3.out' }, 0.45)
-    .to({}, { duration: 0.25 });
+    });
 
-  // Parallax the pre-expansion pair on approach
-  gsap.fromTo(a, { y: () => window.innerHeight * 0.25 }, { y: 0, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'top top', scrub: true, invalidateOnRefresh: true } });
+    // 1 · the windows slide level
+    tl.fromTo(left, { clipPath: hole(g.lx[0], g.lx[1], g.l0[0], g.l0[1]) }, { clipPath: hole(g.lx[0], g.lx[1], g.y[0], g.y[1]), duration: 0.42, ease: 'none' }, 0)
+      .fromTo(right, { clipPath: hole(g.rx[0], g.rx[1], g.r0[0], g.r0[1]) }, { clipPath: hole(g.rx[0], g.rx[1], g.y[0], g.y[1]), duration: 0.42, ease: 'none' }, 0)
+      // 2 · the gap between them closes
+      .to(left, { clipPath: hole(g.lx[0], 100, g.y[0], g.y[1]), duration: 0.08, ease: 'none' }, 0.42)
+      .to(right, { clipPath: hole(0, g.rx[1], g.y[0], g.y[1]), duration: 0.08, ease: 'none' }, 0.42)
+      // 3 · the frame grows to the edges of the screen; the photo eases up to full size
+      .fromTo(mask, { scale: 1 }, { scale: g.grow, duration: 0.36, ease: EASE }, 0.5)
+      .fromTo(inner, { scale: 1.24 }, { scale: 1, duration: 0.36, ease: EASE }, 0.5);
+    if (flowerL) tl.to(flowerL, { xPercent: -80, duration: 0.36, ease: EASE }, 0.5);
+    if (flowerR) tl.to(flowerR, { xPercent: 125, duration: 0.36, ease: EASE }, 0.5);
+    tl.to({}, { duration: 0.06 });
+
+    // 4 · still the same photograph: it eases forward, its lower half deepens, and the
+    //     statement rises line by line
+    tl.addLabel('statement')
+      .to(inner, { scale: 1.1, yPercent: -3, duration: 0.5, ease: 'none' }, 'statement');
+    if (shade) tl.to(shade, { opacity: 1, duration: 0.25, ease: 'none' }, 'statement');
+    if (quoteLines) tl.fromTo(quoteText, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.01 }, 'statement+=0.1').from(quoteLines.lines, { yPercent: 110, duration: 0.22, stagger: 0.05, ease: 'power3.out' }, 'statement+=0.1');
+    if (quoteParts.length) tl.fromTo(quoteParts, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.2, stagger: 0.05, ease: 'power2.out' }, 'statement+=0.18');
+    tl.to({}, { duration: 0.2 });
+
+    // On the way in, the photo drifts a little behind the windows
+    gsap.fromTo(inner, { yPercent: -6 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: sec, start: 'top bottom', end: 'top top', scrub: true } });
+  };
+
+  // window geometry, in % of each half-width panel (x) and of the stage height (y)
+  mm.add(mq.desktop, () => build({ lx: [44.444, 98.889], rx: [1.111, 55.556], l0: [36, 99], r0: [1, 64], y: [18.5, 81.5], grow: 1.9 }));
+  mm.add(mq.mobile, () => build({ lx: [14, 98], rx: [2, 86], l0: [42, 86], r0: [14, 58], y: [28, 72], grow: 2.4 }));
 }
 
 /* -------------------------------------------------------------------------- */

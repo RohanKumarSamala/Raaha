@@ -2,7 +2,6 @@
 import { home } from '@/data/home';
 import Media from '../ui/Media.astro';
 import Slider from '../ui/Slider.astro';
-import PillButton from '../ui/PillButton.astro';
 
 const s = home.space;
 ---
@@ -14,8 +13,14 @@ const s = home.space;
   </h2>
 
   <div class="space__collage">
-    <div class="space__ornament t-deep" data-reveal="image-side">
-      <Media media={s.images.ornament} fill sizes="40vw" />
+    <!-- Deep block with a framed portrait; bougainvillea hangs over its top-right corner -->
+    <div class="space__ornament t-deep">
+      <div class="space__ornament-photo" data-reveal="image-slant">
+        <Media media={s.images.ornament} fill sizes="(max-width: 767px) 60vw, 24vw" />
+      </div>
+      <div class="cflower space__flower" aria-hidden="true" data-flower>
+        <div class="cflower__sway"><img src="/images/bougainvillea-corner.webp" alt="" data-wind="top" width="1327" height="1185" decoding="async" loading="lazy" /></div>
+      </div>
     </div>
     <div class="space__terrace" data-reveal="image" data-speed="0.06">
       <Media media={s.images.terrace} fill sizes="(max-width: 767px) 90vw, 45vw" />
@@ -29,11 +34,10 @@ const s = home.space;
   <div class="space__detail">
     <p class="space__statement h6" data-reveal="lines">{s.statement}</p>
     <p class="space__specs p2" data-reveal="lines">{s.specs}</p>
-    <div data-reveal="fade"><PillButton label={s.cta.label} href={s.cta.href} /></div>
   </div>
 
   <div class="space__slider" data-reveal="fade">
-    <Slider items={s.slider} ratio="3 / 2" sizes="(max-width: 767px) 100vw, 80vw" controls="start" label="Interior images" />
+    <Slider items={s.slider} ratio="3 / 2" sizes="(max-width: 767px) 100vw, 80vw" controls="start" label="Interior images" autoplay={3} captions />
   </div>
 </section>
 
@@ -65,27 +69,49 @@ const s = home.space;
 
   .space__collage {
     position: relative;
-    height: calc(1010 * var(--u));
+    height: calc(1170 * var(--u));
     margin-top: calc(-40 * var(--u));
   }
   .space__ornament {
     position: absolute;
     left: 0;
     top: calc(250 * var(--u));
-    width: calc(634 * var(--u));
-    height: calc(580 * var(--u));
+    width: calc(640 * var(--u));
+    height: calc(853 * var(--u));
+  }
+  /* the portrait floats in the middle of the block, leaving a wide deep margin */
+  .space__ornament-photo {
+    position: absolute;
+    left: calc(136 * var(--u));
+    top: calc(181 * var(--u));
+    width: calc(368 * var(--u));
+    height: calc(491 * var(--u));
+    overflow: hidden;
+  }
+  /* mirrored so the sprays hang from the block's own top-right corner, down over the
+     portrait (the cut-out has straight edges where it was attached, so those two
+     edges sit flush with the block) */
+  .space__flower {
+    right: 0;
+    top: 0;
+    width: calc(540 * var(--u));
+    scale: -1 1;
+  }
+  .space__flower .cflower__sway,
+  .space__flower img {
+    transform-origin: 0 0;
   }
   .space__terrace {
     position: absolute;
     right: 0;
     top: calc(-40 * var(--u));
-    width: calc(650 * var(--u));
-    height: calc(720 * var(--u));
+    width: calc(520 * var(--u));
+    height: calc(576 * var(--u));
   }
   .space__upgrades {
     position: absolute;
     left: calc(350 * var(--u));
-    top: calc(870 * var(--u));
+    top: calc(1122 * var(--u));
     line-height: 1.6;
   }
 
@@ -94,11 +120,12 @@ const s = home.space;
     justify-items: start;
     gap: calc(28 * var(--u));
     width: calc(470 * var(--u));
-    margin: calc(-230 * var(--u)) 0 0 calc(950 * var(--u));
+    margin: calc(-534 * var(--u)) 0 0 calc(950 * var(--u));
   }
 
   .space__slider {
-    margin: calc(200 * var(--u)) 0 0 calc(350 * var(--u));
+    width: calc(940 * var(--u));
+    margin: calc(504 * var(--u)) 0 0 calc(350 * var(--u));
   }
 
   @media (max-width: 767px) {
@@ -121,14 +148,26 @@ const s = home.space;
       inset: auto;
     }
     .space__ornament {
-      width: 62%;
-      height: 220px;
+      width: 82%;
+      height: auto;
+      aspect-ratio: 3 / 4;
+      margin-top: 40px;
+    }
+    .space__ornament-photo {
+      left: 21%;
+      top: 21%;
+      width: 58%;
+      height: 58%;
+    }
+    .space__flower {
+      right: 0;
+      top: 0;
+      width: 84%;
     }
     .space__terrace {
       width: 78%;
       height: auto;
       aspect-ratio: 4 / 5;
-      margin-top: -120px;
       justify-self: end;
     }
     .space__upgrades {
@@ -140,6 +179,7 @@ const s = home.space;
       gap: 20px;
     }
     .space__slider {
+      width: auto;
       margin: 64px 0 0;
       padding-inline: var(--offset);
     }

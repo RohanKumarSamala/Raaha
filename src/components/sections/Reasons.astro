@@ -154,7 +154,9 @@ const r = home.reasons;
     flex-direction: column;
     align-items: center;
     min-height: 100svh;
-    padding: calc(56 * var(--u)) var(--offset) calc(44 * var(--u));
+    /* title a little below the header line; the photo and pager float midway between
+       the title and the copy (both gaps are `auto`, so they share the spare height) */
+    padding: calc(104 * var(--u)) var(--offset) calc(56 * var(--u));
   }
 
   /* Titles / bodies share one grid cell so only the active one shows */
@@ -186,10 +188,10 @@ const r = home.reasons;
 
   .reasons__media {
     position: relative;
-    width: calc(424 * var(--u));
+    width: calc(488 * var(--u));
     max-width: 100%;
     aspect-ratio: 2 / 1;
-    margin-top: calc(72 * var(--u));
+    margin-top: auto;
   }
   .reasons__slide {
     position: absolute;
@@ -203,20 +205,10 @@ const r = home.reasons;
   .reasons__controls {
     margin-top: calc(28 * var(--u));
   }
-  /* the bar doubles as the autoplay timer — driven from JS */
-  .reasons__controls .slider__bar {
-    height: 2px;
-    background: color-mix(in srgb, currentColor 22%, transparent);
-  }
-  .reasons__bar-fill {
-    transform: scaleX(0);
-    transition: none;
-  }
-
   .reasons__body {
     max-width: calc(590 * var(--u));
     margin-top: auto;
-    padding-top: calc(48 * var(--u));
+    padding-top: calc(24 * var(--u));
     align-items: end;
   }
   .reasons__body-item {

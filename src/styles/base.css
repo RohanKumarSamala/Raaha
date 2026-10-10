@@ -273,8 +273,9 @@ ol {
 
 .split-line-mask {
   overflow: clip;
-  padding-bottom: 0.06em;
-  margin-bottom: -0.06em;
+  /* generous on every side: the display face swings well outside its line box */
+  padding: 0.16em 0.1em;
+  margin: -0.16em -0.1em;
 }
 
 .js [data-reveal]:not([data-reveal='none']) {

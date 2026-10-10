@@ -20,9 +20,13 @@ const h = home.hero;
               <span class="hotspot__core" />
               <span class="sr-only">{spot.title}</span>
             </button>
-            <div class="hotspot__tip t-light" id={`hotspot-${i}`} role="tooltip">
-              <p class="l2">{spot.title}</p>
-              <p class="p2">{spot.text}</p>
+            <div class="hotspot__tip" id={`hotspot-${i}`} role="tooltip">
+              <div class="hotspot__stamp">
+                <div class="hotspot__frame">
+                  <p class="hotspot__title h6">{spot.title}</p>
+                  <p class="hotspot__text p1">{spot.text}</p>
+                </div>
+              </div>
             </div>
           </div>
         ))
@@ -40,8 +44,8 @@ const h = home.hero;
     </h1>
 
     <div class="hero__row">
-      <p class="hero__phrase h5" data-hero-phrase>{h.phrase[0]}</p>
-      <p class="hero__phrase h5" data-hero-phrase>{h.phrase[1]}</p>
+      <p class="hero__phrase" data-hero-phrase>{h.phrase[0]}</p>
+      <p class="hero__phrase" data-hero-phrase>{h.phrase[1]}</p>
     </div>
   </div>
 </section>
@@ -115,12 +119,21 @@ const h = home.hero;
   }
   .hero__row {
     position: absolute;
-    left: calc(300 * var(--u));
-    right: calc(300 * var(--u));
+    left: calc(470 * var(--u));
+    right: calc(470 * var(--u));
     top: calc(375 * var(--u));
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  /* set in the sub-heading face: spaced capitals, not the display serif */
+  .hero__phrase {
+    font-family: var(--font-subheading, var(--font-body));
+    font-size: max(calc(15 * var(--u)), 11px);
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    line-height: 1.3;
   }
   .hero__phrase:last-child {
     text-align: right;
@@ -131,7 +144,8 @@ const h = home.hero;
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 3;
+    /* above the title and phrases, so an open card is never written over */
+    z-index: 4;
   }
   .hotspot {
     position: absolute;
@@ -160,19 +174,50 @@ const h = home.hero;
     border: 1px solid currentColor;
     box-shadow: 0 0 0 3px rgb(255 255 255 / 0.25);
   }
+  /* Pop-up card — a postage stamp from the brand deck: perforated cream edge,
+     sage keyline, display title up top and the note at the foot. */
   .hotspot__tip {
     position: absolute;
     left: calc(24 * var(--u));
     bottom: calc(24 * var(--u));
-    width: max(calc(230 * var(--u)), 190px);
-    padding: calc(16 * var(--u)) calc(18 * var(--u));
-    border-radius: calc(10 * var(--u));
-    display: grid;
-    gap: 6px;
+    width: max(calc(236 * var(--u)), 210px);
+    filter: drop-shadow(0 calc(14 * var(--u)) calc(26 * var(--u)) rgb(30 12 6 / 0.35));
     opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.4s, transform 0.6s var(--ease-out);
+    transform: translateY(10px) rotate(-1.5deg);
+    transform-origin: 0 100%;
+    transition: opacity 0.4s, transform 0.7s var(--ease-out);
     pointer-events: none;
+  }
+  .hotspot__stamp {
+    --perf: max(calc(14 * var(--u)), 12px); /* perforation pitch */
+    padding: calc(var(--perf) * 0.85);
+    background: var(--c-ivory);
+    color: var(--c-ink-deep);
+    -webkit-mask:
+      radial-gradient(circle, #0000 calc(var(--perf) * 0.3), #000 calc(var(--perf) * 0.3 + 0.6px))
+        calc(var(--perf) / -2) calc(var(--perf) / -2) / var(--perf) var(--perf) round,
+      linear-gradient(#000 0 0) center / calc(100% - var(--perf)) calc(100% - var(--perf)) no-repeat;
+    mask:
+      radial-gradient(circle, #0000 calc(var(--perf) * 0.3), #000 calc(var(--perf) * 0.3 + 0.6px))
+        calc(var(--perf) / -2) calc(var(--perf) / -2) / var(--perf) var(--perf) round,
+      linear-gradient(#000 0 0) center / calc(100% - var(--perf)) calc(100% - var(--perf)) no-repeat;
+  }
+  .hotspot__frame {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: calc(40 * var(--u));
+    min-height: max(calc(190 * var(--u)), 170px);
+    padding: calc(18 * var(--u)) calc(18 * var(--u)) calc(16 * var(--u));
+    border: 1px solid var(--c-blush);
+    outline: 1px solid color-mix(in srgb, var(--c-blush) 35%, transparent);
+    outline-offset: -5px;
+  }
+  .hotspot__title {
+    line-height: 1.02;
+  }
+  .hotspot__text {
+    font-weight: 500;
   }
   .hotspot:hover .hotspot__tip,
   .hotspot:focus-within .hotspot__tip {

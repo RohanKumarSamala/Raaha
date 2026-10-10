@@ -20,7 +20,6 @@ export const home = {
     script: '',
     phrase: ['A place', 'to return to'],
     day: { src: 'home/24.png', alt: 'RAAHA Retreat swimming pool and terracotta villas under evening sunset skies', tone: 'dusk', position: 'center 50%', label: 'Hero · Evening Pool & Sanctuary' } as MediaRef,
-    cta: { label: 'View available residences', href: '/residences' },
     hotspots: [
       { x: 18, y: 66, title: 'Shaded Pergola', text: 'Private outdoor lounge oriented to evening sunsets.' },
       { x: 53, y: 62, title: 'Sanctuary Villas', text: 'Terracotta suites crafted with floor-to-ceiling glass and private decks.' },
@@ -64,9 +63,9 @@ export const home = {
   },
 
   quote: {
-    text: 'Instead of corridors, walking paths connect the residences — making RAHA feel closer to a group of private homes than a standard development',
+    text: 'Instead of corridors, walking paths connect the residences — making RAAHA feel closer to a group of private homes than a standard development',
     author: ['Architecture team', 'RAAHA Residences'],
-    image: { src: 'raaha_hires/raaha_26.jpg', alt: 'Sunset over Raaha lawn and palms', tone: 'sea', label: 'Quote · Sunset at Raaha' } as MediaRef,
+    image: { src: 'raaha_hires/26.png', alt: 'Poolside pergola lounge, palms and pink villa at Raaha', tone: 'garden', label: 'Quote · By the pool' } as MediaRef,
   },
 
   concept: {
@@ -80,9 +79,13 @@ export const home = {
       image: { src: 'raaha_hires/raaha_03.jpg', alt: 'Sunlit living and dining pavilion with panoramic windows', tone: 'sky', label: 'Living · Open Lounge' } as MediaRef,
       title: 'A pause from the ordinary',
       text: 'Surrounded by palms, open lawns and tranquil water, the retreat combines total privacy with effortless comfort. A location designed not around movement — but around returning.',
-      cta: { label: 'View available residences', href: '/residences' },
     },
     map: {
+      label: 'Getting here',
+      // PLACEHOLDER copy — replace with the real route once the addresses are confirmed
+      heading: ['The quiet you wanted', 'than you think'],
+      script: 'closer',
+      text: 'Under an hour from the airport and minutes from the city — yet a world away from the moment you turn in at the gate.',
       points: [
         { x: 8, y: 70, name: 'Airport', time: '50 min' },
         { x: 30, y: 48, name: 'City Center', time: '20 min' },
@@ -93,12 +96,35 @@ export const home = {
     },
   },
 
-  location: {
-    image: { src: 'raaha_hires/raaha_07.jpg', alt: 'Sunset over palms and lanterns at Raaha Retreat', tone: 'aerial', label: 'Location · Sunset Palms' } as MediaRef,
-    caption: ['Private Sanctuary', 'Retreat', 'Destination'],
-    headline: ['The retreat', 'you wanted'],
-    script: 'yours',
-    sub: 'This year',
+  // Stays carousel — one slide per kind of space. Values are written out in words
+  // because they are set in the display face.
+  types: [
+    {
+      id: 'lawn',
+      name: 'Celebration lawn',
+      stats: [{ label: 'Open lawn, around', value: 'Two acres' }],
+      summary:
+        'Two acres of open lawn framed by palms — made for weddings and milestone evenings, long-table dinners under the sky, music after dark, or a slow morning with nothing planned at all.',
+      features: ['Weddings and celebrations', 'Long-table dinners outdoors', 'Open skies from every side'],
+      image: { src: 'raaha_hires/raaha_07.jpg', alt: 'The open lawn at Raaha under a sunset sky, palms beyond', tone: 'dusk', label: 'Stays · Lawn at sunset', position: 'center 55%' } as MediaRef,
+    },
+    {
+      id: 'blocks',
+      name: 'Block residences',
+      stats: [{ label: 'Bedrooms', value: 'Four blocks' }],
+      summary:
+        'Four private bedroom blocks set around the lawns and the pool — each with its own shaded veranda, tall glass that pulls the garden inside, and a door that opens straight onto the grounds.',
+      features: ['Shaded private verandas', 'Floor-to-ceiling glass', 'Steps from the pool'],
+      image: { src: 'raaha_hires/raaha_30.jpg', alt: 'Pink bedroom blocks with shaded verandas at Raaha', tone: 'stone', label: 'Stays · Blocks' } as MediaRef,
+    },
+  ],
+
+  // Figures are written out in words because they are set in the display face.
+  statement: {
+    caption: ['A place to live — to return', 'year after year'],
+    // no commas, digits or full stops in the title: the display face has no glyphs for them
+    text: 'RAAHA is set across three acres',
+    note: 'Three acres where the day slows down. Wake to palms and birdsong, cross the lawn barefoot to the pool, gather your people under an open sky — and stay long after the lanterns come on. Arrive as a guest; leave already planning your way back.',
   },
 
   space: {
@@ -112,26 +138,21 @@ export const home = {
     specs:
       'Spacious high-ceiling suites. Private terraces overlooking lush palms. Climate automation systems. Premium wooden joinery and natural finishes throughout.',
     images: {
-      ornament: { src: 'raaha_hires/raaha_07.jpg', alt: 'Sunset lanterns', tone: 'deep', label: 'Ornament' } as MediaRef,
+      ornament: { src: 'raaha_hires/raaha_32.jpg', alt: 'Loungers under the pergola, framed by palms', tone: 'garden', label: 'Space · Pergola lounge', position: 'center 70%' } as MediaRef,
       terrace: { src: 'raaha_hires/raaha_16.jpg', alt: 'Spacious open living room and dining area', tone: 'sky', label: 'Space · Living & Lounge' } as MediaRef,
     },
     slider: [
-      { src: 'raaha_hires/raaha_02.jpg', alt: 'Primary bedroom suite — A pause from the ordinary', tone: 'interior', label: 'Suite · Bedroom' },
-      { src: 'raaha_hires/raaha_03.jpg', alt: 'Grand open living pavilion with panoramic glass windows', tone: 'stone', label: 'Living · Open Hall' },
-      { src: 'raaha_hires/raaha_08.jpg', alt: 'Bedroom with panoramic garden window view', tone: 'interior', label: 'Suite · Window View' },
+      { src: 'raaha_hires/space-slide-1.png', alt: 'Bedroom with a low timber bed, warm wall lighting and an armchair by the window', tone: 'interior', label: 'Space · Bedroom', caption: 'The bedroom', position: 'center 64%' },
+      { src: 'raaha_hires/space-slide-2.png', alt: 'Open living hall with cove lighting, sofas and tall windows onto the pool', tone: 'interior', label: 'Space · Living hall', caption: 'The living hall' },
+      { src: 'raaha_hires/space-slide-3.png', alt: 'Long timber dining table with leather chairs beside garden-facing windows', tone: 'interior', label: 'Space · Dining', caption: 'The dining table', position: 'center 70%' },
     ] as MediaRef[],
-    cta: { label: 'View available residences', href: '/residences' },
   },
 
   architecture: {
     word: 'Architecture',
-    pair: [
-      { src: 'raaha_hires/raaha_30.jpg', alt: 'Modern pink cottages and manicured green lawn', tone: 'sky', label: 'Architecture · The Outside' },
-      { src: 'raaha_hires/raaha_32.jpg', alt: 'Poolside sun loungers and pergolas', tone: 'sky', label: 'Architecture · Poolside' },
-    ] as MediaRef[],
-    quote: 'The architecture of RAHA balances clean contemporary lines with warmth and natural texture',
-    author: ['Architecture team', 'RAHA Retreat'],
-    image: { src: 'raaha_hires/raaha_09.jpg', alt: 'Expansive celebration lawn and palm trees at Raaha Retreat', tone: 'stone', label: 'Architecture · Celebration Lawn' } as MediaRef,
+    frame: { src: 'raaha_hires/archi-frame.png', alt: 'The pergola lounge, palms and pink villa at Raaha under a sunset sky', tone: 'dusk', label: 'Architecture · Pergola at sunset', position: 'center 40%' } as MediaRef,
+    quote: 'The architecture of RAAHA balances clean contemporary lines with warmth and natural texture',
+    author: ['Architecture team', 'RAAHA Retreat'],
   },
 
   credentials: {
@@ -147,9 +168,9 @@ export const home = {
   cta: {
     intro: 'A short conversation is enough to understand which residence fits you — whether it is a private villa, an extended stay, or a space for your next celebration.',
     lines: ['Your space for', 'celebrations'],
-    sub: '& everything in between',
-    image: { src: 'raaha_hires/raaha_07.jpg', alt: 'Nighttime lanterns and illuminated grounds — That’s RAAHA', tone: 'dusk', label: 'CTA · That’s RAAHA' } as MediaRef,
-    button: { label: 'View available residences', href: '/residences' },
+    // (no ampersand: this line is set in the display face, which has no glyph for it)
+    sub: 'and everything in between',
+    image: { src: 'raaha_hires/cta-villa.png', alt: 'A pink Raaha villa with its shaded veranda under a sunset sky', tone: 'dusk', label: 'CTA · Villa at sunset', position: 'center 62%' } as MediaRef,
   },
 
   contact: {

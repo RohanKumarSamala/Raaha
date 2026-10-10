@@ -1,7 +1,6 @@
 ---
 import { home } from '@/data/home';
 import Media from '../ui/Media.astro';
-import CircleButton from '../ui/CircleButton.astro';
 
 const c = home.cta;
 ---
@@ -11,15 +10,13 @@ const c = home.cta;
     <div class="cta__media" data-parallax="6">
       <Media media={c.image} fill sizes="100vw" />
     </div>
+    <div class="cta__shade" aria-hidden="true"></div>
     <div class="cta__content">
-      <p class="cta__intro l2" data-reveal="lines">{c.intro}</p>
+      <p class="cta__intro p1" data-reveal="lines">{c.intro}</p>
       <h2 class="cta__title h1" id="cta-title" data-reveal="lines" data-fit="0.9">
         {c.lines.map((l) => <span class="cta__line">{l}</span>)}
       </h2>
       <p class="cta__sub c1" data-reveal="fade" data-delay="0.3">{c.sub}</p>
-      <div class="cta__button">
-        <CircleButton label={c.button.label} href={c.button.href} />
-      </div>
     </div>
   </div>
 </section>
@@ -60,31 +57,48 @@ const c = home.cta;
     inset: 0;
     overflow: hidden;
   }
+  /* an even veil plus a deeper centre, so the white type reads over any photo */
+  .cta__shade {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(70% 55% at 50% 46%, rgb(22 9 5 / 0.5), transparent 78%),
+      linear-gradient(rgb(22 9 5 / 0.34), rgb(22 9 5 / 0.34));
+    pointer-events: none;
+  }
+  /* one centred column: intro, title, closing line — stacked around the middle of
+     the first screen (the frame runs a little taller than the window) */
   .cta__content {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    padding-top: calc(60 * var(--u));
-    height: 100%;
+    height: 100svh;
+    padding: 0 var(--offset);
+    text-shadow: 0 1px calc(26 * var(--u)) rgb(22 9 5 / 0.55);
   }
   .cta__intro {
-    max-width: calc(600 * var(--u));
+    max-width: calc(560 * var(--u));
+    font-size: max(calc(17 * var(--u)), 15px);
+    line-height: 1.55;
+    text-wrap: balance;
   }
   .cta__title {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: calc(260 * var(--u));
+    margin-top: calc(56 * var(--u));
   }
   .cta__line {
     display: block;
     white-space: nowrap;
   }
   .cta__sub {
-    margin-top: calc(56 * var(--u));
-    padding-left: 0.8em;
+    margin-top: calc(48 * var(--u));
+    /* tracked-out type: nudge right by half a gap so it sits optically centred */
+    padding-left: 0.5em;
   }
   .cta__button {
     align-self: flex-start;
@@ -96,10 +110,10 @@ const c = home.cta;
       min-height: 640px;
     }
     .cta__content {
-      padding: 90px var(--offset) 0;
+      padding: 0 var(--offset);
     }
     .cta__title {
-      margin-top: 90px;
+      margin-top: 36px;
     }
     .cta__line {
       white-space: normal;

@@ -78,8 +78,9 @@ const { id = 'amenities' } = Astro.props;
     overflow: hidden;
     background: var(--c-ink);
   }
+  /* a short hold on the photo before the next section rises over it */
   .amen-spacer {
-    height: calc(var(--count) * 70svh);
+    height: 30svh;
   }
   .amen__sticky {
     position: absolute;
@@ -100,7 +101,12 @@ const { id = 'amenities' } = Astro.props;
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgb(10 16 30 / 0.28), transparent 45%, transparent 60%, rgb(10 16 30 / 0.2));
+    /* shade where the words sit — the list top-right, the statement bottom-left — so
+       they read over any photo, bright sky and floodlights included */
+    background:
+      radial-gradient(120% 90% at 100% 18%, rgb(22 9 5 / 0.62), transparent 58%),
+      linear-gradient(to top, rgb(22 9 5 / 0.72), rgb(22 9 5 / 0.3) 34%, transparent 58%),
+      linear-gradient(90deg, rgb(22 9 5 / 0.25), transparent 45%);
     pointer-events: none;
   }
 
@@ -114,7 +120,7 @@ const { id = 'amenities' } = Astro.props;
   .amen__rail {
     position: relative;
     width: 1px;
-    background: rgb(255 255 255 / 0.3);
+    background: rgb(255 255 255 / 0.45);
   }
   .amen__rail i {
     position: absolute;
@@ -132,7 +138,8 @@ const { id = 'amenities' } = Astro.props;
     display: block;
     padding: calc(1 * var(--u)) 0;
     text-align: left;
-    opacity: 0.42;
+    opacity: 0.62;
+    text-shadow: 0 1px calc(22 * var(--u)) rgb(22 9 5 / 0.55);
     transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
   }
   .amen__item.is-active {
@@ -164,9 +171,20 @@ const { id = 'amenities' } = Astro.props;
     margin-left: calc(154 * var(--u));
     margin-bottom: calc(32 * var(--u));
   }
+  .amen__label,
+  .amen__quote {
+    text-shadow: 0 1px calc(22 * var(--u)) rgb(22 9 5 / 0.55);
+  }
   .amen__quote {
     text-indent: calc(154 * var(--u));
     line-height: 1.02;
+  }
+  /* while the lines are split for the reveal, only the first keeps the indent */
+  .amen__quote * {
+    text-indent: 0;
+  }
+  .amen__quote > .split-line-mask:first-child > .split-line {
+    text-indent: calc(154 * var(--u));
   }
   .amen__cta {
     position: absolute;

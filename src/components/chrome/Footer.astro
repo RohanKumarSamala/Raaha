@@ -11,7 +11,7 @@ const cols = [
   {
     title: 'Contact',
     links: [
-      { label: site.contact.phone, href: site.contact.phoneHref },
+      ...site.contact.phones.map((p) => ({ label: p.label, href: p.whatsapp, external: true })),
       { label: site.contact.email, href: `mailto:${site.contact.email}` },
     ],
   },
@@ -22,7 +22,9 @@ const cols = [
 <footer class="footer t-deep" data-header="light" id="footer">
   <div class="footer__main">
     <Mark class="footer__mark" />
-    <a class="footer__phone h2" href={site.contact.phoneHref} data-cursor="link" data-reveal="chars">{site.contact.phone}</a>
+    <div class="footer__phones">
+      {site.contact.phones.map((p) => <a class="footer__phone h3" href={p.whatsapp} target="_blank" rel="noopener" aria-label={`Chat on WhatsApp with ${p.label}`} data-cursor="link" data-reveal="fade">{p.label}</a>)}
+    </div>
     <p class="footer__office l2 muted">{site.contact.officeLabel}</p>
     <a class="footer__address l2" href={site.contact.mapUrl} target="_blank" rel="noopener" data-roll data-cursor="link">
       {site.contact.address.map((line) => <span class="footer__address-line"><RollText text={line} /></span>)}
@@ -46,12 +48,6 @@ const cols = [
         </div>
       ))
     }
-    <div class="footer__col">
-      <p class="l2 muted">Project</p>
-      <ul class="l2">
-        {site.project.map((p) => <li><span class="muted">{p.label}:</span> {p.value}</li>)}
-      </ul>
-    </div>
   </div>
 
   <div class="footer__bottom l2">
@@ -61,10 +57,9 @@ const cols = [
         {site.legal.links.map((l) => <li><a href={l.href} data-roll data-cursor="link"><RollText text={l.label} /></a></li>)}
       </ul>
     </div>
-    <p class="footer__disclaimer muted">{site.legal.disclaimer}</p>
     <p class="footer__credit">
       <span class="muted">{site.credits.label}</span><br />
-      <a href={site.credits.href} data-roll data-cursor="link"><RollText text={site.credits.value} /></a>
+      <a href={site.credits.href} target="_blank" rel="noopener" data-roll data-cursor="link"><RollText text={site.credits.value} /></a>
     </p>
   </div>
 </footer>
@@ -113,10 +108,17 @@ const cols = [
     min-width: 36px;
     margin-bottom: calc(24 * var(--u));
   }
+  .footer__phones {
+    display: grid;
+    justify-items: center;
+    gap: calc(6 * var(--u));
+  }
   .footer__phone {
     display: block;
     white-space: nowrap;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.01em;
+    /* digits come from the fallback serif, which stands taller than the display face */
+    line-height: 1.15;
   }
   .footer__office {
     margin-top: calc(34 * var(--u));
@@ -129,7 +131,7 @@ const cols = [
   }
   .footer__grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: calc(32 * var(--u));
     margin: calc(170 * var(--u)) calc(350 * var(--u)) 0;
     padding-top: calc(28 * var(--u));
@@ -142,7 +144,7 @@ const cols = [
   }
   .footer__bottom {
     display: grid;
-    grid-template-columns: 1fr 1.4fr 1fr;
+    grid-template-columns: 1fr 1fr;
     align-items: end;
     gap: calc(32 * var(--u));
     margin: calc(90 * var(--u)) calc(350 * var(--u)) 0;
@@ -152,10 +154,6 @@ const cols = [
     display: flex;
     gap: 1.2em;
     margin-top: calc(18 * var(--u));
-  }
-  .footer__disclaimer {
-    letter-spacing: 0.14em;
-    text-align: center;
   }
   .footer__credit {
     text-align: right;
@@ -171,7 +169,7 @@ const cols = [
       padding: 96px 0 40px;
     }
     .footer__phone {
-      font-size: calc(46 * var(--u));
+      font-size: calc(38 * var(--u));
     }
     .footer__grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -190,7 +188,6 @@ const cols = [
       margin: 56px var(--offset) 0;
       text-align: left;
     }
-    .footer__disclaimer,
     .footer__credit {
       text-align: left;
     }

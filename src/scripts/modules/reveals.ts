@@ -1,11 +1,14 @@
 /**
  * Declarative scroll reveals.
- *   data-reveal="lines | words | chars | chars-blur | fade | image | image-side | line-y | line-x | script | stagger"
+ *   data-reveal="lines | words | chars | chars-blur | chars-flip | fade | image | image-side | image-slant | line-y | line-x | script | stagger"
  *   data-delay="0.2"   data-start="top 80%"
  * Elements inside horizontal tracks set data-reveal-horizontal (handled by the track module).
  */
-import { gsap, ScrollTrigger, SplitText, reduced } from '../core/gsap';
+import { gsap, ScrollTrigger, SplitText, CustomEase, reduced } from '../core/gsap';
 import { $$ } from '../core/dom';
+
+CustomEase.create('reveal.out', '0.25, 1, 0.5, 1');
+CustomEase.create('reveal.inOut', '0.75, 0, 0.25, 1');
 
 type Opts = { containerAnimation?: gsap.core.Animation; start?: string };
 
@@ -39,9 +42,10 @@ export function reveal(el: HTMLElement, opts: Opts = {}) {
           const targets = type === 'lines' ? self.lines : type === 'words' ? self.words : self.chars;
           return gsap.from(targets, {
             yPercent: 115,
-            duration: type === 'chars' ? 1.1 : 1.25,
-            stagger: type === 'chars' ? 0.028 : 0.085,
+            duration: type === 'chars' ? 1.2 : 1.4,
+            stagger: type === 'chars' ? 0.028 : 0.09,
             delay,
+            ease: 'reveal.out',
             scrollTrigger: st,
           });
         },
@@ -66,6 +70,40 @@ export function reveal(el: HTMLElement, opts: Opts = {}) {
           });
         },
       });
+      break;
+    }
+    case 'chars-flip': {
+      // letters turn in on their own axis, one after another
+      SplitText.create(el, {
+        type: 'words,chars',
+        autoSplit: true,
+        onSplit(self) {
+          show();
+          return gsap.from(self.chars, {
+            opacity: 0,
+            yPercent: 50,
+            rotateY: 90,
+            duration: 1.2,
+            stagger: 0.05,
+            delay,
+            ease: 'reveal.out',
+            scrollTrigger: st,
+          });
+        },
+      });
+      break;
+    }
+    case 'image-slant': {
+      // wipes in from the right on a diagonal edge while the picture settles back
+      const inner = el.querySelector('[data-media-inner]') ?? el.firstElementChild;
+      show();
+      const tl = gsap.timeline({ delay, scrollTrigger: st });
+      tl.fromTo(
+        el,
+        { clipPath: 'polygon(100% 0%, 100% 0%, 101% 100%, 125% 100%)' },
+        { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', duration: 1.4, ease: 'reveal.inOut' },
+      );
+      if (inner) tl.fromTo(inner, { scale: 1.5, xPercent: 25 }, { scale: 1, xPercent: 0, duration: 1.4, ease: 'reveal.inOut' }, 0);
       break;
     }
     case 'image':
@@ -100,12 +138,12 @@ export function reveal(el: HTMLElement, opts: Opts = {}) {
     case 'stagger': {
       show();
       const items = $$('[data-reveal-item]', el);
-      gsap.from(items, { autoAlpha: 0, y: 36, duration: 1.2, stagger: 0.1, delay, scrollTrigger: st });
+      gsap.from(items, { autoAlpha: 0, y: 32, duration: 1.4, stagger: 0.11, delay, ease: 'reveal.out', scrollTrigger: st });
       break;
     }
     default: {
       show();
-      gsap.from(el, { autoAlpha: 0, y: 40, duration: 1.3, delay, scrollTrigger: st });
+      gsap.from(el, { autoAlpha: 0, y: 30, duration: 1.5, delay, ease: 'reveal.out', scrollTrigger: st });
     }
   }
 }

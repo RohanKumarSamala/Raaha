@@ -10,6 +10,8 @@ export interface MediaRef {
   alt: string;
   /** Placeholder palette used until the real asset exists. */
   tone?: Tone;
+  /** Short line shown under the photo where a slider displays captions. */
+  caption?: string;
   /** Placeholder caption (dev aid) — never rendered once the asset exists. */
   label?: string;
   /** Placeholder drawing variant for plans. */

@@ -11,6 +11,11 @@
   font-weight: 400 700;
   font-style: normal;
   font-display: swap;
+  /* Frieska draws letters, "!", "@" and the two dashes — but its digits and nearly
+     all punctuation (. , ; : ? ' " & - ( ) / % + quotes, accents) are EMPTY glyphs,
+     so they showed as blank gaps. Limiting the range hands those characters to the
+     next font in the stack instead of printing nothing. */
+  unicode-range: U+0020, U+0021, U+0040-005A, U+0061-007A, U+00A0, U+2013-2014;
 }
 
 /* Visby — Geometric sans-serif for Subheadings & Body */

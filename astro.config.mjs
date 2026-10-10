@@ -8,7 +8,7 @@ const SITE_URL = process.env.SITE_URL ?? 'https://www.raha-residences.com';
 export default defineConfig({
   site: SITE_URL,
   trailingSlash: 'ignore',
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => !page.includes('/admin') })],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   image: {
     // AVIF + WebP are generated per <Media>; keep quality high for architectural photography.

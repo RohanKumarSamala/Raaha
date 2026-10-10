@@ -2,6 +2,7 @@
 import { gsap } from '../core/gsap';
 import { $, $$, wait } from '../core/dom';
 import { ScrollTrigger } from '../core/gsap';
+import { BOOKINGS, firebaseApp, firebaseReady } from '../core/firebase';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE = /^[+()\d\s.-]{7,20}$/;
@@ -74,6 +75,21 @@ export function initForms(scope: ParentNode = document) {
       try {
         if (data.get('company_website')) {
           await wait(800); // honeypot: silently "succeed"
+        } else if (firebaseReady) {
+          // stored in Firestore; the shape must match firestore.rules exactly
+          const { getFirestore, collection, addDoc, serverTimestamp } = await import('firebase/firestore');
+          const text = (k: string, max: number) => String(data.get(k) ?? '').trim().slice(0, max);
+          const message = text('message', 2000);
+          const context = text('context', 200);
+          await addDoc(collection(getFirestore(firebaseApp()), BOOKINGS), {
+            name: text('name', 120),
+            email: text('email', 200),
+            phone: text('phone', 30),
+            ...(message && { message }),
+            ...(context && { context }),
+            status: 'new',
+            createdAt: serverTimestamp(),
+          });
         } else if (endpoint) {
           const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
           ok = res.ok;

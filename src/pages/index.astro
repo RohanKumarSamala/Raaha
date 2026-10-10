@@ -4,8 +4,8 @@ import Hero from '@/components/sections/Hero.astro';
 import Reasons from '@/components/sections/Reasons.astro';
 import Quote from '@/components/sections/Quote.astro';
 import Concept from '@/components/sections/Concept.astro';
-import Location from '@/components/sections/Location.astro';
 import ResidenceTypes from '@/components/sections/ResidenceTypes.astro';
+import Statement from '@/components/sections/Statement.astro';
 import Amenities from '@/components/sections/Amenities.astro';
 import Space from '@/components/sections/Space.astro';
 import Architecture from '@/components/sections/Architecture.astro';
@@ -23,16 +23,16 @@ import { home } from '@/data/home';
   </div>
 
   <!-- 4 · Community statement -->
-  <Quote text={home.quote.text} author={home.quote.author} image={home.quote.image} />
+  <Quote text={home.quote.text} author={home.quote.author} image={home.quote.image} blend="var(--c-mist)" />
 
   <!-- 5–6 · Concept, place, route (horizontal) -->
   <Concept />
 
-  <!-- 7 · Aerial location -->
-  <Location />
-
   <!-- 8 · Residence types -->
   <ResidenceTypes />
+
+  <!-- 8b · The estate in one line -->
+  <Statement />
 
   <!-- 9–10 · Amenities (sticky) with the lifestyle arch rising over them -->
   <div class="amen-stack">
@@ -42,13 +42,6 @@ import { home } from '@/data/home';
 
   <!-- 11 · Architecture -->
   <Architecture />
-  <Quote
-    text={home.architecture.quote}
-    author={home.architecture.author}
-    image={home.architecture.image}
-    align="left"
-    cta={{ label: 'Book a call now', action: 'booking' }}
-  />
 
   <!-- 12 · Developer & licences -->
   <Credentials />

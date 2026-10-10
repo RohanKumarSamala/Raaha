@@ -63,9 +63,14 @@ const { crumbs } = Astro.props;
     color: var(--header-fg, var(--c-white));
     transition: color 0.6s var(--ease-out), opacity 0.6s;
     pointer-events: none;
+    /* a faint halo so it holds up over photographs */
+    filter: drop-shadow(0 0 6px rgb(22 9 5 / 0.35));
   }
   :global(:root[data-rail='ink']) .rail {
-    --header-fg: var(--c-ink);
+    filter: none;
+  }
+  :global(:root[data-rail='ink']) .rail {
+    --header-fg: var(--c-ink-deep);
   }
   :global(:root[data-rail='light']) .rail {
     --header-fg: var(--c-ivory);
@@ -82,8 +87,10 @@ const { crumbs } = Astro.props;
   .rail__track {
     position: absolute;
     left: 0;
-    top: calc(356 * var(--u));
-    height: calc(300 * var(--u));
+    /* from below the logo down to a clear gap above the scroll control — measured
+       from the bottom, so the two can never run into each other on a short window */
+    top: max(calc(250 * var(--u)), 30svh);
+    bottom: calc(46 * var(--u) + 48 * var(--u) + 22 * var(--u) + 7.5em + 40px);
     width: 1px;
     --p: 0;
   }
@@ -96,12 +103,12 @@ const { crumbs } = Astro.props;
   .rail__seg--done {
     top: 0;
     height: calc(var(--p) * (100% - 3.2em));
-    opacity: 0.9;
+    opacity: 1;
   }
   .rail__seg--rest {
     bottom: 0;
     height: calc((1 - var(--p)) * (100% - 3.2em));
-    opacity: 0.25;
+    opacity: 0.4;
   }
   .rail__num {
     position: absolute;
@@ -112,6 +119,8 @@ const { crumbs } = Astro.props;
     place-items: center;
     translate: -50% 0;
     letter-spacing: 0.08em;
+    font-size: max(calc(12 * var(--u)), 11px);
+    font-weight: 700;
   }
 
   .rail__scroll,
@@ -130,6 +139,9 @@ const { crumbs } = Astro.props;
     padding: 8px;
   }
   .rail__labels {
+    font-size: max(calc(11 * var(--u)), 10px);
+    font-weight: 700;
+    letter-spacing: 0.3em;
     display: grid;
     overflow: hidden;
     writing-mode: vertical-rl;
@@ -152,6 +164,7 @@ const { crumbs } = Astro.props;
     width: calc(9 * var(--u));
     min-width: 7px;
     height: calc(48 * var(--u));
+    stroke-width: 1.4;
     transition: rotate 0.7s var(--ease-in-out);
   }
   :global(.rail-end) .rail__arrow {

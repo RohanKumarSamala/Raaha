@@ -18,6 +18,13 @@ import { initTransitions, reveal, scrollToInitialHash } from './modules/transiti
 import { pageModules } from './sections';
 
 async function boot() {
+  // Always start a (re)loaded page from the top. Letting the browser restore the old
+  // scroll position lands it mid-page before the pinned sections have added their
+  // extra scroll length, which leaves pins stuck on screen over the wrong section.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  ScrollTrigger.clearScrollMemory('manual');
+  if (!window.location.hash) window.scrollTo(0, 0);
+
   initSmoothScroll();
   initTransitions();
   initMenu();

@@ -1,20 +1,54 @@
 ---
+/**
+ * Architecture — one photograph seen first through two offset windows. As the page
+ * scrolls the windows slide level, close into a single frame, and the frame grows
+ * until the photo fills the screen while flowers on either side are pushed out of
+ * view. Scrolling on, the same photograph stays and the architects' statement
+ * rises over its lower half.
+ *
+ * Layers (back → front): the photo · a cream mask with two window-shaped holes ·
+ * flowers that belong to the mask · the statement. Motion lives in
+ * scripts/sections/home.ts.
+ */
 import { home } from '@/data/home';
 import Media from '../ui/Media.astro';
+import CircleButton from '../ui/CircleButton.astro';
 
 const a = home.architecture;
 ---
 
-<section class="archi t-light" id="architecture" data-header="ink" data-archi aria-labelledby="archi-word">
+<section class="archi t-light" id="architecture" data-header="light" data-archi aria-labelledby="archi-word">
   <div class="archi__stage" data-archi-stage>
-    <div class="archi__a" data-archi-a>
-      <Media media={a.pair[0]} fill sizes="(max-width: 767px) 60vw, 30vw" />
+    <div class="archi__photo t-image" data-archi-photo>
+      <Media media={a.frame} fill sizes="100vw" />
+      <h2 class="sr-only" id="archi-word">{a.word}</h2>
+      <div class="archi__shade" data-archi-shade aria-hidden="true"></div>
     </div>
-    <span class="archi__ghost" data-archi-ghost aria-hidden="true"></span>
-    <div class="archi__b t-image" data-archi-b>
-      <Media media={a.pair[1]} fill sizes="100vw" />
+
+    <div class="archi__mask" data-archi-mask aria-hidden="true">
+      <div class="archi__panel archi__panel--l" data-archi-l data-header="ink"></div>
+      <div class="archi__panel archi__panel--r" data-archi-r data-header="ink"></div>
+
+      <div class="cflower archi__flower archi__flower--l" data-flower data-archi-flower="l">
+        <div class="cflower__sway"><img src="/images/bougainvillea-bush.webp" alt="" data-wind="bottom" width="2000" height="717" decoding="async" loading="lazy" /></div>
+      </div>
+      <div class="cflower archi__flower archi__flower--r" data-flower data-archi-flower="r">
+        <div class="cflower__sway"><img src="/images/bougainvillea-corner.webp" alt="" data-wind="top" width="1327" height="1185" decoding="async" loading="lazy" /></div>
+      </div>
     </div>
-    <h2 class="archi__word" id="archi-word" data-archi-word>{a.word}</h2>
+
+    <figure class="archi__quote" data-archi-quote>
+      <svg class="quote__mark" viewBox="0 0 34 26" fill="currentColor" aria-hidden="true" data-archi-quote-part>
+        <path d="M0 26V15.6C0 6.9 4.3 1.7 12.9 0l1.5 3.3C9.8 4.6 7.5 7.5 7.4 11.9h6.1V26H0Zm19.6 0V15.6C19.6 6.9 23.9 1.7 32.5 0L34 3.3c-4.6 1.3-6.9 4.2-7 8.6h6.1V26H19.6Z" />
+      </svg>
+      <blockquote class="archi__quote-text h5" data-archi-quote-text>{a.quote}</blockquote>
+      <figcaption class="archi__quote-author l2" data-archi-quote-part>
+        {a.author[0]}<br /><span class="muted">{a.author[1]}</span>
+      </figcaption>
+    </figure>
+    <div class="archi__cta" data-archi-quote-part>
+      <CircleButton label="Book a call now" action="booking" />
+    </div>
   </div>
 </section>
 
@@ -26,64 +60,143 @@ const a = home.architecture;
   .archi__stage {
     position: relative;
     height: 100svh;
-    min-height: calc(820 * var(--u));
+    min-height: 600px;
     overflow: hidden;
   }
-  .archi__a {
-    position: absolute;
-    left: calc(352 * var(--u));
-    top: calc(520 * var(--u));
-    width: calc(430 * var(--u));
-    height: calc(560 * var(--u));
-  }
-  .archi__ghost {
-    position: absolute;
-    left: calc(800 * var(--u));
-    top: calc(176 * var(--u));
-    width: calc(432 * var(--u));
-    height: calc(636 * var(--u));
-    pointer-events: none;
-  }
-  .archi__b {
+
+  /* ---- photo ---- */
+  .archi__photo {
     position: absolute;
     inset: 0;
-    clip-path: inset(22% 23% 10% 50%);
   }
-  .archi__word {
+  /* ---- statement over the lower half of the same photo ---- */
+  .archi__shade {
     position: absolute;
-    left: 50%;
-    top: calc(26 * var(--u));
-    translate: -50% 0;
-    font-family: var(--font-display);
-    font-variant-ligatures: none;
-    font-feature-settings: 'liga' 0;
-    font-weight: var(--display-weight);
-    font-stretch: var(--display-stretch);
-    font-size: calc(300 * var(--u));
-    line-height: 0.8;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--c-white);
+    inset: 30% 0 0;
+    background: linear-gradient(to top, rgb(22 9 5 / 0.78), rgb(22 9 5 / 0.42) 45%, transparent);
+    opacity: 0;
     pointer-events: none;
   }
+  .archi__quote {
+    position: absolute;
+    left: calc(196 * var(--u));
+    bottom: calc(96 * var(--u));
+    width: calc(720 * var(--u));
+    margin: 0;
+    color: var(--c-white);
+    z-index: 3;
+  }
+  .archi__quote .quote__mark {
+    margin-left: calc(150 * var(--u));
+  }
+  .archi__quote-text {
+    line-height: 1.02;
+    text-shadow: 0 1px calc(22 * var(--u)) rgb(22 9 5 / 0.5);
+  }
+  .archi__quote-author {
+    margin-top: calc(48 * var(--u));
+    line-height: 1.6;
+  }
+  .archi__cta {
+    position: absolute;
+    left: calc(1100 * var(--u));
+    bottom: calc(110 * var(--u));
+    color: var(--c-white);
+    z-index: 3;
+  }
+  /* hidden until the script brings them in (and shown outright without motion) */
+  .js .archi [data-archi-quote-part],
+  .js .archi [data-archi-quote-text] {
+    visibility: hidden;
+  }
+  .is-reduced .archi [data-archi-quote-part],
+  .is-reduced .archi [data-archi-quote-text] {
+    visibility: visible;
+  }
+  .is-reduced .archi__shade {
+    opacity: 1;
+  }
+
+  /* ---- mask: two cream panels, each with a window cut out of it ---- */
+  .archi__mask {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .archi__panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    background: var(--c-ivory);
+    /* the start shapes are set here too, so the windows exist before the script runs */
+  }
+  .archi__panel--l {
+    left: 0;
+    /* overlaps its neighbour by a pixel so no hairline of photo shows at the seam */
+    width: calc(50% + 1px);
+    clip-path: polygon(0% 0%, 0% 100%, 44.444% 100%, 44.444% 36%, 98.889% 36%, 98.889% 99%, 44.444% 99%, 44.444% 100%, 100% 100%, 100% 0%);
+  }
+  .archi__panel--r {
+    right: 0;
+    clip-path: polygon(0% 0%, 0% 100%, 1.111% 100%, 1.111% 1%, 55.556% 1%, 55.556% 64%, 1.111% 64%, 1.111% 100%, 100% 100%, 100% 0%);
+  }
+
+  /* ---- flowers that frame the windows (the bush rises bottom-left, sprays hang top-right) ---- */
+  .archi__flower--l {
+    left: calc(-150 * var(--u));
+    bottom: calc(-10 * var(--u));
+    width: calc(860 * var(--u));
+  }
+  .archi__flower--l .cflower__sway,
+  .archi__flower--l img {
+    transform-origin: 50% 100%;
+  }
+  .archi__flower--r {
+    right: 0;
+    top: 0;
+    width: calc(520 * var(--u));
+  }
+  /* mirrored on the picture itself: the script moves the wrapper, and that would
+     override a mirror set there */
+  .archi__flower--r img,
+  .archi__flower--r canvas {
+    scale: -1 1;
+  }
+  .archi__flower--r .cflower__sway {
+    transform-origin: 100% 0;
+  }
+
   @media (max-width: 767px) {
-    .archi__stage {
-      height: 100svh;
-      min-height: 600px;
-    }
-    .archi__a {
+    .archi__quote {
       left: var(--offset);
-      top: auto;
-      bottom: 40px;
-      width: 44%;
-      height: 36%;
+      right: var(--offset);
+      bottom: 150px;
+      width: auto;
     }
-    .archi__ghost {
-      left: 38%;
-      top: 22%;
-      width: 56%;
-      height: 50%;
+    .archi__quote .quote__mark {
+      margin-left: 0;
+    }
+    .archi__cta {
+      left: auto;
+      right: var(--offset);
+      bottom: 24px;
+      scale: 0.7;
+      transform-origin: 100% 100%;
+    }
+    /* wider windows on a narrow screen */
+    .archi__panel--l {
+      clip-path: polygon(0% 0%, 0% 100%, 14% 100%, 14% 42%, 98% 42%, 98% 86%, 14% 86%, 14% 100%, 100% 100%, 100% 0%);
+    }
+    .archi__panel--r {
+      clip-path: polygon(0% 0%, 0% 100%, 2% 100%, 2% 14%, 86% 14%, 86% 58%, 2% 58%, 2% 100%, 100% 100%, 100% 0%);
+    }
+    .archi__flower--l {
+      left: -30vw;
+      width: 130vw;
+    }
+    .archi__flower--r {
+      width: 70vw;
     }
   }
 </style>

@@ -1,8 +1,8 @@
 ---
-import { residenceTypes } from '@/data/residences';
+import { home } from '@/data/home';
 import Media from '../ui/Media.astro';
-import PillButton from '../ui/PillButton.astro';
 
+const residenceTypes = home.types;
 const n = residenceTypes.length;
 ---
 
@@ -12,14 +12,12 @@ const n = residenceTypes.length;
       {
         residenceTypes.map((t, i) => (
           <dl class:list={['types__stat-set', i === 0 && 'is-active']} data-type-panel aria-hidden={i !== 0 ? 'true' : undefined}>
-            <div>
-              <dt class="l1 muted">Bedrooms</dt>
-              <dd class="h5">{t.bedrooms}</dd>
-            </div>
-            <div>
-              <dt class="l1 muted">Area up to</dt>
-              <dd class="h5">{t.areaRange}</dd>
-            </div>
+            {t.stats.map((s) => (
+              <div>
+                <dt class="l1 muted">{s.label}</dt>
+                <dd class="h5">{s.value}</dd>
+              </div>
+            ))}
           </dl>
         ))
       }
@@ -39,8 +37,10 @@ const n = residenceTypes.length;
       {
         residenceTypes.map((t, i) => (
           <div class:list={['types__aside-set', i === 0 && 'is-active']} data-type-panel aria-hidden={i !== 0 ? 'true' : undefined}>
-            <p class="p2">{t.summary}</p>
-            <PillButton label={t.cta} href={`/residences?type=${t.id}`} />
+            <p class="types__summary p1">{t.summary}</p>
+            <ul class="types__features l1">
+              {t.features.map((f) => <li>{f}</li>)}
+            </ul>
           </div>
         ))
       }
@@ -61,7 +61,7 @@ const n = residenceTypes.length;
         <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="M7 1 1 7l6 6"></path></svg>
       </button>
       <span class="slider__index" data-types-current>1</span>
-      <span class="slider__bar" aria-hidden="true"><span class="slider__bar-fill" data-types-bar style={`transform:scaleX(${1 / n})`}></span></span>
+      <span class="slider__bar" aria-hidden="true"><span class="slider__bar-fill types__bar-fill" data-types-bar></span></span>
       <span class="slider__index">{n}</span>
       <button class="icon-btn" data-dir="next" data-types-next aria-label="Next residence type" data-cursor="link">
         <svg viewBox="0 0 8 14" fill="none" stroke="currentColor"><path d="m1 1 6 6-6 6"></path></svg>
@@ -71,6 +71,9 @@ const n = residenceTypes.length;
 </section>
 
 <style is:global>
+  /* One screen, composed around the portrait: figure on the left, copy on the right,
+     the title laid across the foot of the photo and the pager beneath it. Vertical
+     measures are in svh so the whole composition always fits the viewport. */
   .types {
     position: relative;
     z-index: 2;
@@ -80,7 +83,9 @@ const n = residenceTypes.length;
   .types__inner {
     position: relative;
     height: 100svh;
-    min-height: calc(900 * var(--u));
+    min-height: 620px;
+    --photo-top: 7svh;
+    --photo-h: 77svh;
   }
   .types__stats,
   .types__aside,
@@ -96,24 +101,14 @@ const n = residenceTypes.length;
   [data-type-title]:not(.is-active) {
     visibility: hidden;
   }
-  .types__stats {
-    position: absolute;
-    left: calc(350 * var(--u));
-    top: calc(386 * var(--u));
-  }
-  .types__stat-set {
-    display: grid;
-    gap: calc(34 * var(--u));
-  }
-  .types__stat-set dd {
-    margin-top: calc(10 * var(--u));
-  }
+
   .types__image {
     position: absolute;
     left: 50%;
-    top: calc(172 * var(--u));
-    width: calc(438 * var(--u));
-    height: calc(588 * var(--u));
+    top: var(--photo-top);
+    height: var(--photo-h);
+    aspect-ratio: 3 / 4;
+    max-width: 34vw;
     translate: -50% 0;
     overflow: hidden;
     touch-action: pan-y;
@@ -126,34 +121,81 @@ const n = residenceTypes.length;
   .types__slide.is-active {
     visibility: visible;
   }
+  /* the foot of the photo melts into the section colour, so the dark title reads across it */
+  .types__image::after {
+    content: '';
+    position: absolute;
+    inset: 78% 0 0;
+    background: linear-gradient(to top, var(--c-mist) 0%, color-mix(in srgb, var(--c-mist) 60%, transparent) 45%, transparent);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .types__stats {
+    position: absolute;
+    left: calc(350 * var(--u));
+    top: calc(var(--photo-top) + var(--photo-h) * 0.38);
+  }
+  .types__stat-set {
+    display: grid;
+    gap: calc(34 * var(--u));
+  }
+  .types__stat-set dd {
+    margin-top: calc(10 * var(--u));
+  }
+
   .types__aside {
     position: absolute;
-    left: calc(1098 * var(--u));
-    top: calc(386 * var(--u));
-    width: calc(300 * var(--u));
+    left: calc(1116 * var(--u));
+    top: calc(var(--photo-top) + var(--photo-h) * 0.3);
+    width: calc(330 * var(--u));
   }
   .types__aside-set {
     display: grid;
     justify-items: start;
-    gap: calc(24 * var(--u));
+    gap: calc(26 * var(--u));
   }
+  .types__summary {
+    font-size: max(calc(15 * var(--u)), 14px);
+    line-height: 1.5;
+  }
+  /* features: a short ruled list */
+  .types__features {
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .types__features li {
+    padding: calc(11 * var(--u)) 0;
+    border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    letter-spacing: 0.14em;
+  }
+  .types__features li:last-child {
+    border-bottom: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  }
+
+  /* title: its baseline rests on the bottom edge of the photo */
   .types__titles {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(770 * var(--u));
+    bottom: calc(100svh - var(--photo-top) - var(--photo-h) - 0.12em);
     justify-items: center;
     text-align: center;
     pointer-events: none;
+    z-index: 2;
+    font-size: calc(var(--h2) * var(--display-optical));
   }
   .types__title {
     white-space: nowrap;
+    line-height: 0.9;
   }
   .types__controls {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(915 * var(--u));
+    bottom: 5svh;
     margin: 0;
   }
 
@@ -178,6 +220,7 @@ const n = residenceTypes.length;
     .types__image {
       order: 1;
       width: 78%;
+      max-width: none;
       height: auto;
       aspect-ratio: 3 / 4;
     }
@@ -200,7 +243,8 @@ const n = residenceTypes.length;
       margin-top: 40px;
     }
     .types__stat-set {
-      grid-template-columns: 1fr 1fr;
+      justify-items: center;
+      text-align: center;
     }
     .types__aside {
       order: 5;

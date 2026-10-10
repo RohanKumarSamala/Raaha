@@ -23,8 +23,14 @@ export function initHeaderTheme() {
         if (host) return host.dataset.header;
       }
     };
-    const header = surfaceAt(window.innerWidth / 2, Math.min(56, window.innerHeight * 0.06));
+    // Logo (left) and nav (right) often sit over different surfaces — a photo on one
+    // side, flat colour on the other — so each is probed where it actually is.
+    const w = window.innerWidth;
+    const yTop = Math.min(w * 0.06, window.innerHeight * 0.14);
+    const header = surfaceAt(w * 0.93, yTop);
     if (header && root.dataset.header !== header) root.dataset.header = header;
+    const logo = surfaceAt(w * 0.07, yTop) ?? header;
+    if (logo && root.dataset.logo !== logo) root.dataset.logo = logo;
     // The rail sits mid-height on the left, often over a different surface.
     const rail = surfaceAt(Math.max(8, window.innerWidth * 0.07), window.innerHeight * 0.55) ?? header;
     if (rail && root.dataset.rail !== rail) root.dataset.rail = rail;
